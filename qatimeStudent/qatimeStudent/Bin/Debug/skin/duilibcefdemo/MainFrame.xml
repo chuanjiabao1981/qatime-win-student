@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<Window size="658,515" mininfo="100,50">
+<Font name="宋体" size="15" bold="true"/>   <!--0-->
+	<VerticalLayout>
+		<!--顶部菜单栏-->
+		<VerticalLayout name="BrowserClientLayout" bkcolor="#FFFFFFff" />
+    </VerticalLayout>
+</Window>

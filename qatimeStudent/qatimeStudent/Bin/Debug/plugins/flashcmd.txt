@@ -1,0 +1,5 @@
+"C:\Program Files (x86)\JiYouTang\HTZS\cefclient.exe" --ppapi-out-of-process --register-pepper-plugins="plugins\pepflashplayer.dll;application/x-shockwave-flash"
+
+命令行格式为:exePath  --ppapi-out-of-process --register-pepper-plugins="flashplugin_Path;application/x-shockwave-flash"
+
+其中注意“flashplugin_Path”中的Path是采用相对路劲，即该路径相对于“exePath”即可。

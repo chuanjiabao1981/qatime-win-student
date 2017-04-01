@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<Window size="738,540" roundcorner="3,3" caption="0,0,0,43">
+  <Font name="微软雅黑" textcolor="#FFFFFFFF" size="19" default="true" />
+  <VerticalLayout name="FrameLayout" bkcolor="#FFFFFFFF" bordersize="1" bordercolor="#FF3A8CF2">
+    <HorizontalLayout name="TitleLayout" height="45" bkcolor="#FF3A8CF2">
+        <Control name="UserHead" padding="20,10,0,0" bkimage="file='titleLogo.png'" width="39" height="24" textcolor="#FFFFFFFF" align="center" />
+        <Label name="titleText" height="24" padding="6,10,0,0" textcolor="#FFFFFFFF" />
+        <Button name="closebtn" float="true" pos="706, 16, 718, 28" tooltip="关闭" width="12" height="12" normalimage="file='inforDilogClose.png'" hotimage="file='inforDilogCloseHover.png'"/>
+    </HorizontalLayout>
+    <VerticalLayout name ="BrowserClientLayout" bkcolor="#FFFFFFFF" height="495" />
+  </VerticalLayout>
+</Window>

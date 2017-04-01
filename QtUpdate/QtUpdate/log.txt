@@ -1,0 +1,3 @@
+Debug: File:(main.cpp) Line:(97) "E:\qatimeStudent\QtUpdate\QtUpdate\.\Bin\Debug\QtUpdate.exe"  (2017-03-28 11:27:30 周二)
+Debug: File:(qtupdate.cpp) Line:(90) "" (2017-03-28 11:27:46 周二)
+Debug: File:(qtupdate.cpp) Line:(97) "" (2017-03-28 11:27:46 周二)

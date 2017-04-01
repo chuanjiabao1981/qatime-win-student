@@ -1,0 +1,36 @@
+QComboBox {
+    color:#323232;
+	background-color: #FFFFFF;
+    border: 0px solid #CCCCCC;
+    border-radius: 0px;
+    padding: 1px;
+    font: 12px "Microsoft YaHei UI";	
+	outline: 0px
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 0px;
+    border-left-color: darkgray;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 0px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 0px;
+}
+
+QComboBox::down-arrow {
+    image: url(images/drawdown.png);
+}
+
+QComboBox QAbstractItemView
+{
+   color:#323232;
+   background-color:#FFFFFF;
+   border:none;
+   selection-background-color:#57cff8;
+   selection-color: #FFFFFF; 
+   min-height: 17px;
+   font: 12pt
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<Window size="943,546" caption="250,0,0,34" mininfo="943,546" maxinfo="943,546" sizebox="4,4,6,6">
+<Font name="宋体" size="15" bold="true"/>   <!--0-->
+<Font name="微软雅黑" size="12" bold="false"/>   <!--1-->
+	<VerticalLayout bordersize="1" bordercolor="#FFF4F4F4" inset="1,1,1,1">
+		<!--顶部菜单栏-->
+        <HorizontalLayout height="34" bkcolor="#FFF4F4F4">
+			<HorizontalLayout>
+				<Label name="titleText" text="学生端预览" width="750" textcolor="#FF333333" align="left" valign="center" textpadding="12,0,0,0" font="1"/>
+			</HorizontalLayout>
+			<HorizontalLayout width="100">
+				<HorizontalLayout width="78"/>
+				<!--<Button name="minbtn" tooltip="最小化" width="29" height="24" maxheight="24" maxwidth="29" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" align="center" normalimage="file=&apos;sys_dlg_min.png&apos; source=&apos;0,0,29,24&apos;" hotimage="file=&apos;sys_dlg_min.png&apos; source=&apos;29,0,58,24&apos;" />
+				<Button name="maxbtn" tooltip="最大化" width="29" height="24" maxheight="24" maxwidth="29" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" align="center" normalimage="file=&apos;sys_dlg_max.png&apos; source=&apos;0,0,29,24&apos;" hotimage="file=&apos;sys_dlg_max.png&apos; source=&apos;29,0,58,24&apos;" />
+				<Button name="restorebtn" tooltip="还原" visible="false" maxheight="24" maxwidth="29" align="center" normalimage="file=&apos;sys_dlg_restore.png&apos; source=&apos;0,0,29,24&apos;" hotimage="file=&apos;sys_dlg_restore.png&apos; source=&apos;29,0,58,24&apos;" />-->
+				<Button name="closebtn" tooltip="关闭" padding="0,10,0,0" width="12" height="12" align="center" hotimage="file=&apos;setupIcons.png&apos; source='96,59,108,71'" pushedimage="file='setupIcons.png' source='96,89,108,101'" normalimage="file='setupIcons.png' source='96,0,108,12' " />
+			</HorizontalLayout>
+		</HorizontalLayout>	
+		<HorizontalLayout height="1" bkcolor="#FFD7D7D7" />
+		<VerticalLayout name="BrowserClientLayout" bkcolor="#FFFFFFFF" />
+    </VerticalLayout>
+</Window>

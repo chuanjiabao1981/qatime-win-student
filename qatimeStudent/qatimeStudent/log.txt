@@ -1,0 +1,16 @@
+Debug: File:() Line:(0)  -downpath http://qatime-production.oss-cn-beijing.aliyuncs.com/download/software/windows/qatime-student-release-0.3.3-win.zip -version 0.3.3 -update 1
+ (2017-03-27 20:47:46 周一)
+Debug: File:() Line:(0)  -downpath http://qatime-production.oss-cn-beijing.aliyuncs.com/download/software/windows/qatime-student-release-0.3.3-win.zip -version 0.3.3 -update 1
+ (2017-03-27 20:50:07 周一)
+Debug: File:() Line:(0)  -downpath  -version  -update 0
+ (2017-03-28 10:50:05 周二)
+Debug: File:() Line:(0)  -downpath  -version  -update 0
+ (2017-03-28 10:53:38 周二)
+Debug: File:() Line:(0)  -downpath  -version  -update 0
+ (2017-03-28 10:53:44 周二)
+Debug: File:() Line:(0)  -downpath  -version  -update 0
+ (2017-03-28 10:53:49 周二)
+Debug: File:() Line:(0)  -downpath  -version  -update 0
+ (2017-03-28 10:53:54 周二)
+Debug: File:() Line:(0)  -downpath http://qatime-production.oss-cn-beijing.aliyuncs.com/download/software/windows/qatime-student-release-0.3.3-win.zip -version 0.3.3 -update 1
+ (2017-03-28 11:14:06 周二)
