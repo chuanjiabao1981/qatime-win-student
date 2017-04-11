@@ -1080,6 +1080,7 @@ void UIWindowSet::clickChange(bool checked)
 		ui.line_label->setVisible(false);
 		ui.camera_widget->setVisible(false);
 		ui.whiteboard_widget->setVisible(false);
+		ui.label_space->setVisible(false);
 		ui.chatcamera_widget->setMaximumWidth(3000);
 
 		if (m_curTags)
@@ -1090,6 +1091,7 @@ void UIWindowSet::clickChange(bool checked)
 		ui.line_label->setVisible(true);
 		ui.camera_widget->setVisible(true);
 		ui.whiteboard_widget->setVisible(true);
+		ui.label_space->setVisible(true);
 		ui.chatcamera_widget->setMaximumWidth(300);
 
 		InitBoardView();
@@ -1295,6 +1297,7 @@ void UIWindowSet::slots_Modle(bool bModle)
 		ui.line_label->setVisible(false);
 		ui.camera_widget->setVisible(false);
 		ui.whiteboard_widget->setVisible(false);
+		ui.label_space->setVisible(false);
 		ui.chatcamera_widget->setMaximumWidth(3000);
 		PlayLive("","");
 	}
@@ -1303,6 +1306,7 @@ void UIWindowSet::slots_Modle(bool bModle)
 		ui.line_label->setVisible(true);
 		ui.camera_widget->setVisible(true);
 		ui.whiteboard_widget->setVisible(true);
+		ui.label_space->setVisible(true);
 		ui.chatcamera_widget->setMaximumWidth(300);
 
 		InitBoardView();

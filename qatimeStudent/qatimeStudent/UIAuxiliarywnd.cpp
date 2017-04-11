@@ -13,12 +13,15 @@ UIAuxiliaryWnd::UIAuxiliaryWnd(QWidget *parent)
 	: QWidget(parent)
 	, m_parent(NULL)
 	, m_VerAll(NULL)
-	, m_mainAllView(NULL)
+	, m_VerOneToOne(NULL)
 	, m_VerToday(NULL)
+	, m_mainAllView(NULL)
+	, m_oneToOneView(NULL)
 	, m_mainTodayView(NULL)
 	, m_vecAuxiliaryList(NULL)
 	, m_spacerAll(NULL)
 	, m_spacerToday(NULL)
+	, m_spacerOneToOne(NULL)
 	, m_pWorker(NULL)
 	, m_menu(NULL)
 	, m_UIMenu(NULL)
@@ -49,13 +52,24 @@ UIAuxiliaryWnd::UIAuxiliaryWnd(QWidget *parent)
 	ui.today_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	style(ui.today_scrollArea);
 
+	// 设置一对一互动垂直布局
+	m_oneToOneView = new QWidget();
+	ui.oneToOne_scrollArea->setWidget(m_oneToOneView);
+	m_VerOneToOne = new QVBoxLayout(m_oneToOneView);
+	m_VerOneToOne->setSpacing(0);
+	m_VerOneToOne->setContentsMargins(5, 5, 0, 0);
+	ui.oneToOne_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	style(ui.oneToOne_scrollArea);
+
 	ui.scrollArea->installEventFilter(this);
 	ui.today_scrollArea->installEventFilter(this);
 	ui.title_pushButton->installEventFilter(this);
 	ui.all_widget->setVisible(false);
+	ui.oneToOne_widget->setVisible(false);
 
 	connect(ui.today_radioButton, SIGNAL(clicked()), this, SLOT(clickToday()));
 	connect(ui.all_radioButton, SIGNAL(clicked()), this, SLOT(clickAll()));
+	connect(ui.oneToOne_radioButton, SIGNAL(clicked()), this, SLOT(clickOneToOne())); 
 	connect(ui.min_pushButton, SIGNAL(clicked()), this, SLOT(MinDialog()));
 	connect(ui.close_pushButton, SIGNAL(clicked()), this, SLOT(CloseDialog()));
 	connect(ui.pic_btn, SIGNAL(clicked()), this, SLOT(clickPic()));
@@ -122,6 +136,38 @@ void UIAuxiliaryWnd::AddAuxiliary(QString picUrl, QString courseName, QString gr
 		m_spacerAll = NULL;
 		m_spacerAll = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_VerAll->addSpacerItem(m_spacerAll);
+	}
+}
+
+void UIAuxiliaryWnd::AddOneToOneAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID,
+	QString teacherID, QString token, QString studentName, std::string AudioPath, QString status)
+{
+	UIAuxiliaryList* auxiliary = new UIAuxiliaryList(ui.all_widget);
+	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, token, studentName, AudioPath, status);
+	connect(auxiliary, SIGNAL(clickAuxiliary(UIAuxiliaryList*)), this, SLOT(clickAuxiliary(UIAuxiliaryList*)));//TODO
+	m_VerOneToOne->addWidget(auxiliary);
+
+	QLabel* line = new QLabel();
+	line->setFixedHeight(1);
+	line->setStyleSheet("background-color: rgb(229, 229, 229);");
+	m_VerOneToOne->addWidget(line);
+
+	m_mapAuxiliaryChatID.insert(chatID, auxiliary);
+	m_mapAuxiliaryCourseID.insert(courseID, auxiliary);
+	m_pWorker->m_mapUrl.insert(pic, picUrl);
+
+	// 添加到布局里
+	if (m_spacerOneToOne == NULL)
+	{
+		m_spacerOneToOne = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_VerOneToOne->addSpacerItem(m_spacerOneToOne);
+	}
+	else
+	{
+		m_VerOneToOne->removeItem(m_spacerOneToOne);
+		m_spacerOneToOne = NULL;
+		m_spacerOneToOne = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_VerOneToOne->addSpacerItem(m_spacerOneToOne);
 	}
 }
 
@@ -196,6 +242,11 @@ void UIAuxiliaryWnd::clickAuxiliary(UIAuxiliaryList* auxiliary)
 		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->Token(), auxiliary->StudentName(), auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status());
 		auxiliary->ClearMsgNumber();
 	}
+}
+
+void UIAuxiliaryWnd::clickAuxiliaryOneToOne(UIAuxiliaryList*)
+{
+
 }
 
 void UIAuxiliaryWnd::clickAuxiliaryToday(UIAuxiliaryToday* auxiliaryToday)
@@ -278,12 +329,21 @@ void UIAuxiliaryWnd::clickToday()
 {
 	ui.today_widget->setVisible(true);
 	ui.all_widget->setVisible(false);
+	ui.oneToOne_widget->setVisible(false);
 }
 
 void UIAuxiliaryWnd::clickAll()
 {
 	ui.today_widget->setVisible(false);
 	ui.all_widget->setVisible(true);
+	ui.oneToOne_widget->setVisible(false);
+}
+
+void UIAuxiliaryWnd::clickOneToOne()
+{
+	ui.oneToOne_widget->setVisible(true);
+	ui.today_widget->setVisible(false);
+	ui.all_widget->setVisible(false);
 }
 
 void UIAuxiliaryWnd::AddTodayNoLesson()
