@@ -12,19 +12,12 @@
 #include "zoom_image.h"
 //#include "define.h"
 
-#include "YxChat/nim_sdk_helper.h"
-#include "YxChat/session_callback.h"
-#include "YxChat/nim_cpp_client.h"
 #include "define.h"
 #include <QMouseEvent>
 #include <QToolTip>
 #include <QNetworkRequest>
 #include <QFileDialog>
 
-#ifdef TEST
-	#define _DEBUG
-#else
-#endif
 
 QColor timeColor(153, 153, 153);
 QColor contentColor(102, 102, 102);
@@ -394,7 +387,7 @@ void UIChatRoom::clickNotes()
 	connect(m_uitalkRecord, SIGNAL(colseCalendar()), this, SLOT(colseCalendar()));
 
 	m_farst_msg_time = 0;
-	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, kMsgLogNumberShow, 0, m_farst_msg_time, 0, false, true);
+	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, kMsgLogNumberShow, 0, m_farst_msg_time, 0, false, true, &UIWindowSet::QueryMsgOnlineCb);
 }
 
 void UIChatRoom::closeNotes()
@@ -406,10 +399,6 @@ void UIChatRoom::closeNotes()
 	ui.button_sendMseeage->setHidden(false);
 	ui.textEdit->setHidden(false);
 	ui.msgRecord->setHidden(true);
-}
-
-void UIChatRoom::QueryMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result)
-{
 }
 
 //加载所有表情
@@ -661,7 +650,7 @@ void UIChatRoom::QueryRecord(QString dtstr)
 	dtstr.replace("00:00:01", "23:59:59");
 	time = QDateTime::fromString(dtstr, "yyyy-MM-dd hh:mm:ss");
 	m_farst_msg_time = time.toMSecsSinceEpoch();
-	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, kMsgLogNumberShow, 0, m_farst_msg_time, 0, false, true);
+	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, kMsgLogNumberShow, 0, m_farst_msg_time, 0, false, true, &UIWindowSet::QueryMsgOnlineCb);
 }
 
 // 点击【发布公告】按钮
@@ -732,7 +721,7 @@ void UIChatRoom::PackageMsg(nim::IMMessage &msg)
 	msg.session_type_ = nim::kNIMSessionTypeTeam;
 	msg.receiver_accid_ = m_CurChatID;//会话ID
 	msg.sender_accid_ = m_accid.toStdString();//用户名
-	msg.client_msg_id_ = nim::Client::GetUuid();
+	msg.client_msg_id_ = nim::Tool::GetUuid();
 	msg.msg_setting_.resend_flag_ = nim::BS_FALSE;
 
 	//base获取的时间单位是s，服务器的时间单位是ms
@@ -1256,7 +1245,7 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 		QFile file(audioPath);
 		if (!file.exists())
 		{
-			nim::NOS::FetchMedia(pMsg);
+			nim::NOS::FetchMedia(pMsg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
 		}
 	}
 	
@@ -1283,11 +1272,11 @@ void UIChatRoom::setChatInfo(QJsonObject &chatInfo, QString token)
 	mRemeberToken = token;
 }
 
-void UIChatRoom::ReceiverLoginMsg(nim::LoginRes* pRes)
+void UIChatRoom::ReceiverLoginMsg(nim::LoginRes pRes)
 {
-	if (pRes->res_code_ == nim::kNIMResSuccess) // 登录成功
+	if (pRes.res_code_ == nim::kNIMResSuccess) // 登录成功
 	{
-		if (pRes->login_step_ == kNIMLoginStepLogin)
+		if (pRes.login_step_ == kNIMLoginStepLogin)
 		{
 			// 从云信再次获取群成员信息
 			QueryGroup();
@@ -1295,7 +1284,7 @@ void UIChatRoom::ReceiverLoginMsg(nim::LoginRes* pRes)
 	}
 	else
 	{
-		int ErrorCode = pRes->res_code_;
+		int ErrorCode = pRes.res_code_;
 		QString sError = "云信登录失败，错误码";
 		sError += QString::number(ErrorCode);
 		CMessageBox::showMessage(QString("答疑时间"), QString(sError), QString("确定"), QString("取消"));
@@ -1368,12 +1357,6 @@ bool UIChatRoom::AddStudent(QString iconUrl, QString name, QString accid)
 	QLabel* head = ui.student_list->addStrdent(iconUrl, name, accid, m_drawingWidth);
 	m_StudentInfo.insert(accid, name);
 
-// 	int iHeight = ui.student_list->parentWidget()->height() - 40;
-// 	int iCount = ui.student_list->count();
-// 	if (iHeight < iCount * 30)
-// 	{
-// 		ui.student_list->setZoomWidth(-12);
-// 	}
 	m_pWorker->m_mapUrl.insert(head, iconUrl);
 
 	return true;
@@ -1406,13 +1389,13 @@ void UIChatRoom::AddAnnouncement(QString announcement, QString time)
 // 滚动条事件
 void UIChatRoom::RecordMoved()
 {
-	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, kMsgLogNumberShow, 0, m_farst_msg_time, 0, false, true);
+	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, kMsgLogNumberShow, 0, m_farst_msg_time, 0, false, true, &UIWindowSet::QueryMsgOnlineCb);
 }
 
 // 查询群成员信息
 void UIChatRoom::QueryGroup()
 {
-	nim::Team::QueryTeamMembersAsync(m_CurChatID);
+	nim::Team::QueryTeamMembersAsync(m_CurChatID, &UIWindowSet::OnGetTeamMemberCallback);
 }
 
 // 历史消息记录跨天处理
@@ -1470,13 +1453,6 @@ void UIChatRoom::OnSendAnnouncements(QString Announcements)
 		return;
 	
 	QString strUrl;
-// #ifdef _DEBUG
-// 	strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/announcements";
-// 	strUrl.replace("{id}", m_CurCourseID);
-// #else
-// 	strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/announcements";
-// 	strUrl.replace("{id}", m_CurCourseID);
-// #endif
 	if (m_EnvironmentalTyle)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/announcements";
@@ -1580,13 +1556,6 @@ void UIChatRoom ::colseBrow()
 void UIChatRoom::QueryMember()
 {
 	QString strUrl;
-// #ifdef _DEBUG
-// 	strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-// 	strUrl.replace("{id}", m_CurCourseID);
-// #else
-// 	strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-// 	strUrl.replace("{id}", m_CurCourseID);
-// #endif
 	if (m_EnvironmentalTyle)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
@@ -1628,14 +1597,6 @@ void UIChatRoom::returnMember()
 			{
 				QLabel* head = ui.student_list->addStrdent(pMember->url(), pMember->name(), pMember->accid(), m_drawingWidth);
 				m_StudentInfo.insert(pMember->accid(), pMember->name());
-
-// 				int iHeight = ui.student_list->parentWidget()->height()-40;
-// 				// 加入后如果出现滚动条，这缩放
-// 				int iCount = ui.student_list->count();
-// 				if (iHeight < iCount * 30)
-// 				{
-// 					ui.student_list->setZoomWidth(-12);
-// 				}
 
 				// 把成员和头像加载到多线程中，避免卡顿
 				m_pWorker->m_mapUrl.insert(head, pMember->url());
@@ -1844,8 +1805,8 @@ void UIChatRoom::SendImage(const std::wstring src, QString &filename, QString ms
 
 	msg.attach_ = img.ToJsonString();
 	std::string json_msg = nim::Talk::CreateImageMessage(msg.receiver_accid_, msg.session_type_, msg.client_msg_id_, img, msg.local_res_path_, nim::MessageSetting(), msg.timetag_);
-//	nim::Talk::FileUpPrgCallback* pcb = new nim::Talk::FileUpPrgCallback();
-	nim::Talk::SendMsg(json_msg, msg.client_msg_id_);
+	nim::Talk::FileUpPrgCallback* pcb = new nim::Talk::FileUpPrgCallback();
+	nim::Talk::SendMsg(json_msg, msg.client_msg_id_,pcb);
 }
 
 QString UIChatRoom::UserAppdataPath()
@@ -1966,7 +1927,7 @@ void UIChatRoom::clickAudio()
 				return;
 			}
 
-			std::string msg_id = nim::Client::GetUuid();
+			std::string msg_id = nim::Tool::GetUuid();
 			nim_audio::Audio::StartCapture(m_CurChatID.c_str(), msg_id.c_str(), nim_audio::AMR);
 			int height = ui.btn_widget->geometry().y();
 			m_AudioBar->setGeometry(0, height - 26, this->width(), 26);
@@ -2101,13 +2062,6 @@ void UIChatRoom::SetCurAudioPath(std::string path)
 void UIChatRoom::RequestMember()
 {
 	QString strUrl;
-// #ifdef _DEBUG
-// 	strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-// 	strUrl.replace("{id}", m_CurCourseID);
-// #else
-// 	strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-// 	strUrl.replace("{id}", m_CurCourseID);
-// #endif
 	if (m_EnvironmentalTyle)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
@@ -2146,7 +2100,7 @@ void UIChatRoom::returnAllMember()
 			YXMember *pMember = new YXMember();
 			pMember->readJsonToMember(value.toObject());
 
-				// 添加成员成功，才算显示人数
+			// 添加成员成功，才算显示人数
 			bool bSuc = AddStudent(pMember->url(), pMember->name(), pMember->accid());
 			if (bSuc)
 				i++;
@@ -2170,11 +2124,6 @@ void UIChatRoom::returnAllMember()
 
 void UIChatRoom::InitAudioCallBack()
 {
-	// 接受消息回调
-	nim::Talk::RegReceiveCb(&nim_comp::TalkCallback::OnReceiveMsgCallback);
-	// 发送消息状态回调
-	nim::Talk::RegSendMsgCb(&nim_comp::TalkCallback::OnSendMsgCallback);
-
 	nim_audio::Audio::RegStartCaptureCb(&UIChatRoom::OnStartCaptureCallback);
 	nim_audio::Audio::RegStopCaptureCb(&UIChatRoom::OnStopCaptureCallback);
 	nim_audio::Audio::RegCancelAudioCb(&UIChatRoom::OnCancelCaptureCallback);
@@ -2209,6 +2158,8 @@ void UIChatRoom::OnStopCaptureCallback(int rescode, const char* sid, const char*
 		audio->duration = audio_duration;
 		
 		HWND hWnd = FindWindow(L"Qt5QWindowIcon", L"StudentWindow");
+		if (hWnd == NULL)
+			hWnd = FindWindow(L"Qt5QWindowToolSaveBits", L"StudentWindow");
 		PostMessage(hWnd, MSG_SEND_AUDIO_FINISH_MSG, (WPARAM)audio, 0);
 	}
 }
@@ -2312,7 +2263,7 @@ void UIChatRoom::ResultMsg()
 		m_UnreadCount = 50;
 	
 	long long time = QDateTime::currentMSecsSinceEpoch();
-	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, m_UnreadCount, 0, time, 0, false, true, "first");
+	nim::MsgLog::QueryMsgOnlineAsync(m_CurChatID, nim::kNIMSessionTypeTeam, m_UnreadCount, 0, time, 0, false, true, &UIWindowSet::QueryFirstMsgOnlineCb);
 }
 
 void UIChatRoom::ShowChatMsg(nim::IMMessage pMsg)
@@ -2533,7 +2484,7 @@ void UIChatRoom::ShowChatMsg(nim::IMMessage pMsg)
 		QFile file(audioPath);
 		if (!file.exists())
 		{
-			nim::NOS::FetchMedia(pMsg);
+			nim::NOS::FetchMedia(pMsg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
 		}
 	}
 

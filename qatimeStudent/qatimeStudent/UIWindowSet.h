@@ -16,16 +16,14 @@
 #include "nim_client_def.h"
 #include "assert.h"
 #include <string>
-#include "YxChat/nim_tools_http_cpp_wrapper.h"
-#include "YxChat/nim_client_helper.h"
-#include "YxChat/nim_cpp_talk.h"
-#include "YxChat/nim_cpp_team.h"
-#include "YxChat/nim_cpp_msglog.h"
-#include "YxChat/nim_cpp_nos.h"
-#include "YxChat/nim_tools_audio_cpp_wrapper.h"
-#include "YxChat/nim_sdk_helper.h"
-#include "YxChat/session_callback.h"
-#include "YxChat/nim_cpp_client.h"
+//IM SDK接口定义头文件
+#include "nim_cpp_api.h"
+#include "nim_cpp_client.h"
+//#include "nim_tools_http_cpp.h"
+
+//前置声明，依次为收到在线消息通知函数、发送消息结果通知函数。
+void CallbackReceiveMsg(const nim::IMMessage& msg);
+void CallbackSendMsgArc(const nim::SendMessageArc& arc);
 
 class UIMainWindow;
 class UIChatRoom;
@@ -104,11 +102,9 @@ private slots :
 	void slot_onTimeout();						// 时间
 
 protected:
-	virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result); // 添加caption
-	virtual void resizeEvent(QResizeEvent *);											// 设置窗口圆角
 	virtual void paintEvent(QPaintEvent *event);
 	virtual bool eventFilter(QObject *target, QEvent *event);
-
+	virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 private:
 	void titleButtonWidth();
 	void AgainSelectTag();
@@ -127,7 +123,7 @@ public:
 	void ReceiverChatMsg(nim::IMMessage* pIMsg);			// 接收消息
 	void ReceiverRecordMsg(nim::QueryMsglogResult* pIMsg);  // 接收历史消息
 	void OnStopPlayAudio(std::string sid, char* msgid);		// 语音播放结束
-	void ReceiverLoginMsg(nim::LoginRes* pLogMsg);			// 返回登录结果
+	void ReceiverLoginMsg(nim::LoginRes pLogMsg);			// 返回登录结果
 	void ReceiverMemberMsg(std::string sid, std::list<nim::TeamMemberProperty>* pMemberMsg);	// 返回成员
 	void SendStatus(nim::SendMessageArc* arcNew);			// 接收消息状态
 	void SendAudio(std::string sid, std::string msgid, std::string path, long size, int dur, std::string fileEx);		// 语音完成并发送
@@ -153,6 +149,13 @@ public:
 	void ChangeBtnStyle(bool bLive);						// 当前模式
 	void SetEnvironmental(bool bType);						// 环境变量
 	void ReceiverAudioStatus(std::string sid, char* msgid, bool bSuc=true); // 下载语音状态消息
+
+	// 云信聊天
+	void	initCallBack();	 
+	HWND	GetParentWnd();
+	static void QueryFirstMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result);	// 第一次请求
+	static void QueryMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result);		// 正常历史记录请求
+	static void OnGetTeamMemberCallback(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list);		// 获取成员回调
 };
 
 #endif // UIWINDOWSET_H

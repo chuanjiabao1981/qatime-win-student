@@ -10,19 +10,12 @@
 #include <QtWidgets/QPushButton>
 #include <QTimer>
 //---ÔÆÐÅ
-#include "nim_client_def.h"
 #include "assert.h"
 #include <string>
-#include "YxChat/nim_tools_http_cpp_wrapper.h"
-#include "YxChat/nim_client_helper.h"
-#include "YxChat/nim_cpp_talk.h"
-#include "YxChat/nim_cpp_team.h"
-#include "YxChat/nim_cpp_msglog.h"
-#include "YxChat/nim_cpp_nos.h"
-#include "YxChat/nim_tools_audio_cpp_wrapper.h"
-#include "YxChat/nim_sdk_helper.h"
-#include "YxChat/session_callback.h"
-#include "YxChat/nim_cpp_client.h"
+#include "nim_cpp_api.h"
+#include "nim_cpp_client.h"
+#include "nim_cpp_tool.h"
+#include "nim_audio_cpp.h"
 #pragma execution_character_set("utf-8")
 
 class CBtnAudio : public QPushButton

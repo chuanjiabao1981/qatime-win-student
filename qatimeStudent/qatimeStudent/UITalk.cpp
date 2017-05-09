@@ -239,7 +239,7 @@ void UITalk::InsertAudioChat(QPixmap* pixmap, QString name, QString time, QStrin
 	}
 
 	if (!bRead)
-		nim::NOS::FetchMedia(msg);
+		nim::NOS::FetchMedia(msg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -797,7 +797,7 @@ void UITalk::slot_Audioclicked(std::string path, std::string sid, std::string ms
 
 void UITalk::slot_AudioLoadFail(nim::IMMessage msg)
 {
-	nim::NOS::FetchMedia(msg);
+	nim::NOS::FetchMedia(msg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
 }
 
 void UITalk::stopAudio(char* msgid)

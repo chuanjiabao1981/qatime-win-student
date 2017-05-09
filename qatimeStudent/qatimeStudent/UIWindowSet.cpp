@@ -3,8 +3,6 @@
 #include <windowsx.h>
 #include "wtypes.h"
 #include <QMouseEvent>
-//#include <QMediaPlayer>
-//#include <QMediaPlaylist>
 #include <QVideoWidget>
 #include "member.h"
 #include <QToolTip>
@@ -16,11 +14,7 @@
 #define MAINWINDOW_Y_MARGIN 10
 #define MAINWINDOW_TITLE_HEIGHT 0
 
-#ifdef TEST
-#define _DEBUG
-#else
-#endif
-
+UIWindowSet* m_This = NULL;
 UIWindowSet::UIWindowSet(QWidget *parent)
 	: QWidget(parent)
 	, m_spacer(NULL)
@@ -37,12 +31,11 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	, m_EnvironmentalTyle(true)
 {
 	ui.setupUi(this);
+	m_This = this;
 	setAutoFillBackground(true);
 	QPalette p = palette();
 	p.setColor(QPalette::Window, QColor(255, 255, 255));
 	setPalette(p);
-//	setAttribute(Qt::WA_TranslucentBackground, true);
-//	setMouseTracking(true);
 	ui.logo_pushButton->installEventFilter(this);
 	ui.title_pushButton->installEventFilter(this);
 	ui.whiteboard_widget->installEventFilter(this);
@@ -152,12 +145,6 @@ void UIWindowSet::MaxDialog()
 	showMaximized();
 }
 
-void UIWindowSet::ReturnDialog()
-{
-	if (m_parent)
-		m_parent->returnClick();
-}
-
 bool UIWindowSet::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
 	if ("windows_generic_MSG" == eventType)
@@ -224,6 +211,12 @@ bool UIWindowSet::nativeEvent(const QByteArray &eventType, void *message, long *
 	return false;
 }
 
+void UIWindowSet::ReturnDialog()
+{
+	if (m_parent)
+		m_parent->returnClick();
+}
+
 void UIWindowSet::paintEvent(QPaintEvent *event)
 {
 	QPainterPath path;
@@ -235,10 +228,6 @@ void UIWindowSet::paintEvent(QPaintEvent *event)
 
 	painter.setPen(color);
 	painter.drawPath(path);
-}
-
-void UIWindowSet::resizeEvent(QResizeEvent *e)
-{
 }
 
 // 拖动标题做的处理
@@ -499,7 +488,7 @@ void UIWindowSet::OnStopPlayAudio(std::string sid, char* msgid)
 	}
 }
 
-void UIWindowSet::ReceiverLoginMsg(nim::LoginRes* pLogMsg)
+void UIWindowSet::ReceiverLoginMsg(nim::LoginRes pLogMsg)
 {
 	if (m_vecChatRoom.size() > 0)
 	{
@@ -775,13 +764,6 @@ void UIWindowSet::QueryNotice()
 		return;
 
 	QString strUrl;
-// #ifdef _DEBUG
-// 	strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-// 	strUrl.replace("{id}", strCourseID);
-// #else
-// 	strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-// 	strUrl.replace("{id}", strCourseID);
-// #endif
 	if (m_EnvironmentalTyle)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
@@ -860,15 +842,6 @@ void UIWindowSet::QueryCourse()
 		return;
 
 	QString strUrl;
-// #ifdef _DEBUG
-// 	strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-// 	strUrl.replace("{id}", strCourseID);
-// 	strUrl.replace("{studentid}", m_studentID);
-// #else
-// 	strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-// 	strUrl.replace("{id}", strCourseID);
-// 	strUrl.replace("{studentid}", m_studentID);
-// #endif
 	if (m_EnvironmentalTyle)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
@@ -993,15 +966,6 @@ void UIWindowSet::QueryLesson()
 		return;
 
 	QString strUrl;
-// #ifdef _DEBUG
-// 	strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-// 	strUrl.replace("{id}", strCourseID);
-// 	strUrl.replace("{studentid}", m_studentID);
-// #else
-// 	strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-// 	strUrl.replace("{id}", strCourseID);
-// 	strUrl.replace("{studentid}", m_studentID);
-// #endif
 	if (m_EnvironmentalTyle)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
@@ -1421,4 +1385,103 @@ void UIWindowSet::ReceiverAudioStatus(std::string sid, char* msgid, bool bSuc)
 			}
 		}
 	}
+}
+
+// 接收消息回调
+void CallbackReceiveMsg(const nim::IMMessage& msg)
+{
+	nim::IMMessage* pMsg = new nim::IMMessage;
+	pMsg->session_type_ = msg.session_type_;
+	pMsg->receiver_accid_ = msg.receiver_accid_;
+	pMsg->sender_accid_ = msg.sender_accid_;
+	pMsg->readonly_sender_client_type_ = msg.readonly_sender_client_type_;
+	pMsg->readonly_sender_device_id_ = msg.readonly_sender_device_id_;
+	pMsg->readonly_sender_nickname_ = msg.readonly_sender_nickname_;
+	pMsg->timetag_ = msg.timetag_;
+
+	pMsg->type_ = msg.type_;
+	pMsg->content_ = msg.content_;
+	pMsg->attach_ = msg.attach_;
+	pMsg->client_msg_id_ = msg.client_msg_id_;
+	pMsg->readonly_server_id_ = msg.readonly_server_id_;
+
+	pMsg->local_res_path_ = msg.local_res_path_;
+	pMsg->local_talk_id_ = msg.local_talk_id_;
+	pMsg->local_res_id_ = msg.local_res_id_;
+	pMsg->status_ = msg.status_;
+	pMsg->sub_status_ = msg.sub_status_;
+
+	PostMessage(m_This->GetParentWnd(), MSG_CLIENT_RECEIVE, (WPARAM)pMsg, 0);
+}
+
+// 发送消息回调
+void CallbackSendMsgArc(const nim::SendMessageArc& arc)
+{
+	nim::SendMessageArc* arcNew = new nim::SendMessageArc;
+	arcNew->msg_id_ = arc.msg_id_;
+	arcNew->msg_timetag_ = arc.msg_timetag_;
+	arcNew->rescode_ = arc.rescode_;
+	arcNew->talk_id_ = arc.talk_id_;
+
+	PostMessage(m_This->GetParentWnd(), MSG_SEND_MSG_STATUS, (WPARAM)arcNew, 0);
+}
+
+HWND UIWindowSet::GetParentWnd()
+{
+	return (HWND)m_parent->winId();
+}
+
+/***************************************************************************/
+/*																		   */
+/*					  初始化云信、白板、及回调							   */
+/*																		   */
+/***************************************************************************/
+void UIWindowSet::initCallBack()
+{
+// 	IMInterface::getInstance()->initVChat();
+// 	IMInterface::getInstance()->initVChatCallback();
+// 	IMInterface::getInstance()->initRtsCallback();
+// 	// 初始化白板
+// 	initWhiteBoardWidget();
+// 	initConnection();
+// 
+// 	IMInterface::getInstance()->EnumDeviceDevpath(Audio);
+// 	IMInterface::getInstance()->EnumDeviceDevpath(Video);
+// 	IMInterface::getInstance()->EnumDeviceDevpath(AudioOut);
+
+	// 接受消息回调
+	nim::Talk::RegReceiveCb(&CallbackReceiveMsg);
+	// 发送消息状态回调
+	nim::Talk::RegSendMsgCb(&CallbackSendMsgArc);
+}
+
+// 查询历史记录回调
+void UIWindowSet::QueryMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result)
+{
+	nim::QueryMsglogResult* pRes = new nim::QueryMsglogResult;
+	pRes->msglogs_ = result.msglogs_;
+	pRes->count_ = result.count_;
+
+	PostMessage(m_This->GetParentWnd(), MSG_CLIENT_RECORD, (WPARAM)pRes, 0);
+}
+
+// 第一次查询历史记录回调
+void UIWindowSet::QueryFirstMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result)
+{
+	nim::QueryMsglogResult* pRes = new nim::QueryMsglogResult;
+	pRes->msglogs_ = result.msglogs_;
+	pRes->count_ = result.count_;
+
+	PostMessage(m_This->GetParentWnd(), MSG_CLIENT_RECORD, (WPARAM)pRes, 1);
+}
+
+// 获取成员回调
+void UIWindowSet::OnGetTeamMemberCallback(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list)
+{
+	std::list<nim::TeamMemberProperty> *pTeamList = new std::list<nim::TeamMemberProperty>;
+
+	for (const auto& member : team_member_info_list)
+		pTeamList->push_back(member);
+
+	PostMessage(m_This->GetParentWnd(), MSG_MEMBERS_INFO, (WPARAM)pTeamList, 0);
 }

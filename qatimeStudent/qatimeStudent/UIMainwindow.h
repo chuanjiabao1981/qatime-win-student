@@ -18,19 +18,9 @@
 #include "UIAuxiliarywnd.h"
 
 //---云信
-#include "nim_client_def.h"
 #include "assert.h"
 #include <string>
-#include "YxChat/nim_tools_http_cpp_wrapper.h"
-#include "YxChat/nim_client_helper.h"
-#include "YxChat/nim_cpp_talk.h"
-#include "YxChat/nim_cpp_team.h"
-#include "YxChat/nim_cpp_msglog.h"
-#include "YxChat/nim_cpp_nos.h"
-#include "YxChat/nim_tools_audio_cpp_wrapper.h"
-#include "YxChat/nim_sdk_helper.h"
-#include "YxChat/session_callback.h"
-#include "YxChat/nim_cpp_client.h"
+#include "nim_cpp_api.h"
 
 // 语音录制完成的参数
 struct MyAudioStruct
@@ -90,7 +80,6 @@ public:
 	void	setAutoSudentInfo(QString teacherID, QString teacherName, QString teacherUrl, QString accid, QString token); // 自动登录的学生信息
 	void    setVersion(QString version);
 	QPixmap StudentPhotoPixmap();							// 本人头像
-	std::string GetJsonStringWithNoStyled(const QJsonObject& values); // json类型转换
 	void	setNetworkPic(const QString &szUrl);			// 从网络上获取头像
 	void    returnClick();									// 重新登录
 	void	ShowCourse();									// 显示辅导班
@@ -98,9 +87,7 @@ public:
 	void    CloseDialog();
 
 	/*添加云信功能*/
-	void	initSDK();										// 初始化云信
 	void    InitAudio();									// 初始化语音
-	bool	LoadConfig(const std::string& app_data_dir, const std::string& app_install_dir, nim::SDKConfig &config);// 加载配置
 	void    RequestKey();									// 请求Key
 	void    returnKey();									// 返回Key
 	void	setKeyAndLogin(QString key);					// 获取Key							

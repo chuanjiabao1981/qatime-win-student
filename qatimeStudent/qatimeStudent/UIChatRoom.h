@@ -13,21 +13,17 @@
 #include "UIWindowSet.h"
 #include "UIWorkThread.h"
 
-//---云信
-#include "nim_client_def.h"
 #include "assert.h"
 #include <string>
+#include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "YxChat/nim_tools_http_cpp_wrapper.h"
-#include "YxChat/nim_client_helper.h"
-#include "YxChat/nim_cpp_talk.h"
-#include "YxChat/nim_cpp_team.h"
-#include "YxChat/nim_cpp_msglog.h"
-#include "YxChat/nim_cpp_nos.h"
-#include <QNetworkAccessManager>
 
-#include "YxChat/nim_tools_audio_cpp_wrapper.h"
+//---云信
+#include "nim_cpp_api.h"
+#include "nim_cpp_client.h"
+#include "nim_cpp_tool.h"
+#include "nim_audio_cpp.h"
 
 class UIWindowSet;
 class UITalk;
@@ -63,8 +59,8 @@ private:
 	Ui::UIChatRoom ui;
 	Worker*							m_pWorker;
 	static UIChatRoom*				m_pThis;
-	QNetworkAccessManager manager;
-	QNetworkReply *reply;
+	QNetworkAccessManager			manager;
+	QNetworkReply*					reply;
 	UITalk*							m_uitalk;			// 聊天窗的自定义聊天控件
 	UITalkRecord*					m_uitalkRecord;		// 聊天记录
 
@@ -161,16 +157,6 @@ private:
 	*/
 	static void OnTeamEventCallback(const nim::TeamEvent& result);
 
-	/**
-	* 获取会话记录的回调函数
-	* @param[in] code	错误码(200代表无错误)
-	* @param[in] id		获取的会话记录所属的会话id
-	* @param[in] type	获取的会话记录所属的会话类型
-	* @param[in] result 消息体Json string,包含了获取的会话记录的信息
-	* @return void 无返回值
-	*/
-	static void QueryMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result);
-
 	static void OnGetTeamInfoCb(const nim::TeamEvent& team_event);
 
 	QString		UserAppdataPath();
@@ -185,7 +171,7 @@ public:
 	void	setChatInfo(QJsonObject &chatInfo, QString token);	// 设置云信账户信息
 	bool	ReceiverMsg(nim::IMMessage* pMsg);					// 接收服务器发送过来的消息
 	void	ReceiverRecordMsg(nim::QueryMsglogResult* pMsg);	// 接收历史消息记录
-	void	ReceiverLoginMsg(nim::LoginRes* pRes);				// 接收登录结果
+	void	ReceiverLoginMsg(nim::LoginRes pRes);				// 接收登录结果
 	void	ReceiverMemberMsg(std::list<nim::TeamMemberProperty>* pMemberMsg); //接收群成员信息
 	void	setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount);		// 设置当前窗口会话ID,用于接收消息时比较
 	bool	IsLogin();											// 是否登录
