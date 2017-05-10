@@ -713,6 +713,24 @@ QPushButton:pressed{color:#059dd5}</string>
        </layout>
       </widget>
      </item>
+     <item>
+      <widget class="QWidget" name="live1v1_widget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>

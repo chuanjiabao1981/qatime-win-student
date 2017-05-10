@@ -349,11 +349,11 @@ QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/
             <string>一对一互动</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">QRadioButton:checked {border-image: url(:/LoginWindow/images/tabAll_hover.png);}
+            <string notr="true">QRadioButton:checked {border-image: url(:/LoginWindow/images/tab1v1_hover.png);}
 
-QRadioButton:unchecked {border-image: url(:/LoginWindow/images/tabAll_nor.png);}
+QRadioButton:unchecked {border-image: url(:/LoginWindow/images/tab1v1_nor.png);}
 
-QRadioButton:unchecked:hover {border-image: url(:/LoginWindow/images/tabAll_hover.png);}
+QRadioButton:unchecked:hover {border-image: url(:/LoginWindow/images/tab1v1_hover.png);}
 
 QRadioButton::indicator:checked {border-image: url(:/LoginWindow/images/.png);}
 

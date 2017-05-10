@@ -230,9 +230,6 @@
     <ClCompile Include="UIWindowSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_UIWindowSet.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_UIWindowSet.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
@@ -497,6 +494,18 @@
     <ClCompile Include="GeneratedFiles\Release\moc_shape.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="1v1\ui1v1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ui1v1.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ui1v1.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_UIWindowSet.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="loginwindow.h">
@@ -579,9 +588,6 @@
     </CustomBuild>
     <CustomBuild Include="UIWindowSet.h">
       <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="UIWindowSet.ui">
-      <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="UITags.h">
       <Filter>Header Files</Filter>
@@ -733,6 +739,15 @@
     <CustomBuild Include="1v1\shape.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="1v1\ui1v1.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="1v1\ui1v1.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="UIWindowSet.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_loginwindow.h">
@@ -763,9 +778,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_UIAudioBar.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_UIWindowSet.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_UITags.h">
@@ -844,6 +856,12 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_colorpicker.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_ui1v1.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_UIWindowSet.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

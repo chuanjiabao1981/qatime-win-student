@@ -1,12 +1,12 @@
 #include "UIVideoChange1v1.h"
 #include <QPainter>
+#include "UIWindowSet.h"
 
 #define MAINWINDOW_X_MARGIN			0
 #define MAINWINDOW_Y_MARGIN			0
 #define MAINWINDOW_TITLE_HEIGHT		30
 UIVideoChange1v1::UIVideoChange1v1(QWidget *parent)
 	: QWidget(parent)
-	, m_Parent(NULL)
 	, iCount(0)
 {
 	ui.setupUi(this);
@@ -37,10 +37,7 @@ UIVideoChange1v1::UIVideoChange1v1(QWidget *parent)
 
 UIVideoChange1v1::~UIVideoChange1v1()
 {
-	if (m_Parent)
-	{
-		m_Parent = NULL;
-	}
+
 }
 
 void UIVideoChange1v1::clickClose()
@@ -51,13 +48,7 @@ void UIVideoChange1v1::clickClose()
 void UIVideoChange1v1::AudioChanged(int index)
 {
 	QString path = GetCurPath();
-	if (m_Parent)
-		m_Parent->setVideoChange1v1(path);
-}
-
-void UIVideoChange1v1::setVideoChange(UIWindowSet* Parent)
-{
-	m_Parent = Parent;
+	emit sig_setVideoChange1v1(path);
 }
 
 void UIVideoChange1v1::setVideoParam(QString name, QString path)

@@ -54,8 +54,7 @@ void UIAudioChange1v1::setAudioParam(QString strName, QString path)
 void UIAudioChange1v1::AudioChanged(int index)
 {
 	QString path = GetCurPath();
-	if (m_Parent)
-		m_Parent->setAudioChange1v1(path);
+	emit sig_setAudioChange1v1(path);
 }
 
 void UIAudioChange1v1::paintEvent(QPaintEvent *event)
@@ -130,6 +129,5 @@ void UIAudioChange1v1::setSliderStyle()
 
 void UIAudioChange1v1::valueChanged(int i)
 {
-	if (m_Parent)
-		m_Parent->setValueChange1v1(i,true);
+	emit sig_setValueChange1v1(i, true);
 }

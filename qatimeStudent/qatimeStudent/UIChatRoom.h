@@ -164,6 +164,7 @@ private:
 	std::string GetFileMD5(QString path);
 	long		GetFileSize(QString path);
 	void		RequestMember();	// 从服务器上获取人员信息
+	void		Request1v1Member();	// 从服务器上获取1对1人员信息
 	void        returnMember();		// 返回人员信息
 
 public:
@@ -173,7 +174,7 @@ public:
 	void	ReceiverRecordMsg(nim::QueryMsglogResult* pMsg);	// 接收历史消息记录
 	void	ReceiverLoginMsg(nim::LoginRes pRes);				// 接收登录结果
 	void	ReceiverMemberMsg(std::list<nim::TeamMemberProperty>* pMemberMsg); //接收群成员信息
-	void	setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount);		// 设置当前窗口会话ID,用于接收消息时比较
+	void	setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount, bool b1v1 = false);		// 设置当前窗口会话ID,用于接收消息时比较
 	bool	IsLogin();											// 是否登录
 	bool	IsCurChatRoom(QString chatID);						// 是否是当前会话ID
 

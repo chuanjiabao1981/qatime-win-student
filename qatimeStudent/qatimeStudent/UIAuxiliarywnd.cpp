@@ -143,7 +143,7 @@ void UIAuxiliaryWnd::AddOneToOneAuxiliary(QString picUrl, QString courseName, QS
 	QString teacherID, QString token, QString studentName, std::string AudioPath, QString status)
 {
 	UIAuxiliaryList* auxiliary = new UIAuxiliaryList(ui.all_widget);
-	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, token, studentName, AudioPath, status);
+	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, token, studentName, AudioPath, status,true);
 	connect(auxiliary, SIGNAL(clickAuxiliary(UIAuxiliaryList*)), this, SLOT(clickAuxiliary(UIAuxiliaryList*)));//TODO
 	m_VerOneToOne->addWidget(auxiliary);
 
@@ -239,7 +239,8 @@ void UIAuxiliaryWnd::clickAuxiliary(UIAuxiliaryList* auxiliary)
 {
 	if (m_parent)
 	{
-		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->Token(), auxiliary->StudentName(), auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status());
+		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->Token(), auxiliary->StudentName(), 
+			auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status(), auxiliary->Is1v1Lesson());
 		auxiliary->ClearMsgNumber();
 	}
 }

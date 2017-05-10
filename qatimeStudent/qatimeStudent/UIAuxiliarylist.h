@@ -28,7 +28,7 @@ private:
 	int					m_iMsgCount;	// 消息个数
 
 	Worker*				m_pWorker;
-
+	bool				m_b1v1Lesson;	// 是否是1v1辅导班
 public:
 	QString				PicUrl();
 	QString				CourseName();
@@ -41,6 +41,7 @@ public:
 	QString				StudentName();
 	QString				Status();
 	int					UnreadMsgCount();
+	bool				Is1v1Lesson();
 
 signals:
 	void clickAuxiliary(UIAuxiliaryList*);
@@ -56,7 +57,7 @@ private:
 
 public:
 	QLabel* AddCourse(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID, QString teacherID, QString token,
-		QString studentName, std::string AudioPath, QString status); // 新建辅导班
+		QString studentName, std::string AudioPath, QString status, bool b1v1Lesson = false); // 新建辅导班
 
 	void AddMsgCount();			// 改变消息个数
 	void ClearMsgNumber();		// 清空消息数

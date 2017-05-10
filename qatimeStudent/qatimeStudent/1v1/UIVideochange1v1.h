@@ -5,10 +5,7 @@
 #include "ui_UIVideoChange1v1.h"
 #include <QButtonGroup>
 #include <QVBoxLayout>
-#include "UIWindowSet.h"
 #include <QRadioButton>
-
-class UIWindowSet;
 
 class UIVideoChange1v1 : public QWidget
 {
@@ -21,7 +18,6 @@ public:
 	int iCount;
 private:
 	Ui::UIVideoChange1v1   ui;
-	UIWindowSet*		m_Parent;
 
 	// 鼠标按下拖动的操作
 	QPoint								m_startPos;
@@ -32,11 +28,13 @@ protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 	virtual void focusOutEvent(QFocusEvent *);
 
+signals:
+	void sig_setVideoChange1v1(QString);
+
 private slots:
 	void AudioChanged(int index);
 	void clickClose();
 public:
-	void setVideoChange(UIWindowSet* Parent);
 	void setVideoParam(QString name, QString path);
 	QString GetCurPath();
 };

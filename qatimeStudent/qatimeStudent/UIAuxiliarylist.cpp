@@ -10,6 +10,7 @@ UIAuxiliaryList::UIAuxiliaryList(QWidget *parent)
 	: QWidget(parent)
 	, m_iMsgCount(0)
 	, m_pWorker(NULL)
+	, m_b1v1Lesson(false)
 {
 	ui.setupUi(this);
 	setCursor(Qt::PointingHandCursor);
@@ -40,7 +41,7 @@ UIAuxiliaryList::~UIAuxiliaryList()
 
 
 QLabel* UIAuxiliaryList::AddCourse(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID, 
-	QString teacherID, QString token, QString studentName, std::string AudioPath, QString status)
+	QString teacherID, QString token, QString studentName, std::string AudioPath, QString status, bool b1v1Lesson)
 {
 	m_picUrl = picUrl;
 	m_courseName = courseName;
@@ -52,6 +53,7 @@ QLabel* UIAuxiliaryList::AddCourse(QString picUrl, QString courseName, QString g
 	m_studentName = studentName;
 	m_AudioPath = AudioPath;
 	m_status = status;
+	m_b1v1Lesson = b1v1Lesson;
 
 	setNetworkPic(picUrl);
 
@@ -75,9 +77,6 @@ QLabel* UIAuxiliaryList::AddCourse(QString picUrl, QString courseName, QString g
 		ui.grade_label->setToolTip(grade + "|" + teacherName);
 	}
 
-// 	if (status == "teaching")
-// 		ui.teaching_label->setVisible(true);
-// 	else
 	ui.teaching_label->setVisible(false);
 
 	return ui.label;
@@ -85,33 +84,6 @@ QLabel* UIAuxiliaryList::AddCourse(QString picUrl, QString courseName, QString g
 
 void UIAuxiliaryList::setNetworkPic(const QString &szUrl)
 {
-// 	m_pWorker->SetUrl(ui.pic_label, szUrl);
-// 	emit sig_StartLoading();
-// 	QUrl url(szUrl);
-// 	QNetworkAccessManager manager;
-// 	QEventLoop loop;
-// 
-// 	QNetworkReply *reply = manager.get(QNetworkRequest(url));
-// 	//请求结束并下载完成后，退出子事件循环 
-// 	QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-// 	//开启子事件循环 
-// 	loop.exec();
-// 	QByteArray jpegData = reply->readAll();
-// 	QPixmap pixmap;
-// 	QSize pixSize(ui.label->width(), ui.label->height());
-// 	// 加载成功则显示
-// 	if (pixmap.loadFromData(jpegData))
-// 	{
-// 		QPixmap scaledPixmap = pixmap.scaled(pixSize, Qt::IgnoreAspectRatio);
-// 		ui.label->setPixmap(scaledPixmap);
-// 	}
-// 	else // 否则显示备用图片
-// 	{
-// 		QString sUrl = "./images/teacherPhoto.png";
-// 		pixmap = QPixmap(sUrl);
-// 		QPixmap scaledPixmap = pixmap.scaled(pixSize, Qt::IgnoreAspectRatio);
-// 		ui.label->setPixmap(scaledPixmap);
-// 	}
 }
 
 void UIAuxiliaryList::mousePressEvent(QMouseEvent *e)
@@ -193,4 +165,10 @@ void UIAuxiliaryList::ClearMsgNumber()
 int UIAuxiliaryList::UnreadMsgCount()
 {
 	return m_iMsgCount;
+}
+
+// 是否是1v1课程
+bool UIAuxiliaryList::Is1v1Lesson()
+{
+	return m_b1v1Lesson;
 }

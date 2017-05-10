@@ -1252,7 +1252,7 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 	m_switchTime = false;	
 }
 
-void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount)
+void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount, bool b1v1)
 {
 	m_CurChatID = chatID.toStdString();
 	m_CurCourseID = courseid;
@@ -1261,7 +1261,11 @@ void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacheri
 	mRemeberToken = token;
 	m_StudentName = studentName;
 	m_UnreadCount = UnreadCount;
-	RequestMember();
+
+	if (b1v1)
+		Request1v1Member();
+	else
+		RequestMember();
 }
 
 void UIChatRoom::setChatInfo(QJsonObject &chatInfo, QString token)
@@ -2057,6 +2061,29 @@ QString UIChatRoom::GetTeacherID()
 void UIChatRoom::SetCurAudioPath(std::string path)
 {
 	m_AudioPath = path;
+}
+
+void UIChatRoom::Request1v1Member()
+{
+	QString strUrl;
+	if (m_EnvironmentalTyle)
+	{
+		strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
+		strUrl.replace("{id}", m_CurCourseID);
+	}
+	else
+	{
+		strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
+		strUrl.replace("{id}", m_CurCourseID);
+	}
+
+	QUrl url = QUrl(strUrl);
+	QNetworkRequest request(url);
+	QString str = this->mRemeberToken;
+
+	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	reply = manager.get(request);
+	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnAllMember);
 }
 
 void UIChatRoom::RequestMember()

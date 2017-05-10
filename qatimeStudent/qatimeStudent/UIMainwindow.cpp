@@ -218,8 +218,8 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 		if (m_AuxiliaryWnd)
 		{
 			//数据中包含多个老师信息，如何确定当前一对一直播为哪个老师？
-			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, "刘刚老师"/*教师名如何获取*/, data.chat_team_id, QString::number(3056)/*教师id如何获取*/,
-				QString::number(data.id), mRemeberToken, m_studentName, m_AudioPath, data.status);
+			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, "刘刚老师"/*教师名如何获取*/, data.chat_team_id, QString::number(data.id),
+				QString::number(data.teachers.first().id), mRemeberToken, m_studentName, m_AudioPath, data.status);
 		}
 
 		i++;
@@ -591,10 +591,10 @@ void UIMainWindow::returnClick()
 		m_LoginWindow->ReturnLogin();
 }
 
-void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherID, QString token, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status)
+void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherID, QString token, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	if (m_WindowSet)
-		m_WindowSet->AddChatRoom(chatID, courseID, teacherID, token, studentName, audioPath, courseName, UnreadCount, status);
+		m_WindowSet->AddChatRoom(chatID, courseID, teacherID, token, studentName, audioPath, courseName, UnreadCount, status, b1v1Lesson);
 }
 
 void UIMainWindow::ShowCourse()

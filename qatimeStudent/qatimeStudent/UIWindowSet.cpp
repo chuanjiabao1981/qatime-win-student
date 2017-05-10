@@ -23,17 +23,13 @@
 #include "1v1/UIVideo1v1.h"
 #include "1v1/UIAppWnd.h"
 #include "1v1/UIAppWndTool.h"
+#include "1v1/ui1v1.h"
 
 #define MAINWINDOW_X_MARGIN 10
 #define MAINWINDOW_Y_MARGIN 10
 #define MAINWINDOW_TITLE_HEIGHT 0
 #define LIVE_BUTTON_NAME	"选课直播"
 #define LESSON_LABEL		"暂无直播"
-
-#define Audio 0		//音频设备
-#define AudioOut 2	//扬声器
-#define Video 3		//视频设备
-#define VIDEO_FPS 50  
 
 UIWindowSet* m_This = NULL;
 UIWindowSet::UIWindowSet(QWidget *parent)
@@ -50,6 +46,7 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	, m_hCameraWnd(NULL)
 	, m_bInitLive(false)
 	, m_EnvironmentalTyle(true)
+	, m_Ui1v1(NULL)
 {
 	ui.setupUi(this);
 	m_This = this;
@@ -122,6 +119,8 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	connect(m_LiveTimer, SIGNAL(timeout()), this, SLOT(slot_onTimeout()));
 
 	ChangeBtnStyle(false);
+
+	init1v1();
 }
 
 UIWindowSet::~UIWindowSet()
@@ -334,7 +333,7 @@ void UIWindowSet::setStudent(QString id)
 	m_studentID = id;
 }
 
-UITags* UIWindowSet::AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status)
+UITags* UIWindowSet::AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status, bool b1v1Lesson)
 {
 	UITags* tag = new UITags(ui.tags_widget);
 	tag->setMaximumWidth(200);
@@ -342,6 +341,7 @@ UITags* UIWindowSet::AddTag(QString chatID, QString name, QString ID, bool sel, 
 	tag->SetMainWindow(this);
 	tag->SetRoom(room);
 	tag->setStyle(sel);
+	tag->set1v1Lesson(b1v1Lesson);
 	tag->show();
 	connect(tag, SIGNAL(clickTag(UITags*)), this, SLOT(clickTag(UITags*)));
 	ui.horizontalLayout_3->addWidget(tag);
@@ -354,6 +354,10 @@ UITags* UIWindowSet::AddTag(QString chatID, QString name, QString ID, bool sel, 
 	m_curTags = tag;
 	m_curChatRoom = room;
 	m_curTags->update();
+
+	// 隐藏与显示互动直播
+	ui.live_widget->setVisible(!b1v1Lesson);
+	ui.live1v1_widget->setVisible(b1v1Lesson);
 
 	if (status == "teaching")
 	{
@@ -406,7 +410,7 @@ void UIWindowSet::DeleleTag(UITags* tag)
 	}
 }
 
-void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status)
+void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	show();
 	if (isMinimized())
@@ -428,24 +432,28 @@ void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacheri
 	if (IsHasTag(chatID, status))
 		return;
 
-	UIChatRoom* chatRoom = IsHasRoom(chatID);
-	if (chatRoom == NULL)
-	{
-		chatRoom = new UIChatRoom(ui.chat_widget);
-		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
-		chatRoom->setMainWindow(this);
-		chatRoom->SetEnvironmental(m_EnvironmentalTyle);
-		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount);
-		chatRoom->SetCurAudioPath(strCurAudioPath);
-		chatRoom->InitAudioCallBack();
-		ui.horizontalLayout_6->addWidget(chatRoom);
-		m_vecChatRoom.push_back(chatRoom);
-		m_mapChatRoom.insert(chatID, chatRoom);
-		chatRoom->show();
-		chatRoom->setEditFocus();
-	}
-
-	UITags* tag = AddTag(chatID, name, courseid, true, chatRoom, status);
+	if (b1v1Lesson)
+		OpenCourse1v1(chatID, courseid, teacherid, token, studentName, strCurAudioPath, name, UnreadCount, status, b1v1Lesson);
+	else
+		OpenCourse(chatID, courseid, teacherid, token, studentName, strCurAudioPath, name, UnreadCount, status, b1v1Lesson);
+// 	UIChatRoom* chatRoom = IsHasRoom(chatID);
+// 	if (chatRoom == NULL)
+// 	{
+// 		chatRoom = new UIChatRoom(ui.chat_widget);
+// 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
+// 		chatRoom->setMainWindow(this);
+// 		chatRoom->SetEnvironmental(m_EnvironmentalTyle);
+// 		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount);
+// 		chatRoom->SetCurAudioPath(strCurAudioPath);
+// 		chatRoom->InitAudioCallBack();
+// 		ui.horizontalLayout_6->addWidget(chatRoom);
+// 		m_vecChatRoom.push_back(chatRoom);
+// 		m_mapChatRoom.insert(chatID, chatRoom);
+// 		chatRoom->show();
+// 		chatRoom->setEditFocus();
+// 	}
+// 
+// 	UITags* tag = AddTag(chatID, name, courseid, true, chatRoom, status);
 }
 
 bool UIWindowSet::ReceiverMsg(nim::IMMessage* pIMsg)
@@ -1275,6 +1283,17 @@ void UIWindowSet::PlayLive(QString sBoard, QString sCamera)
 	}
 }
 
+void UIWindowSet::init1v1()
+{
+	if (!m_Ui1v1)
+	{
+		delete m_Ui1v1;
+	}
+	m_Ui1v1 = new UI1v1(this);
+
+	ui.horizontalLayout_8->addWidget(m_Ui1v1);
+}
+
 void UIWindowSet::slots_Modle(bool bModle)
 {
 	if (!bModle)
@@ -1375,228 +1394,6 @@ void UIWindowSet::slot_onTimeout()
 	}
 }
 
-void UIWindowSet::joinRtsRoom(const std::string &roomName)
-{
-	IMInterface::getInstance()->joinRtsRoom(roomName, false);
-}
-
-void UIWindowSet::joinRoomSuccessfully(const std::string &session_id, __int64 channel_id, const std::string &custom_info)
-{
-	IMInterface::getInstance()->joinVChatRoom(2, m_curTags->ChatID().toStdString());//TODO  是否学生端只加入房间不创建房间？
-}
-
-// 加入音视频成功后，开始直播流程
-void UIWindowSet::joinVChatSuccessfully()
-{
-	/*m_bLiving1v1 = true;
-	m_LiveStatusManager->SendStart1v1LiveHttpMsg(m_lessonid, m_curTags->ChatID(), m_Token);*/
-	//TODO  加入直播房间后应接受音视频流
-}
-
-void UIWindowSet::errorInfo(const QString & error)
-{
-	m_bLiving1v1 = false;
-	CMessageBox::showMessage(
-		QString("答疑时间"),
-		QString("加入房间出现错误！代码：") + error,
-		QString("确定"),
-		QString("取消"));
-}
-
-void UIWindowSet::PicData(QString str)
-{
-	std::string picData = str.toStdString();
-	IMInterface::getInstance()->SendData("", 1, picData);
-}
-
-void UIWindowSet::setDeviceInfos(int type)
-{
-	switch (type)
-	{
-	case Audio:
-	{
-		foreach(const DevInfo &info, IMInterface::getInstance()->getDeviceInfos())
-		{
-			if (info.type == type)
-			{
-				m_AudioChangeInfo1v1->setAudioParam(info.name, info.path);
-			}
-		}
-	}
-	break;
-	case AudioOut:
-	{
-		foreach(const DevInfo &info, IMInterface::getInstance()->getDeviceInfos())
-		{
-			if (info.type == type)
-			{
-				m_AudioOutChangeInfo1v1->setAudioParam(info.name, info.path);
-			}
-		}
-	}
-	break;
-	case Video:
-		foreach(const DevInfo &info, IMInterface::getInstance()->getDeviceInfos())
-		{
-			if (info.type == type)
-			{
-				m_VideoChangeInfo1v1->setVideoParam(info.name, info.path);
-			}
-		}
-		break;
-	default:
-		break;
-	}
-}
-
-void UIWindowSet::clickVideo1v1Param()
-{
-	m_VideoChangeInfo1v1->show();
-	m_VideoChangeInfo1v1->move(width() / 2 - m_VideoChangeInfo1v1->width() / 2, height() / 2 - m_VideoChangeInfo1v1->height() / 2);
-	m_VideoChangeInfo1v1->setFocus();
-}
-
-void UIWindowSet::clickAudio1v1Param()
-{
-	m_AudioChangeInfo1v1->show();
-	m_AudioChangeInfo1v1->move(width() / 2 - m_AudioChangeInfo1v1->width() / 2, height() / 2 - m_AudioChangeInfo1v1->height() / 2);
-	m_AudioChangeInfo1v1->setFocus();
-}
-
-void UIWindowSet::clickAudioOut1v1Param()
-{
-	m_AudioOutChangeInfo1v1->show();
-	m_AudioOutChangeInfo1v1->move(width() / 2 - m_AudioOutChangeInfo1v1->width() / 2, height() / 2 - m_AudioOutChangeInfo1v1->height() / 2);
-	m_AudioOutChangeInfo1v1->setFocus();
-}
-
-void UIWindowSet::Audio1v1Status(int iStatus)
-{
-	if (iStatus)
-	{
-		IMInterface::getInstance()->endDevice(Audio);
-	}
-	else
-	{
-		//开启云信的摄像头采集
-		QString dPath = m_AudioChangeInfo1v1->GetCurPath();
-		if (!dPath.isNull())
-			IMInterface::getInstance()->startDevice(Audio, dPath.toStdString(), 0, 0, 0);
-	}
-}
-
-void UIWindowSet::Video1v1Status(int iStatus)
-{
-	if (iStatus)
-	{
-		//关闭云信的摄像头采集
-		IMInterface::getInstance()->endDevice(Video);
-		m_Camera1v1Info->StartEndVideo(true);
-	}
-	else
-	{
-		//开启云信的摄像头采集
-		QString dPath = m_VideoChangeInfo1v1->GetCurPath();
-		if (!dPath.isNull())
-			IMInterface::getInstance()->startDevice(Video, dPath.toStdString(), VIDEO_FPS, 0, 0);
-		m_Camera1v1Info->StartEndVideo(false);
-	}
-}
-
-void UIWindowSet::AudioOut1v1Status(int iSatus)
-{
-	if (iSatus)
-	{
-		IMInterface::getInstance()->endDevice(AudioOut);
-	}
-	else
-	{
-		//开启云信的摄像头采集
-		QString dPath = m_AudioOutChangeInfo1v1->GetCurPath();
-		if (!dPath.isNull())
-			IMInterface::getInstance()->startDevice(AudioOut, dPath.toStdString(), 0, 0, 0);
-	}
-}
-
-//void UIWindowSet::clickLive1v1()
-//{
-//	if (m_bLiving1v1)
-//	{
-//		int iStatus = CMessageBox::showMessage(
-//			QString("答疑时间"),
-//			QString("是否关闭当前直播！"),
-//			QString("确定"),
-//			QString("取消"));
-//		if (iStatus == 1)
-//		{
-//			// 结束白板和音视频
-//			// 实现结束白板和音视频功能......待写
-//
-//			m_LiveStatusManager->SendStopLiveHttpMsg1v1();
-//
-//			if (m_CountTimer->isActive())
-//			{
-//				m_CountTimer->stop();					// 停止计时
-//				m_iTimerCount = 0;						// 重置秒数
-//				ui.time1v1_label->setVisible(false);	// 隐藏
-//				ui.time1v1_label->setText("00:00:00");	// 重置时间
-//			}
-//
-//			m_bLiving1v1 = false;
-//		}
-//		else
-//			return;
-//	}
-//	else
-//	{
-//		if (m_curTags == NULL)
-//			return;
-//
-//		m_LiveLesson->DeleteItem();
-//		m_LiveLesson->setCourseID(m_curTags->CourseID(), true);
-//		m_LiveLesson->move(width() / 2 - m_LiveLesson->width() / 2, height() / 2 - m_LiveLesson->height() / 2);
-//		m_LiveLesson->show();
-//	}
-//}
-
-void UIWindowSet::selectColor(QColor& color)
-{
-	if (mWhiteBoard)
-	{
-		mWhiteBoard->setPenColor(color);
-	}
-}
-
-void UIWindowSet::returnClick()
-{
-	if (mWhiteBoard)
-		mWhiteBoard->revocation();
-}
-
-void UIWindowSet::deleteClick()
-{
-	if (mWhiteBoard)
-		mWhiteBoard->cleanUp();
-}
-
-void UIWindowSet::laserClick()
-{
-	if (mWhiteBoard)
-		mWhiteBoard->setIsDraw(false);
-}
-
-void UIWindowSet::drawClick()
-{
-	if (mWhiteBoard)
-		mWhiteBoard->setIsDraw(true);
-}
-
-void UIWindowSet::rtsDataReceived(const std::string& data)
-{
-	if (mWhiteBoard)
-		mWhiteBoard->RecData(data);
-}
-
 void UIWindowSet::ChangeBtnStyle(bool bLive)
 {
 	if (bLive)
@@ -1685,21 +1482,12 @@ HWND UIWindowSet::GetParentWnd()
 /***************************************************************************/
 void UIWindowSet::initCallBack()
 {
-// 	IMInterface::getInstance()->initVChat();
-// 	IMInterface::getInstance()->initVChatCallback();
-// 	IMInterface::getInstance()->initRtsCallback();
-// 	// 初始化白板
-// 	initWhiteBoardWidget();
-// 	initConnection();
-// 
-// 	IMInterface::getInstance()->EnumDeviceDevpath(Audio);
-// 	IMInterface::getInstance()->EnumDeviceDevpath(Video);
-// 	IMInterface::getInstance()->EnumDeviceDevpath(AudioOut);
-
 	// 接受消息回调
 	nim::Talk::RegReceiveCb(&CallbackReceiveMsg);
 	// 发送消息状态回调
 	nim::Talk::RegSendMsgCb(&CallbackSendMsgArc);
+
+	m_Ui1v1->initDevice();
 }
 
 // 查询历史记录回调
@@ -1735,7 +1523,7 @@ void UIWindowSet::OnGetTeamMemberCallback(const std::string& tid, int count, con
 
 // 打开直播课
 void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath,
-	QString courseName, int UnreadCount, QString status, QString boardurl, QString cameraUrl, bool b1v1Lesson)
+	QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	UIChatRoom* chatRoom = IsHasRoom(chatID);
 	if (chatRoom == NULL)
@@ -1752,192 +1540,27 @@ void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid
 		chatRoom->show();
 	}
 
-	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson, boardurl, cameraUrl);
+	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson);
 }
 
 // 打开互动直播
 void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath,
-	QString courseName, int UnreadCount, QString status, QString boardurl, QString cameraUrl, bool b1v1Lesson)
+	QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	UIChatRoom* chatRoom = IsHasRoom(chatID);
 	if (chatRoom == NULL)
 	{
-		chatRoom = new UIChatRoom(ui.chat1v1_widget);
+		chatRoom = new UIChatRoom();
 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
 		chatRoom->setMainWindow(this);
 		chatRoom->SetEnvironmental(m_EnvironmentalTyle);
 		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount, true);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
-		ui.horizontalLayout_18->addWidget(chatRoom);
+		m_Ui1v1->chat1v1Widget()->addWidget(chatRoom);
 		m_vecChatRoom.push_back(chatRoom);
 		m_mapChatRoom.insert(chatID, chatRoom);
 		chatRoom->show();
 	}
 
-	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson, boardurl, cameraUrl);
-}
-
-void UIWindowSet::InitSetParamWnds()
-{
-	m_AudioChangeInfo1v1 = new UIAudioChange1v1(this);
-	m_AudioChangeInfo1v1->setWindowFlags(Qt::FramelessWindowHint);
-	m_AudioChangeInfo1v1->setAudioChange(this);
-	m_AudioChangeInfo1v1->hide();
-
-	m_AudioOutChangeInfo1v1 = new UIAudioOutChange1v1(this);
-	m_AudioOutChangeInfo1v1->setWindowFlags(Qt::FramelessWindowHint);
-	m_AudioOutChangeInfo1v1->setAudioChange(this);
-	m_AudioOutChangeInfo1v1->hide();
-
-	m_VideoChangeInfo1v1 = new UIVideoChange1v1(this);
-	m_VideoChangeInfo1v1->setWindowFlags(Qt::FramelessWindowHint);
-	m_VideoChangeInfo1v1->setVideoChange(this);
-	m_VideoChangeInfo1v1->hide();
-
-	// 设置麦克风样式
-	ui.Audio1v1_checkBox->setStyleSheet("QCheckBox::indicator{width: 24px;height: 19px;}"
-		"QCheckBox::indicator:unchecked{image: url(./images/mic_open.png);}"
-		"QCheckBox::indicator:checked{image: url(./images/mic_close.png);}");
-	ui.Audio1v1_pushButton->setStyleSheet("QPushButton{border-image:url(./images/Arrow.png);}");
-
-	// 设置摄像头视频源样式
-	ui.video1v1_checkBox->setStyleSheet("QCheckBox::indicator{width: 29px;height: 19px;}"
-		"QCheckBox::indicator:unchecked{image: url(./images/camera_open.png);}"
-		"QCheckBox::indicator:checked{image: url(./images/camera_close.png);}");
-	ui.video1v1_pushButton->setStyleSheet("QPushButton{border-image:url(./images/Arrow.png);}");
-
-	// 设置弹幕样式
-	ui.Bullet1v1_checkBox->setStyleSheet("QCheckBox::indicator{width: 26px;height: 19px;}"
-		"QCheckBox::indicator:unchecked{image: url(./images/bullet_close.png);}"
-		"QCheckBox::indicator:checked{image: url(./images/bullet_open.png);}");
-	ui.Bullet1v1_pushButton->setStyleSheet("QPushButton{border-image:url(./images/Arrow.png);}");
-
-	// 设置设置扬声器样式
-	ui.AudioOut_checkBox->setStyleSheet("QCheckBox::indicator{width: 29px;height: 19px;}"
-		"QCheckBox::indicator:unchecked{image: url(./images/audioout_open.png);}"
-		"QCheckBox::indicator:checked{image: url(./images/audioout_close.png);}");
-	ui.AudioOut_pushButton->setStyleSheet("QPushButton{border-image:url(./images/Arrow.png);}");
-
-	ui.shapeScreen_pushButton->setStyleSheet("QPushButton{border-image:url(./images/shapeScreen.png);}");
-	ui.doc_pushButton->setStyleSheet("QPushButton{border-image:url(./images/docBtn.png);}");
-
-	connect(ui.Audio1v1_checkBox, SIGNAL(stateChanged(int)), this, SLOT(Audio1v1Status(int)));
-	connect(ui.Audio1v1_pushButton, SIGNAL(clicked()), this, SLOT(clickAudio1v1Param()));
-	connect(ui.video1v1_checkBox, SIGNAL(stateChanged(int)), this, SLOT(Video1v1Status(int)));
-	connect(ui.video1v1_pushButton, SIGNAL(clicked()), this, SLOT(clickVideo1v1Param()));
-	connect(ui.Bullet1v1_checkBox, SIGNAL(stateChanged(int)), this, SLOT(BulletStatus(int)));
-	connect(ui.Bullet1v1_pushButton, SIGNAL(clicked()), this, SLOT(clickBulletParam()));
-	connect(ui.AudioOut_checkBox, SIGNAL(stateChanged(int)), this, SLOT(AudioOut1v1Status(int)));
-	connect(ui.AudioOut_pushButton, SIGNAL(clicked()), this, SLOT(clickAudioOut1v1Param()));
-	connect(ui.Live1v1_pushBtn, SIGNAL(clicked()), this, SLOT(clickLive1v1()));
-	connect(ui.time1v1_label, SIGNAL(clicked()), this, SLOT(clickLive1v1()));
-	connect(ui.shapeScreen_pushButton, SIGNAL(clicked()), this, SLOT(clickShapeScreen1v1()));
-}
-
-//初始化白板
-void UIWindowSet::initWhiteBoardWidget()
-{
-	mWhiteBoard = new Palette();
-	ui.horizontalLayout_21->addWidget(mWhiteBoard);
-	mWhiteBoard->setIsDraw(true);
-	connect(mWhiteBoard, SIGNAL(PicData(QString)), this, SLOT(PicData(QString)));
-
-	m_WhiteBoardTool = new UIWhiteBoardTool(ui.live1v1_widget);
-	m_WhiteBoardTool->hide();
-	connect(m_WhiteBoardTool, SIGNAL(selectColor(QColor&)), this, SLOT(selectColor(QColor&)));
-	connect(m_WhiteBoardTool, SIGNAL(returnClick()), this, SLOT(returnClick()));
-	connect(m_WhiteBoardTool, SIGNAL(deleteClick()), this, SLOT(deleteClick()));
-	connect(m_WhiteBoardTool, SIGNAL(laserClick()), this, SLOT(laserClick()));
-	connect(m_WhiteBoardTool, SIGNAL(drawClick()), this, SLOT(drawClick()));
-
-	// 老师自己的摄像头
-	m_Camera1v1Info = new UICamera1v1(ui.cameraT_widget);
-	m_Camera1v1Info->setWindowFlags(Qt::FramelessWindowHint);
-	ui.horizontalLayout_22->addWidget(m_Camera1v1Info);
-	m_Camera1v1Info->show();
-
-	// 学生摄像头
-	m_CameraS1v1Info = new UICameraS1v1(ui.cameraS_widget);
-	m_CameraS1v1Info->setWindowFlags(Qt::FramelessWindowHint);
-	ui.horizontalLayout_23->addWidget(m_CameraS1v1Info);
-	m_CameraS1v1Info->show();
-
-	// 1v1全屏桌面
-	m_VideoInfo1v1 = new UIVideo1v1(ui.fullS1v1_widget);
-	m_VideoInfo1v1->setWindowFlags(Qt::FramelessWindowHint);
-	ui.horizontalLayout_21->addWidget(m_VideoInfo1v1);
-	m_VideoInfo1v1->hide();
-	connect(m_VideoInfo1v1, SIGNAL(sig_refreshWnd()), this, SLOT(slot_refreshWnd()));
-	connect(m_VideoInfo1v1, SIGNAL(sig_CustomVideoData(__int64, const char*, int, int, int)), this, SLOT(slot_CustomVideoData(__int64, const char*, int, int, int)));
-
-	m_AppWndTool1v1 = new UIAppWndTool(ui.live1v1_widget);
-	m_AppWndTool1v1->hide();
-	connect(m_AppWndTool1v1, SIGNAL(sig_shiftWnd()), this, SLOT(slot_shiftWnd()));
-	connect(m_AppWndTool1v1, SIGNAL(sig_CloseWnd()), this, SLOT(slot_CloseWnd()));
-
-	// 1v1选择窗口界面
-	m_AppWnd1v1 = new UIAppWnd();
-	m_AppWnd1v1->setWindowFlags(Qt::FramelessWindowHint);
-	m_AppWnd1v1->hide();
-	connect(m_AppWnd1v1, SIGNAL(sig_selectWnd(HWND)), this, SLOT(slot_selectWnd(HWND)));
-}
-
-void UIWindowSet::initConnection()
-{
-	IMInterface *instance = IMInterface::getInstance();
-	if (NULL == instance)
-	{
-		return;
-	}
-
-	connect(instance, SIGNAL(createRtsRoomSuccessfully(const std::string&)), this, SLOT(joinRtsRoom(const std::string&)));
-	connect(instance, SIGNAL(joinRtsRoomSuccessfully(const std::string&, __int64, const std::string&)),
-		this, SLOT(joinRoomSuccessfully(const std::string&, __int64, const std::string&)));
-	connect(instance, SIGNAL(createVChatRoomSuccessfully()), this, SLOT(joinVChatRoom()));
-	connect(instance, SIGNAL(joinVChatSuccessfully()), this, SLOT(joinVChatSuccessfully()));
-	connect(instance, SIGNAL(hasError(const QString &)), this, SLOT(errorInfo(const QString &)));
-	connect(instance, SIGNAL(deviceInfos(int)), this, SLOT(setDeviceInfos(int)));
-	connect(instance, SIGNAL(startDeviceSuccessfully(int)), this, SLOT(startDeviceSuccessfully(int)));
-	connect(instance, SIGNAL(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)), m_Camera1v1Info, SLOT(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)));
-	connect(instance, SIGNAL(RecVideoCapture(const char*, unsigned int, unsigned int, unsigned int)), m_CameraS1v1Info, SLOT(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)));
-
-	connect(instance, SIGNAL(rtsDataReceived(const std::string&)), this, SLOT(rtsDataReceived(const std::string&)));
-}
-
-void UIWindowSet::setAudioChange1v1(QString path)
-{
-	if (!ui.Audio1v1_checkBox->isChecked())
-	{
-		if (!path.isNull())
-		{
-			IMInterface::getInstance()->endDevice(Audio);
-			IMInterface::getInstance()->startDevice(Audio, path.toStdString(), 0, 0, 0);
-		}
-	}
-}
-
-void UIWindowSet::setValueChange1v1(int iVolumn, bool capturn)
-{
-	IMInterface::getInstance()->setAudioChange(iVolumn, capturn);
-}
-
-void UIWindowSet::setVideoChange1v1(QString path)
-{
-	if (!ui.video1v1_checkBox->isChecked())
-	{
-		if (!path.isNull())
-		{
-			IMInterface::getInstance()->endDevice(Video);
-			IMInterface::getInstance()->startDevice(Video, path.toStdString(), VIDEO_FPS, 0, 0);
-		}
-	}
-}
-
-void UIWindowSet::show1v1ErrorTip(QString sError)
-{
-	m_bLiving1v1 = false;
-	CMessageBox::showMessage(
-		QString("答疑时间"),
-		QString(sError),
-		QString("确定"));
+	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson);
 }

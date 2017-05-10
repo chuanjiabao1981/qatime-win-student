@@ -44,6 +44,7 @@ class UIWhiteBoardTool;
 class UIVideo1v1;
 class UIAppWnd;
 class UIAppWndTool;
+class UI1v1;
 
 class UIWindowSet : public QWidget
 {
@@ -98,15 +99,7 @@ private:
 	QTimer*							m_LiveTimer;		// 直播定时器
 
 	/***************************互动直播*****************************/
-	bool							m_bLiving1v1;			// 1对1直播标识
-	Palette*						mWhiteBoard;			// 画板
-	UICamera1v1*					m_Camera1v1Info;		// 1对1摄像头
-	UICameraS1v1*					m_CameraS1v1Info;		// 1对1教师摄像头
-	UIVideoChange1v1*				m_VideoChangeInfo1v1;	// 摄像头选择窗口
-	UIAudioChange1v1*				m_AudioChangeInfo1v1;	// 麦克风选择窗口
-	UIAudioOutChange1v1*			m_AudioOutChangeInfo1v1;// 扬声器选择窗口
-	UIWhiteBoardTool*				m_WhiteBoardTool;		// 白板操作
-	UIVideo1v1*						m_VideoInfo1v1;			// 1v1全屏桌面
+	UI1v1*							m_Ui1v1;			
 signals:
 	void sig_Modle(bool bModle);
 
@@ -124,31 +117,9 @@ private slots :
 	void slots_Modle(bool bModle);				// 改变模式
 	void slot_onTimeout();						// 时间
 
-	/*互动直播*/
-	void joinRtsRoom(const std::string &);					// 加入白板房间
-	void joinRoomSuccessfully(const std::string &, __int64, const std::string &);// 加入白板房间成功
-	//void joinVChatRoom();									// 加入音视频
-	void joinVChatSuccessfully();							// 加入音视频房间成功
-	void errorInfo(const QString &);						// 加入失败错误信息
-	void PicData(QString);									// 白板数据
-	void setDeviceInfos(int);								// 设备参数
-	void clickVideo1v1Param();								// 摄像头参数
-	void clickAudio1v1Param();								// 麦克风参数
-	void clickAudioOut1v1Param();							// 扬声器参数
-	void Audio1v1Status(int iStatus);						// 开启关闭麦克风
-	void Video1v1Status(int iStatus);						// 开启关闭摄像头
-	void AudioOut1v1Status(int);							// 开启关闭扬声器
-	//void clickLive1v1();									// 开启1v1直播
-	void selectColor(QColor&);								// 颜色器
-	void returnClick();										// 撤销上一步
-	void deleteClick();										// 清空白板
-	void laserClick();										// 激光笔
-	void drawClick();										// 绘画笔
-	void rtsDataReceived(const std::string& data);			// 接收白板数据
-	//void clickShapeScreen1v1();								// 点击分享屏幕
-	//void slot_selectWnd(HWND);								// 选择窗口
-	//void slot_refreshWnd();									// 刷新窗口
-	//void slot_CustomVideoData(__int64, const char*, int, int, int);	// 发送自定义数据
+	
+
+//	void slot_refreshWnd();									// 刷新窗口
 
 protected:
 	virtual void paintEvent(QPaintEvent *event);
@@ -161,13 +132,15 @@ private:
 	UIChatRoom* IsHasRoom(QString chatID);				// 判断当前是否有此聊天窗	
 	void InitBoardView();								// 初始化白板播放器
 	void PlayLive(QString sBoard, QString sCamera);		// 播放直播
+
+	void init1v1();
 public:
 	void setMainWindow(UIMainWindow* parent);	// 设置窗口
 	void setStudent(QString id);				// 学生ID
-	UITags* AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status);		// 添加标签窗口, 参数sel是否选中此标签
+	UITags* AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status, bool b1v1Lesson);		// 添加标签窗口, 参数sel是否选中此标签
 	void DeleleTag(UITags* tag);				// 关闭Tag
 	void SetToken(QString token);
-	void AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status);// 创建聊天窗
+	void AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson);// 创建聊天窗
 	bool ReceiverMsg(nim::IMMessage* pIMsg);				// 接收消息
 	void ReceiverChatMsg(nim::IMMessage* pIMsg);			// 接收消息
 	void ReceiverRecordMsg(nim::QueryMsglogResult* pIMsg);  // 接收历史消息
@@ -208,20 +181,9 @@ public:
 
 	/***************************互动直播*****************************/
 	void	OpenCourse(QString chatID, QString courseid, QString teacherid, QString token, QString studentName,
-		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,
-		QString boardurl, QString cameraUrl, bool b1v1Lesson);// 打开辅导班
+		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开辅导班
 	void	OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString token, QString studentName,
-		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,
-		QString boardurl, QString cameraUrl, bool b1v1Lesson);// 打开互动直播
-	void	createRtsRoom(const QString &roomName, const QString &roomInfo = "");// 创建白板链接
-	void	InitSetParamWnds();										  // 打开摄像头参数、麦克风等窗口
-	void	initWhiteBoardWidget();									  // 初始化白板
-	void	initConnection();										  // 初始化白板接口
-	void	setAudioChange1v1(QString path);						  // 设置一对一麦克风
-	void	setValueChange1v1(int iVolumn, bool capturn);			  // 设置麦克风音量
-	void	setVideoChange1v1(QString path);						  // 设置一对一摄像头
-	//void	start1v1LiveStream();
-	void	show1v1ErrorTip(QString sError);
+		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开互动直播s
 };
 
 #endif // UIWINDOWSET_H

@@ -364,7 +364,7 @@ void LoginWindow::AutoLogin()
 	mainWin->setVersion(m_version);
 	mainWin->ShowLesson();
  	mainWin->setLoginWindow(this);
-	mainWin->resize(100, 100);
+	mainWin->resize(1, 1);
 	mainWin->show();
 }
 

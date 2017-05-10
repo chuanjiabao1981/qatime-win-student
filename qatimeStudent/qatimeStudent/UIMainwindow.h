@@ -85,7 +85,7 @@ public:
 	void	setNetworkPic(const QString &szUrl);			// 从网络上获取头像
 	void    returnClick();									// 重新登录
 	void	ShowCourse();									// 显示辅导班
-	void    CreateRoom(QString chatID, QString courseID, QString teacherID, QString token, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status);		// 创建聊天室
+	void    CreateRoom(QString chatID, QString courseID, QString teacherID, QString token, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson = false);		// 创建聊天室
 	void    CloseDialog();
 
 	/*添加云信功能*/

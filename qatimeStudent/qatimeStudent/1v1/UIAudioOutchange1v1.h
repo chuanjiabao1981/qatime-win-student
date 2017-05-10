@@ -29,6 +29,10 @@ protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 	virtual void focusOutEvent(QFocusEvent *);
 
+signals:
+	void sig_setAudioOutChange1v1(QString);
+	void sig_setValueChange1v1(int,bool);
+
 private slots:
 	void AudioChanged(int index);
 	void clickClose();
