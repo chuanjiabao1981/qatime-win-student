@@ -76,6 +76,8 @@ public:
 	void	AuxiliaryRequestFinished();						// 辅导班http请求
 	void    ShowLesson();									// 查询今日课程信息
 	void	LessonRequestFinished();						// 今日课程http请求
+	void	ShowOneToOneAuxiliary();						// 查询一对一互动信息
+	void	OneToOneAuxiliaryRequestFinished();				// 一对一互动http请求
 	void	setSudentInfo(QJsonObject &data);				// 学生信息
 	void	setAutoSudentInfo(QString teacherID, QString teacherName, QString teacherUrl, QString accid, QString token); // 自动登录的学生信息
 	void    setVersion(QString version);

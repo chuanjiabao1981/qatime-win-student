@@ -177,6 +177,60 @@ void UIMainWindow::LessonRequestFinished()
 	ShowAuxiliary();
 }
 
+void UIMainWindow::ShowOneToOneAuxiliary()
+{
+	QString strUrl;
+	if (m_EnvironmentalTyle)
+	{
+		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/interactive_courses";
+		strUrl.replace("{student_id}", m_studentID);
+	}
+	else
+	{
+		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{student_id}/interactive_courses";
+		strUrl.replace("{student_id}", m_studentID);
+	}
+
+	QByteArray append("?per_page=");
+	append += "100";
+
+	strUrl += append;
+	QUrl url = QUrl(strUrl);
+	QNetworkRequest request(url);
+	QString str = this->mRemeberToken;
+
+	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	reply = manager.get(request);
+	connect(reply, &QNetworkReply::finished, this, &UIMainWindow::OneToOneAuxiliaryRequestFinished);
+}
+
+void UIMainWindow::OneToOneAuxiliaryRequestFinished()
+{
+	int i = 0;
+	QByteArray result = reply->readAll();
+	QJsonDocument document(QJsonDocument::fromJson(result));
+	QJsonObject obj = document.object();
+
+	OTO_INFO info = Course::getOneToOneInfoFromJson(obj);
+
+	foreach(const OTO_DATA &data, info.data)
+	{
+		if (m_AuxiliaryWnd)
+		{
+			//数据中包含多个老师信息，如何确定当前一对一直播为哪个老师？
+			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, "刘刚老师"/*教师名如何获取*/, data.chat_team_id, QString::number(3056)/*教师id如何获取*/,
+				QString::number(data.id), mRemeberToken, m_studentName, m_AudioPath, data.status);
+		}
+
+		i++;
+	}
+
+	qDebug() << QString::number(i);
+	if (m_AuxiliaryWnd)
+		m_AuxiliaryWnd->LoadPic();
+	RequestKey();
+}
+
 void UIMainWindow::ShowAuxiliary()
 {
 	QString strUrl;
@@ -215,7 +269,7 @@ void UIMainWindow::AuxiliaryRequestFinished()
 	{
 		QJsonObject obj = value.toObject();
 		Course *course = new Course();
-		course->readJson(value.toObject());
+		course->readJson(obj);
 
  		if (m_AuxiliaryWnd)
  			m_AuxiliaryWnd->AddAuxiliary(course->PicUrl(), course->name(), course->Grade(), course->TeacherName(), course->ChatId(), course->id(), course->OwnerId(),
@@ -229,7 +283,8 @@ void UIMainWindow::AuxiliaryRequestFinished()
 	qDebug() << QString::number(i);
 	if (m_AuxiliaryWnd)
 		m_AuxiliaryWnd->LoadPic();
-	RequestKey();
+
+	ShowOneToOneAuxiliary();
 }
 
 void UIMainWindow::RequestKey()
