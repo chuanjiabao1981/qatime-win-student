@@ -18,6 +18,8 @@
 #include <QNetworkRequest>
 #include <QFileDialog>
 
+extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
+
 
 QColor timeColor(153, 153, 153);
 QColor contentColor(102, 102, 102);
@@ -47,7 +49,6 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 	, m_pWorker(NULL)
 	, m_DisSendMsgTimer(NULL)
 	, m_bCanSend(true)
-	, m_EnvironmentalTyle(true)
 	, m_DisCount(2)
 {
 	ui.setupUi(this);
@@ -1457,7 +1458,7 @@ void UIChatRoom::OnSendAnnouncements(QString Announcements)
 		return;
 	
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/announcements";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -1560,7 +1561,7 @@ void UIChatRoom ::colseBrow()
 void UIChatRoom::QueryMember()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -2066,7 +2067,7 @@ void UIChatRoom::SetCurAudioPath(std::string path)
 void UIChatRoom::Request1v1Member()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -2089,7 +2090,7 @@ void UIChatRoom::Request1v1Member()
 void UIChatRoom::RequestMember()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -2539,11 +2540,6 @@ void UIChatRoom::setEditFocus()
 {
 	ui.textEdit->activateWindow();
 	m_uitalk->setFocus();
-}
-
-void UIChatRoom::SetEnvironmental(bool bType)
-{
-	m_EnvironmentalTyle = bType;
 }
 
 void UIChatRoom::SetAudioStatus(char* msgid, bool bSuc)

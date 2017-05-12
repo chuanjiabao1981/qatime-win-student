@@ -59,6 +59,25 @@ typedef struct ONETOONE_INFO
 	QList<OTO_DATA> data;
 }OTO_INFO;
 
+typedef struct STATUS_DATA
+{
+	int id;
+	int board;
+	int camera;
+	int t;
+	int timestamp;
+	QString name;
+	QString status;
+	QString room_id;
+	QStringList online_users;
+}STATUS_DATA;
+
+typedef struct ONETOONE_STATUS
+{
+	int status;
+	STATUS_DATA data;
+}OTO_STATUS;
+
 class Course
 {
 public:
@@ -78,9 +97,14 @@ public:
 	QString		TeacherName();
 	QString		PicUrl();
 
+	//获取1v1互动课程信息
 	static OTO_INFO getOneToOneInfoFromJson(const QJsonObject &json);
 	static OTO_DATA getOneToOneDataFromJson(const QJsonObject &json);
 	static OTO_TEACHER getOneToOneTeacherFromJson(const QJsonObject &json);
+
+	//获取1v1互动状态
+	static OTO_STATUS getOneToOneStatusFromJson(const QJsonObject &json);
+	static STATUS_DATA getStatusDataFromJson(const QJsonObject &json);
 private:
     int			mId;
     QString		mName;				// 辅导班名称

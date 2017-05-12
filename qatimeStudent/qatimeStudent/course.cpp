@@ -108,6 +108,40 @@ OTO_TEACHER Course::getOneToOneTeacherFromJson(const QJsonObject &json)
 	return teacher;
 }
 
+OTO_STATUS Course::getOneToOneStatusFromJson(const QJsonObject &json)
+{
+	OTO_STATUS info;
+
+	info.status = json["status"].toInt();
+	QJsonObject object = json["data"].toObject();
+	info.data = getStatusDataFromJson(object);
+
+	return info;
+}
+
+STATUS_DATA Course::getStatusDataFromJson(const QJsonObject &json)
+{
+	STATUS_DATA data;
+
+	QJsonObject object = json["live_info"].toObject();
+	data.id				= object["id"].toInt();
+	data.board			= object["board"].toInt();
+	data.camera			= object["camera"].toInt();
+	data.t				= object["t"].toInt();	
+	data.name			= object["name"].toString();
+	data.status			= object["status"].toString();
+	data.room_id		= object["room_id"].toString();
+
+	QJsonArray array = json["online_users"].toArray();
+	foreach(const QJsonValue &value, array) {
+		data.online_users.append(value.toString());
+	}
+
+	data.timestamp = json["timestamp"].toInt();
+
+	return data;
+}
+
 QString Course::url()
 {
 	return mURL;

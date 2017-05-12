@@ -65,7 +65,6 @@ private:
 	HWND							m_hCameraWnd;			// 摄像头窗口
 	QTimer*							m_BoardTimer;			// 白板延时
 	QTimer*							m_CameraTimer;			// 摄像头延时
-	bool						    m_EnvironmentalTyle;	// 环境类型
 protected slots:
 	void slot_BoardTimeout();
 	void slot_CameraTimeout();

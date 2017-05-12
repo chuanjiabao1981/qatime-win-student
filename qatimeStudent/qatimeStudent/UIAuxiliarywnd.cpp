@@ -513,11 +513,6 @@ void UIAuxiliaryWnd::setVersion(QString version)
 	m_UIMenu->setVersion(version);
 }
 
-void UIAuxiliaryWnd::SetEnvironmental(bool bType)
-{
-	m_UIMenu->SetEnvironmental(bType);
-}
-
 void UIAuxiliaryWnd::SetToken(QString mRemeberToken)
 {
 	m_UIMenu->setToken(mRemeberToken);

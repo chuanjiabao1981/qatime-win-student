@@ -9,6 +9,9 @@
 #define MAINWINDOW_Y_MARGIN 2
 #define MAINWINDOW_TITLE_HEIGHT 100
 
+extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
+extern QString g_remeberToken;
+
 UIMainWindow* m_This = NULL;
 UIMainWindow::UIMainWindow(QWidget *parent)
 	: QWidget(parent)
@@ -19,7 +22,6 @@ UIMainWindow::UIMainWindow(QWidget *parent)
 	, m_hCameraWnd(NULL)
 	, m_BoardTimer(NULL)
 	, m_CameraTimer(NULL)
-	, m_EnvironmentalTyle(true)
 {
 	ui.setupUi(this);
 	m_This = this;
@@ -61,6 +63,7 @@ UIMainWindow::~UIMainWindow()
 void UIMainWindow::setRemeberToken(const QString &token)
 {
 	mRemeberToken = token;
+	g_remeberToken = token;
 	m_WindowSet->SetToken(mRemeberToken);
 	m_AuxiliaryWnd->SetToken(mRemeberToken);
 }
@@ -118,7 +121,7 @@ void UIMainWindow::setVersion(QString version)
 void UIMainWindow::ShowLesson()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/schedule";
 		strUrl.replace("{student_id}", m_studentID);
@@ -131,7 +134,6 @@ void UIMainWindow::ShowLesson()
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
 
 	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
 	reply = manager.get(request);
@@ -180,7 +182,7 @@ void UIMainWindow::LessonRequestFinished()
 void UIMainWindow::ShowOneToOneAuxiliary()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/interactive_courses";
 		strUrl.replace("{student_id}", m_studentID);
@@ -218,8 +220,15 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 		if (m_AuxiliaryWnd)
 		{
 			//数据中包含多个老师信息，如何确定当前一对一直播为哪个老师？
-			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, "刘刚老师"/*教师名如何获取*/, data.chat_team_id, QString::number(data.id),
-				QString::number(data.teachers.first().id), mRemeberToken, m_studentName, m_AudioPath, data.status);
+			QString teacherName;
+			QString teacherId;
+			if (!data.teachers.isEmpty())
+			{
+				teacherName = data.teachers.first().name;
+				teacherId = data.teachers.first().id;
+			}
+			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, teacherName, data.chat_team_id, QString::number(data.id),
+				teacherId, mRemeberToken, m_studentName, m_AudioPath, data.status);
 		}
 
 		i++;
@@ -234,7 +243,7 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 void UIMainWindow::ShowAuxiliary()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/courses";
 		strUrl.replace("{student_id}", m_studentID);
@@ -290,7 +299,7 @@ void UIMainWindow::AuxiliaryRequestFinished()
 void UIMainWindow::RequestKey()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 		strUrl = "https://qatime.cn/api/v1/app_constant/im_app_key";
 	else
 		strUrl = "http://testing.qatime.cn/api/v1/app_constant/im_app_key";
@@ -638,7 +647,5 @@ void UIMainWindow::slot_CameraTimeout()
 
 void UIMainWindow::SetEnvironmental(bool bType)
 {
-	m_EnvironmentalTyle = bType;
-	m_WindowSet->SetEnvironmental(m_EnvironmentalTyle);
-	m_AuxiliaryWnd->SetEnvironmental(m_EnvironmentalTyle);
+	g_environmentType = bType;
 }

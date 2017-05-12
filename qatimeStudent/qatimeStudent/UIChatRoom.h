@@ -112,7 +112,6 @@ private:
 	QTimer*							m_AudioBarTimer;	// 语音条显示定时器
 public:
 	QString							m_StudentName;		// 学生名字
-	bool							m_EnvironmentalTyle;// 环境类型
 protected:
 	virtual bool eventFilter(QObject *watched, QEvent *event);
 	void mousePressEvent(QMouseEvent *event);
@@ -220,7 +219,6 @@ public:
 	void        ShowChatMsg(nim::IMMessage pMsg);				// 显示第一次进入的聊天消息
 	void		RecordMoved();									// 消息记录滚动条
 	void        setEditFocus();
-	void		SetEnvironmental(bool bType);					// 设置环境
 	void        SetAudioStatus(char* msgid, bool bSuc = true);	// 设置消息状态
 public slots:
 	void chickChage(int, QString, QString);

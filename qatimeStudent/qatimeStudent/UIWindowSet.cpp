@@ -10,6 +10,9 @@
 #include <sstream>
 #include <tlhelp32.h>
 
+#include "HttpRequest.h"
+#include "course.h"
+
 #include "1v1/IMInterface.h"
 
 //1对1
@@ -31,6 +34,9 @@
 #define LIVE_BUTTON_NAME	"选课直播"
 #define LESSON_LABEL		"暂无直播"
 
+extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
+extern QString g_remeberToken;
+
 UIWindowSet* m_This = NULL;
 UIWindowSet::UIWindowSet(QWidget *parent)
 	: QWidget(parent)
@@ -45,8 +51,8 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	, m_hBoardWnd(NULL)
 	, m_hCameraWnd(NULL)
 	, m_bInitLive(false)
-	, m_EnvironmentalTyle(true)
 	, m_Ui1v1(NULL)
+	, m_timer(NULL)
 {
 	ui.setupUi(this);
 	m_This = this;
@@ -293,7 +299,7 @@ bool UIWindowSet::eventFilter(QObject *target, QEvent *event)
 			if (m_curTags && m_curTags->IsModle())
 			{
 				QString url;
-				if (m_EnvironmentalTyle)
+				if (g_environmentType)
 					url = "https://qatime.cn/play.html?address={rtmp}&width={width}&height={height}";//&width={width}&height={height}
 				else
 					url = "http://testing.qatime.cn/play.html?address={rtmp}&width={width}&height={height}";//&width={width}&height={height}
@@ -417,6 +423,8 @@ void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacheri
 		showNormal();
 	SetWindowPos((HWND)winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
+	m_course_id1v1 = courseid;
+
 	QMap<QString, UITags*>::iterator it;
 	it = m_mapTags.find(chatID);
 	if (it == m_mapTags.end())
@@ -442,7 +450,7 @@ void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacheri
 // 		chatRoom = new UIChatRoom(ui.chat_widget);
 // 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
 // 		chatRoom->setMainWindow(this);
-// 		chatRoom->SetEnvironmental(m_EnvironmentalTyle);
+// 		chatRoom->SetEnvironmental(g_environmentType);
 // 		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount);
 // 		chatRoom->SetCurAudioPath(strCurAudioPath);
 // 		chatRoom->InitAudioCallBack();
@@ -793,7 +801,7 @@ void UIWindowSet::QueryNotice()
 		return;
 
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
 		strUrl.replace("{id}", strCourseID);
@@ -871,7 +879,7 @@ void UIWindowSet::QueryCourse()
 		return;
 
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
 		strUrl.replace("{id}", strCourseID);
@@ -995,7 +1003,7 @@ void UIWindowSet::QueryLesson()
 		return;
 
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
 		strUrl.replace("{id}", strCourseID);
@@ -1162,7 +1170,7 @@ void UIWindowSet::QueryLiveInfo()
 	}
 
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/play_info";
 		strUrl.replace("{id}", strCourseID);
@@ -1226,7 +1234,7 @@ void UIWindowSet::PlayLive(QString sBoard, QString sCamera)
 	int iWidth = ui.whiteboard_widget->width();
 	int iHeight = ui.whiteboard_widget->height();
 	QString url;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 		url = "https://qatime.cn/play.html?address={rtmp}&width={width}&height={height}";//&width={width}&height={height}
 	else
 		url = "http://testing.qatime.cn/play.html?address={rtmp}&width={width}&height={height}";//&width={width}&height={height}
@@ -1254,7 +1262,7 @@ void UIWindowSet::PlayLive(QString sBoard, QString sCamera)
 
 	iWidth = ui.camera_widget->width();
 	iHeight = ui.camera_widget->height();
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 		url = "https://qatime.cn/play.html?address={rtmp}&width={width}&height={height}";//&width={width}&height={height}
 	else
 		url = "http://testing.qatime.cn/play.html?address={rtmp}&width={width}&height={height}";//&width={width}&height={height}
@@ -1292,6 +1300,18 @@ void UIWindowSet::init1v1()
 	m_Ui1v1 = new UI1v1(this);
 
 	ui.horizontalLayout_8->addWidget(m_Ui1v1);
+}
+
+void UIWindowSet::init1v1Timer()
+{
+	if (m_timer)
+	{
+		delete m_timer;
+		m_timer = NULL;
+	}
+
+	m_timer = new QTimer(this);
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(status1v1()));
 }
 
 void UIWindowSet::slots_Modle(bool bModle)
@@ -1394,6 +1414,32 @@ void UIWindowSet::slot_onTimeout()
 	}
 }
 
+void UIWindowSet::status1v1()
+{
+	QString strUrl;
+	if (g_environmentType)
+	{
+		strUrl = "http://qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+	}
+	else
+	{
+		strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+	}
+	strUrl.replace("{interactive_course_id}", m_course_id1v1);
+	
+	HttpRequest httpRequest;
+	httpRequest.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+
+	QByteArray byteArray = httpRequest.httpGet(strUrl);
+
+	QJsonDocument document(QJsonDocument::fromJson(byteArray));
+	QJsonObject obj = document.object();
+
+	ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
+
+	qDebug() << otoStatus.data.status;
+}
+
 void UIWindowSet::ChangeBtnStyle(bool bLive)
 {
 	if (bLive)
@@ -1406,11 +1452,6 @@ void UIWindowSet::ChangeBtnStyle(bool bLive)
 		ui.change_pushButton->setStyleSheet("QPushButton{border-image:url(./images/noliveChange_nor.png);}"
 				"QPushButton:pressed{border-image:url(./images/noliveChange_hover.png);}");
 	}
-}
-
-void UIWindowSet::SetEnvironmental(bool bType)
-{
-	m_EnvironmentalTyle = bType;
 }
 
 void UIWindowSet::ReceiverAudioStatus(std::string sid, char* msgid, bool bSuc)
@@ -1531,7 +1572,6 @@ void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid
 		chatRoom = new UIChatRoom(ui.chat_widget);
 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
 		chatRoom->setMainWindow(this);
-		chatRoom->SetEnvironmental(m_EnvironmentalTyle);
 		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
 		ui.horizontalLayout_6->addWidget(chatRoom);
@@ -1553,7 +1593,6 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 		chatRoom = new UIChatRoom();
 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
 		chatRoom->setMainWindow(this);
-		chatRoom->SetEnvironmental(m_EnvironmentalTyle);
 		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount, true);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
 		m_Ui1v1->chat1v1Widget()->addWidget(chatRoom);
@@ -1563,4 +1602,24 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 	}
 
 	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson);
+
+	start1v1Status(3000);//轮询直播状态， 3000毫秒查询一次
+}
+
+void UIWindowSet::start1v1Status(int msec)
+{
+	if (!m_timer)
+	{
+		init1v1Timer();
+	}
+
+	m_timer->start(msec);
+}
+
+void UIWindowSet::stop1v1Status()
+{
+	if (m_timer)
+	{
+		m_timer->stop();
+	}
 }

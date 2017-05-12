@@ -92,7 +92,6 @@ public:
 	void LoadPic();
 	void setStudentName(QString studentName);
 	void setVersion(QString version);
-	void SetEnvironmental(bool m_EnvironmentalTyle);
 	void SetToken(QString mRemeberToken);
 };
 
