@@ -111,7 +111,7 @@ void Palette::setMouseStyle(bool isDraw)
 	if (isDraw)
 	{
 		QCursor cursor;
-		QPixmap pixmap(":/LoginWindow/images/pen.png");
+		QPixmap pixmap("./images/pen.png");
 		cursor = QCursor(pixmap, 0, pixmap.height());
 		setCursor(cursor);
 	}

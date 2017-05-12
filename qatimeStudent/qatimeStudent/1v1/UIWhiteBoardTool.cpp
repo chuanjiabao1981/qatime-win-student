@@ -18,20 +18,15 @@ UIWhiteBoardTool::UIWhiteBoardTool(QWidget *parent)
 	ui.return_pushButton->setStyleSheet("QPushButton{border-image:url(./images/return_nor.png);}"
 										"QPushButton:hover{border-image:url(./images/return_hor.png);}"
 										"QPushButton:pressed{border-image:url(./images/return_hor.png);}");
-	ui.delete_pushButton->setStyleSheet("QPushButton{border-image:url(./images/delete_nor.png);}"
-										"QPushButton:hover{border-image:url(./images/delete_hor.png);}"
-										"QPushButton:pressed{border-image:url(./images/delete_hor.png);}");
 	ui.color_pushButton->setStyleSheet("QPushButton{border-image:url(./images/color_m0_nor.png);}"
 										"QPushButton:hover{border-image:url(./images/color_m0_hor.png);}"
 										"QPushButton:pressed{border-image:url(./images/color_m0_hor.png);}");
 
 	connect(ui.color_pushButton, SIGNAL(clicked()), this, SLOT(colorClicked()));
 	connect(ui.return_pushButton, SIGNAL(clicked()), this, SLOT(returnClicked()));
-	connect(ui.delete_pushButton, SIGNAL(clicked()), this, SLOT(deleteClicked()));
-	connect(ui.laser_radioButton, SIGNAL(clicked()), this, SLOT(laserClicked()));
-	connect(ui.draw_radioButton, SIGNAL(clicked()), this, SLOT(drawClicked()));
 
 	initColorPicker();
+	setFixedWidth(75);
 }
 
 UIWhiteBoardTool::~UIWhiteBoardTool()
@@ -95,21 +90,6 @@ void UIWhiteBoardTool::setPenColor(int color)
 void UIWhiteBoardTool::returnClicked()
 {
 	emit returnClick();
-}
-
-void UIWhiteBoardTool::deleteClicked()
-{
-	emit deleteClick();
-}
-
-void UIWhiteBoardTool::laserClicked()
-{
-	emit laserClick();
-}
-
-void UIWhiteBoardTool::drawClicked()
-{
-	emit drawClick();
 }
 
 void UIWhiteBoardTool::paintEvent(QPaintEvent *event)

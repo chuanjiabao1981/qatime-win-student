@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>966</width>
-    <height>602</height>
+    <height>636</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,16 +33,16 @@
     <number>0</number>
    </property>
    <property name="leftMargin">
-    <number>4</number>
+    <number>1</number>
    </property>
    <property name="topMargin">
-    <number>4</number>
+    <number>1</number>
    </property>
    <property name="rightMargin">
-    <number>4</number>
+    <number>1</number>
    </property>
    <property name="bottomMargin">
-    <number>4</number>
+    <number>1</number>
    </property>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -536,6 +536,28 @@ QPushButton:pressed{color:#059dd5}</string>
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(5, 157, 213);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QWidget" name="live_widget" native="true">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <property name="spacing">
@@ -562,7 +584,7 @@ QPushButton:pressed{color:#059dd5}</string>
            <widget class="QWidget" name="whiteboard_widget" native="true">
             <property name="minimumSize">
              <size>
-              <width>656</width>
+              <width>663</width>
               <height>300</height>
              </size>
             </property>
@@ -603,28 +625,6 @@ QPushButton:pressed{color:#059dd5}</string>
          </layout>
         </item>
         <item>
-         <widget class="QLabel" name="white_label">
-          <property name="minimumSize">
-           <size>
-            <width>3</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>3</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(255, 255, 255);</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QLabel" name="line_label">
           <property name="minimumSize">
            <size>
@@ -639,7 +639,7 @@ QPushButton:pressed{color:#059dd5}</string>
            </size>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: rgb(190, 190, 190);</string>
+           <string notr="true">background-color: rgba(5, 157, 213);</string>
           </property>
           <property name="text">
            <string/>
@@ -648,6 +648,18 @@ QPushButton:pressed{color:#059dd5}</string>
         </item>
         <item>
          <widget class="QWidget" name="chatcamera_widget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <property name="spacing">
             <number>0</number>

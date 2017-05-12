@@ -76,5 +76,6 @@
         <file>images/alpha1.png</file>
         <file>images/tab1v1_hover.png</file>
         <file>images/tab1v1_nor.png</file>
+        <file>images/videoback.png</file>
     </qresource>
 </RCC>

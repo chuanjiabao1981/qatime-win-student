@@ -29,9 +29,6 @@ private slots:
 	void setPenColor(int);
 	void colorClicked();
 	void returnClicked();
-	void deleteClicked();
-	void laserClicked();
-	void drawClicked();
 protected:
 	void paintEvent(QPaintEvent *event);
 };

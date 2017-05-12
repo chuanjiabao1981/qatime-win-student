@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>165</width>
+    <width>94</width>
     <height>31</height>
    </rect>
   </property>
@@ -42,7 +42,7 @@
        <number>0</number>
       </property>
       <property name="leftMargin">
-       <number>0</number>
+       <number>10</number>
       </property>
       <property name="topMargin">
        <number>0</number>
@@ -53,98 +53,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QRadioButton" name="laser_radioButton">
-        <property name="minimumSize">
-         <size>
-          <width>38</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>38</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>激光笔</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QRadioButton:checked {border-image: url(:/LoginWindow/images/laser_hor.png);}
-
-QRadioButton:unchecked {border-image: url(:/LoginWindow/images/laser_nor.png);}
-
-QRadioButton:unchecked:hover {border-image: url(:/LoginWindow/images/laser_hor.png);}
-
-QRadioButton::indicator:checked {border-image: url(:/LoginWindow/images/.png);}
-
-QRadioButton::indicator:unchecked {border-image: url(:/LoginWindow/images/.png);}
-
-QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/.png);}</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="minimumSize">
-         <size>
-          <width>1</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>1</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="draw_radioButton">
-        <property name="minimumSize">
-         <size>
-          <width>38</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>38</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>画笔</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QRadioButton:checked {border-image: url(:/LoginWindow/images/pen_hor.png);}
-
-QRadioButton:unchecked {border-image: url(:/LoginWindow/images/pen_nor.png);}
-
-QRadioButton:unchecked:hover {border-image: url(:/LoginWindow/images/pen_hor.png);}
-
-QRadioButton::indicator:checked {border-image: url(:/LoginWindow/images/.png);}
-
-QRadioButton::indicator:unchecked {border-image: url(:/LoginWindow/images/.png);}
-
-QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/.png);}</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QPushButton" name="color_pushButton">
         <property name="minimumSize">
@@ -205,47 +113,6 @@ QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/
         </property>
         <property name="toolTip">
          <string>撤销</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="minimumSize">
-         <size>
-          <width>1</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>1</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="delete_pushButton">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>38</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>清屏</string>
         </property>
         <property name="text">
          <string/>
