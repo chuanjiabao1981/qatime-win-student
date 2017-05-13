@@ -102,6 +102,7 @@ private:
 	QTimer*							m_timer;			//轮询1对1互动直播定时器
 	QString							m_course_id1v1;		//课程ID
 	QString							m_status;			//1v1直播状态
+	bool							m_1v1Living;		//直播中状态
 signals:
 	void sig_Modle(bool bModle);
 

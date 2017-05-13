@@ -5,7 +5,8 @@
 
 Shape::Shape(QObject *parent) : QObject(parent)
 {
-
+	m_bLaserPen = false;
+	m_signPen = QPixmap("./images/pensign.png");
 }
 
 void Shape::append(const QPointF &point)
@@ -20,9 +21,16 @@ void Shape::setPen(const QPen &pen)
 
 void Shape::paint(QPainter &painter, const QSize &size)
 {
+	int width = size.width();
+	int height = size.height();
+
     painter.setPen(mPen);
     int vecsize = mPointVec.size();
-	if (vecsize <= 0)
+	if (m_bLaserPen)
+	{
+		painter.drawPixmap(QPointF(m_pTLaser.x()*width, m_pTLaser.y()*height-m_signPen.height()), m_signPen);
+	}
+	else if (vecsize <= 0)
     {
         return;
     }
@@ -36,9 +44,17 @@ void Shape::paint(QPainter &painter, const QSize &size)
         {
 			const QPointF &pointf1 = mPointVec.at(i);
 			const QPointF &pointf2 = mPointVec.at(i + 1);
-			int width = size.width();
-			int height = size.height();
 			painter.drawLine(pointf1.x() * width, pointf1.y() * height, pointf2.x() * width, pointf2.y() * height);
         }
     }
+}
+
+void Shape::setLaserPen(bool bLaserPen)
+{
+	m_bLaserPen = bLaserPen;
+}
+
+void Shape::setLaserPT(const QPointF &point)
+{
+	m_pTLaser = point;
 }

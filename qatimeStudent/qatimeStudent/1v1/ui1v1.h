@@ -32,15 +32,13 @@ public:
 	QLayout* chat1v1Widget();
 	void	initDevice();
 	void    ModleChange(bool bModle);								  // 模式改变
-
+	void	joinRtsRoom(const std::string & room);					  // 加入白板房间
 protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 
 private slots:
 	/*互动直播*/
-	void joinRtsRoom(const std::string &);					// 加入白板房间
 	void joinRoomSuccessfully(const std::string &, __int64, const std::string &);// 加入白板房间成功
-	//void joinVChatRoom();									// 加入音视频
 	void joinVChatSuccessfully();							// 加入音视频房间成功
 	void errorInfo(const QString &);						// 加入失败错误信息
 	void PicData(QString);									// 白板数据

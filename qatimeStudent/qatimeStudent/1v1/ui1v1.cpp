@@ -134,6 +134,7 @@ void UI1v1::initConnection()
 	connect(instance, SIGNAL(RecVideoCapture(const char*, unsigned int, unsigned int, unsigned int)), m_CameraS1v1Info, SLOT(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)));
 
 	connect(instance, SIGNAL(rtsDataReceived(const std::string&)), this, SLOT(rtsDataReceived(const std::string&)));
+	connect(instance, SIGNAL(PeopleStatus(bool)), m_CameraS1v1Info, SLOT(StartEndVideo(bool)));
 }
 
 void UI1v1::setAudioChange1v1(QString path)
@@ -203,6 +204,7 @@ void UI1v1::joinVChatSuccessfully()
 	/*m_bLiving1v1 = true;
 	m_LiveStatusManager->SendStart1v1LiveHttpMsg(m_lessonid, m_curTags->ChatID(), m_Token);*/
 	//TODO  加入直播房间后应接受音视频流
+	mWhiteBoard->sendSyncQuery();
 }
 
 void UI1v1::errorInfo(const QString & error)

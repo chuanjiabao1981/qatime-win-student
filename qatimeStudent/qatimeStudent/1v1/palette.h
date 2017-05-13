@@ -31,7 +31,7 @@ public:
 
 	void DrawUndo();							//对方撤销
 	int  colorConvert(QColor color);			//解析数据
-
+	void sendSyncQuery();						//发送同步查询
 	enum DrawOpType
 	{
 		DrawOpStart = 1,
@@ -85,6 +85,7 @@ private:
 	bool mIsDraw;								//是否需要画
     QPen mPen;
 	QTimer*	 m_timer;
+	Shape *m_LaserShape;
 };
 
 #endif // PALETTE_H

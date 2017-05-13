@@ -53,6 +53,7 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	, m_bInitLive(false)
 	, m_Ui1v1(NULL)
 	, m_timer(NULL)
+	, m_1v1Living(false)
 {
 	ui.setupUi(this);
 	m_This = this;
@@ -1079,6 +1080,9 @@ void UIWindowSet::clickChange(bool checked)
 {
 	if (m_curTags->Is1v1Lesson())
 	{
+		ui.live_widget->setVisible(false);
+		ui.live1v1_widget->setVisible(true);
+
 		m_Ui1v1->ModleChange(!m_curTags->IsModle());
 
 		if (m_curTags)
@@ -1086,6 +1090,9 @@ void UIWindowSet::clickChange(bool checked)
 	}
 	else
 	{
+		ui.live_widget->setVisible(true);
+		ui.live1v1_widget->setVisible(false);
+
 		if (ui.camera_widget->isVisible())
 		{
 			ui.line_label->setVisible(false);
@@ -1331,10 +1338,15 @@ void UIWindowSet::slots_Modle(bool bModle)
 	{
 		if (m_curTags && m_curTags->Is1v1Lesson())
 		{
+			ui.live_widget->setVisible(false);
+			ui.live1v1_widget->setVisible(true);
 			m_Ui1v1->ModleChange(false);
 		}
 		else
 		{
+			ui.live_widget->setVisible(true);
+			ui.live1v1_widget->setVisible(false);
+
 			ui.line_label->setVisible(false);
 			ui.camera_widget->setVisible(false);
 			ui.whiteboard_widget->setVisible(false);
@@ -1347,10 +1359,16 @@ void UIWindowSet::slots_Modle(bool bModle)
 	{
 		if (m_curTags && m_curTags->Is1v1Lesson())
 		{
+			ui.live_widget->setVisible(false);
+			ui.live1v1_widget->setVisible(true);
+
 			m_Ui1v1->ModleChange(true);
 		}
 		else
 		{
+			ui.live_widget->setVisible(true);
+			ui.live1v1_widget->setVisible(false);
+
 			ui.line_label->setVisible(true);
 			ui.camera_widget->setVisible(true);
 			ui.whiteboard_widget->setVisible(true);
@@ -1440,6 +1458,9 @@ void UIWindowSet::slot_onTimeout()
 
 void UIWindowSet::status1v1()
 {
+	if (m_1v1Living)
+		return;
+
 	QString strUrl;
 	if (g_environmentType)
 	{
@@ -1461,6 +1482,11 @@ void UIWindowSet::status1v1()
 
 	ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
 
+	if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty())
+	{
+		m_1v1Living = true;
+		m_Ui1v1->joinRtsRoom(otoStatus.data.room_id.toStdString());
+	}
 	qDebug() << otoStatus.data.status;
 }
 

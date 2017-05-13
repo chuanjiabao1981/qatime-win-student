@@ -19,6 +19,9 @@ public:
 
 	void paint(QPainter &painter, const QSize &size);
 
+	void setLaserPen(bool bLaserPen);
+
+	void setLaserPT(const QPointF &point);
 signals:
 
 public slots:
@@ -27,6 +30,10 @@ private:
     QVector< QPointF > mPointVec;
 
     QPen mPen;
+
+	bool m_bLaserPen;
+	QPointF m_pTLaser;
+	QPixmap m_signPen;
 };
 
 #endif // SHAPE_H

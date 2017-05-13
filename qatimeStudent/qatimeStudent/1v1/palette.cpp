@@ -8,6 +8,7 @@
 #include <QTimer>
 #include "shape.h"
 #include "windows.h"
+#include <QThread>
 
 #define  COLOR_VALUE_BLACK QColor(0, 0, 0)
 #define  COLOR_VALUE_RED QColor(204, 0, 0)
@@ -20,6 +21,7 @@ Palette::Palette(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Palette)
 	, m_timer(NULL)
+	, m_LaserShape(NULL)
 {
     ui->setupUi(this);
 	setMouseTracking(true);
@@ -30,6 +32,13 @@ Palette::Palette(QWidget *parent) :
 
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(slot_onCountTimeout()));
+
+	if (m_LaserShape == NULL)
+	{
+		m_LaserShape = new Shape();
+		m_LaserShape->setLaserPen(true);
+		mSycnShapeStack.append(m_LaserShape);
+	}
 }
 
 void Palette::slot_onCountTimeout()
@@ -89,15 +98,13 @@ void Palette::cleanUp()
 
 	foreach(Shape *shape, mSycnShapeStack)
 	{
-		delete shape;
+		if (shape != m_LaserShape)
+		{
+			delete shape;
+		}	
 	}
 	mSycnShapeStack.clear();
 	update();
-
-	QString opType = QString::number(DrawOpClear);	//  消息类型
-	QString strInfo;
-	strInfo.append(QString("%1:%2,%3,%4;").arg(opType).arg("").arg("").arg(""));
-	emit PicData(strInfo);
 }
 
 void Palette::setIsDraw(bool isDraw)
@@ -261,73 +268,70 @@ void Palette::RecData(const std::string& data)
 	float y;
 	DWORD clr_;
 	int draw_op_type_;
-	int pos = data.find(';');
-	if (pos != -1)
-	{
-		std::string	cur_data;
-		int pos_type = data.find(":");
-		draw_op_type_ = atoi(data.substr(0, pos_type).c_str());
-		cur_data = data.substr(pos_type + 1);
 
-		std::list<std::string> param_list = BoardStringTokenize(cur_data.c_str(), ",");
-		if (param_list.size() > 0)
+	QString strData = QString::fromStdString(data);
+
+	QStringList list = strData.split(";");
+
+	foreach(const QString& p, list)
+	{
+		QStringList param_list = p.split(":");
+		draw_op_type_ = param_list.first().toInt();
+		QStringList pointInfo = param_list.last().split(",");
+		if (pointInfo.length() == 3)
 		{
-			auto it = param_list.begin();
-			switch (draw_op_type_)
-			{
-			case kMultiBoardOpStart:
-			case kMultiBoardOpMove:
-			case kMultiBoardOpEnd:
-			case kMultiBoardOpSign:
-				if (param_list.size() >= 3)
-				{
-					x = atof(it->c_str());
-					++it;
-					y = atof(it->c_str());
-					++it;
-					clr_ = atof(it->c_str());
-				}
-				break;
-			case kMultiBoardOpClear:
-			case kMultiBoardOpSignEnd:
-				break;
-			case kMultiBoardOpDocInfo:
-// 				if (param_list.size() >= 4)
-// 				{
-// 					info.doc_id_ = *it;
-// 					++it;
-// 					info.doc_cur_page_ = atoi(it->c_str());
-// 					++it;
-// 					info.doc_page_ = atoi(it->c_str());
-// 					++it;
-// 					info.doc_opt_ = atoi(it->c_str()) > 0;
-// 				}
-				break;
-			case  kMultiBoardOpUndo:
-				{
-					DrawUndo();
-					return;
-				}
-			}
+			x = pointInfo.at(0).toFloat();
+			y = pointInfo.at(1).toFloat();
+			clr_ = pointInfo.at(2).toULong();
 		}
-	}
-//	qDebug() << "x; " << QString::number(pt.x()) << "y: " << QString::number(pt.y());
-	QPointF pt(x, y);
-	if (mSycnShapeStack.size()>0 && draw_op_type_ != kMultiBoardOpStart)
-	{
-		mSycnShapeStack.last()->append(pt);
-		update();
-	}
-	else
-	{
-		Shape *shape = new Shape();
-		mSycnShapeStack.append(shape);
-		shape->append(pt);
-		QPen pen;
-		pen.setWidth(2);
-		pen.setColor(QColor(QRgb(clr_)));
-		shape->setPen(pen);
-		update();
+		else
+		{
+			continue;
+		}
+		
+		switch (draw_op_type_)
+		{
+		case kMultiBoardOpStart:
+		case kMultiBoardOpMove:
+		case kMultiBoardOpEnd:
+		{
+			QPointF pt(x, y);
+			if (mSycnShapeStack.size() > 0 && draw_op_type_ != kMultiBoardOpStart)
+			{
+				mSycnShapeStack.last()->append(pt);
+				update();
+			}
+			else
+			{
+				Shape *shape = new Shape();
+				mSycnShapeStack.append(shape);
+				shape->append(pt);
+				QPen pen;
+				pen.setWidth(2);
+				pen.setColor(QColor(QRgb(clr_)));
+				shape->setPen(pen);
+				update();
+			}
+			break;
+		}
+		case kMultiBoardOpSign:
+			m_LaserShape->setLaserPT(QPointF(x, y));
+			update();
+			return;
+		case kMultiBoardOpSignEnd:
+			m_LaserShape->setLaserPT(QPointF(-100, -100));
+			update();
+			return;
+		case kMultiBoardOpClear:
+		{
+			cleanUp();
+			return;
+		}
+		break;
+		case  kMultiBoardOpUndo:
+			DrawUndo();
+			return;
+		}
 	}
 }
 
@@ -337,9 +341,13 @@ void Palette::DrawUndo()
 	{
 		return;
 	}
-	delete mSycnShapeStack.last();
-	mSycnShapeStack.removeLast();
-	update();
+
+	if (mSycnShapeStack.last() != m_LaserShape)
+	{
+		delete mSycnShapeStack.last();
+		mSycnShapeStack.removeLast();
+		update();
+	}
 }
 
 // 解析数据
@@ -375,4 +383,12 @@ int Palette::colorConvert(QColor color)
 		clr = 0xff33ff;
 
 	return clr;
+}
+
+void Palette::sendSyncQuery()
+{
+	QThread::sleep(1);
+	QString strInfo;
+	strInfo.append(QString("%1:%2,%3,%4;").arg(kMultiBoardOpSyncQuery).arg("0.3").arg("0.3").arg("1478787"));
+	emit PicData(strInfo);
 }

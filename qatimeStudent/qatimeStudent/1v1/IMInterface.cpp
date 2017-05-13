@@ -196,6 +196,10 @@ void IMInterface::EnumDeviceDevpath(int deviceType)
 
 void IMInterface::startDevice(int type, const std::string& device_path, unsigned fps, int width, int height)
 {
+	if (device_path.empty())
+	{
+		emit IMInterface::getInstance()->hasError("启动设备失败，设备路径为空");
+	}
 	switch (type)
 	{
 	case 0:
@@ -341,7 +345,7 @@ void CallbackCreateConf(nim::NIMResCode res_code)
 
 void CallbackJoinConf(nim::NIMResCode res_code, const std::string& session_id, __int64 channel_id, const std::string& custom_info)
 {
-	if (nim::kNIMResSuccess == res_code)
+	if (nim::kNIMResSuccess == res_code || nim::kNIMResExist == res_code)
 	{
 		IMInterface::getInstance()->setSessionID(session_id);
 		emit IMInterface::getInstance()->joinRtsRoomSuccessfully(session_id, channel_id, custom_info);
@@ -422,7 +426,7 @@ void CallbackNetDetect(int code, nim::NetDetectCbInfo info)
 void CallbackOpt2Call(int code, __int64 channel_id, const std::string& json_extension)
 {
 	qDebug() << __FILE__ << __LINE__ << code << channel_id << json_extension.c_str();
-	if (kNIMResSuccess == code)
+	if (kNIMResSuccess == code || nim::kNIMResExist == code)
 	{
 		emit IMInterface::getInstance()->joinVChatSuccessfully();
 	}
@@ -482,6 +486,16 @@ void CallbackVChatCb(nim::NIMVideoChatSessionType type, __int64 channel_id, int 
 	case nim::kNIMVideoChatSessionTypeConnect:{
 	}break;
 	case nim::kNIMVideoChatSessionTypePeopleStatus:{
+		if (code == nim::kNIMVideoChatSessionStatusJoined)
+		{
+			emit IMInterface::getInstance()->PeopleStatus(false);
+			return;
+		}
+		else if (code == nim::kNIMVideoChatSessionStatusLeaved)
+		{
+			emit IMInterface::getInstance()->PeopleStatus(true);
+			return;
+		}
 	}break;
 	case nim::kNIMVideoChatSessionTypeNetStatus:{
 	}break;

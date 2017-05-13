@@ -28,8 +28,6 @@ private slots:
 	void slot_onRefreshTimeout();						// Ë¢ÐÂ½çÃæ
 	void VideoCapture(const char* data, unsigned int iwidth, unsigned int iheight, unsigned int iSize);
 	void setBkImage(QString qImg); 
-
-public:
 	void StartEndVideo(bool);
 };
 
