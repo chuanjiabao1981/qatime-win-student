@@ -26,6 +26,8 @@ UI1v1::UI1v1(QWidget *parent)
 	initWhiteBoardWidget();
 	InitSetParamWnds();
 	initConnection();
+
+	ui.full1v1_widget->installEventFilter(this);
 }
 
 UI1v1::~UI1v1()
@@ -362,4 +364,83 @@ void UI1v1::initDevice()
 	IMInterface::getInstance()->EnumDeviceDevpath(Audio);
 	IMInterface::getInstance()->EnumDeviceDevpath(Video);
 	IMInterface::getInstance()->EnumDeviceDevpath(AudioOut);
+}
+
+void UI1v1::ModleChange(bool bModle)
+{
+	ui.whiteboard1v1_widget->setVisible(bModle);
+	ui.line_label->setVisible(bModle);
+	ui.label_2->setVisible(bModle);
+	ui.camera1v1_widget->setVisible(bModle);
+	m_WhiteBoardTool->setVisible(bModle);
+
+	if (!bModle)
+	{
+		// 结束设备
+		IMInterface::getInstance()->endDevice(Video);
+		IMInterface::getInstance()->endDevice(Audio);
+		IMInterface::getInstance()->endDevice(AudioOut);
+		ui.chatcamera1v1_widget->setMaximumWidth(3000);
+	}
+	else
+	{
+		// 开始设备
+		QString dPath;
+		if (!ui.Audio1v1_checkBox->isChecked())
+		{
+			dPath = m_AudioChangeInfo1v1->GetCurPath();
+			IMInterface::getInstance()->startDevice(Audio, dPath.toStdString(), 0, 0, 0);
+		}
+		if (!ui.video1v1_checkBox->isChecked())
+		{
+			dPath = m_VideoChangeInfo1v1->GetCurPath();
+			IMInterface::getInstance()->startDevice(Video, dPath.toStdString(), 0, 0, 0);
+		}
+		if (!ui.AudioOut_checkBox->isChecked())
+		{
+			dPath = m_AudioOutChangeInfo1v1->GetCurPath();
+			IMInterface::getInstance()->startDevice(AudioOut, dPath.toStdString(), 0, 0, 0);
+		}
+		ui.chatcamera1v1_widget->setMaximumWidth(300);
+	}
+}
+
+// 拖动标题做的处理
+bool UI1v1::eventFilter(QObject *target, QEvent *event)
+{
+	if (target == ui.full1v1_widget) // 白板4：3比例自适应
+	{
+		if (event->type() == QEvent::Resize)
+		{
+			int iWidth = ui.full1v1_widget->width();
+			int iHeight = ui.full1v1_widget->height();
+
+			int iVideoWidth = iWidth;
+			int iVideoHeight = ((double)iWidth / (double)4)*3;
+			// 如果VIDEO的高大于容器的高，这用高来决定VIDEO的大小
+			if (iVideoHeight > iHeight)
+			{
+				iVideoWidth = ((double)iHeight / (double)3)*4;
+				mWhiteBoard->setFixedSize(iVideoWidth, iHeight);
+			}
+			else
+				mWhiteBoard->setFixedSize(iVideoWidth, iVideoHeight);
+
+			QRect rc = ui.full1v1_widget->geometry();
+			m_WhiteBoardTool->move(rc.x() + (iWidth - m_WhiteBoardTool->width()) / 2, rc.y() + iHeight - 30);
+
+
+			// 窗口抓取
+			int iScreenWidth = iWidth;
+			int iScreenHeight = ((double)iWidth / (double)m_VideoInfo1v1->ScreenWidth())*m_VideoInfo1v1->ScreenHeight();
+			if (iScreenHeight > iHeight)
+			{
+				iScreenWidth = ((double)iHeight / (double)m_VideoInfo1v1->ScreenHeight())*m_VideoInfo1v1->ScreenWidth();
+				m_VideoInfo1v1->setFixedSize(iScreenWidth, iHeight);
+			}
+			else
+				m_VideoInfo1v1->setFixedSize(iScreenWidth, iScreenHeight);
+		}
+	}
+	return false;
 }

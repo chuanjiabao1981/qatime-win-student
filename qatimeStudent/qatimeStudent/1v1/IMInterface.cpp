@@ -440,8 +440,6 @@ void CallbackOpt2CreateCall(int code, __int64 channel_id, const std::string& jso
 
 void CallbackVideoCaptureData(uint64_t time, const char *data, unsigned int size, unsigned int width, unsigned int height, const char *json_extension, const void *user_data)
 {
-	qDebug() << "size is: " << QString::number(size) << "width is:" << QString::number(width) << "height is:" << QString::number(height) << "json is:" << QString(QLatin1String(json_extension));
-
 	char* copydata = new char[size];
 	memcpy(copydata, data, size);
 	emit IMInterface::getInstance()->VideoCapture(copydata, width, height, size);

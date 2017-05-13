@@ -117,9 +117,10 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 
 	ui.camera_widget->setVisible(false);
 	ui.whiteboard_widget->setVisible(false);
-
+	ui.label_space->setVisible(false);
 	ui.line_label->setVisible(false);
 	ui.return_pushButton->setVisible(false);
+	ui.live1v1_widget->setVisible(false);
 
 	m_LiveTimer = new QTimer(this);
 	connect(m_LiveTimer, SIGNAL(timeout()), this, SLOT(slot_onTimeout()));
@@ -1076,31 +1077,41 @@ void UIWindowSet::setAccid(QString accid)
 
 void UIWindowSet::clickChange(bool checked)
 {
-	if (ui.camera_widget->isVisible())
+	if (m_curTags->Is1v1Lesson())
 	{
-		ui.line_label->setVisible(false);
-		ui.camera_widget->setVisible(false);
-		ui.whiteboard_widget->setVisible(false);
-		ui.label_space->setVisible(false);
-		ui.chatcamera_widget->setMaximumWidth(3000);
+		m_Ui1v1->ModleChange(!m_curTags->IsModle());
 
 		if (m_curTags)
-			m_curTags->setModle(false);
+			m_curTags->setModle(!m_curTags->IsModle());
 	}
 	else
 	{
-		ui.line_label->setVisible(true);
-		ui.camera_widget->setVisible(true);
-		ui.whiteboard_widget->setVisible(true);
-		ui.label_space->setVisible(true);
-		ui.chatcamera_widget->setMaximumWidth(300);
+		if (ui.camera_widget->isVisible())
+		{
+			ui.line_label->setVisible(false);
+			ui.camera_widget->setVisible(false);
+			ui.whiteboard_widget->setVisible(false);
+			ui.label_space->setVisible(false);
+			ui.chatcamera_widget->setMaximumWidth(3000);
 
-		InitBoardView();
+			if (m_curTags)
+				m_curTags->setModle(false);
+		}
+		else
+		{
+			ui.line_label->setVisible(true);
+			ui.camera_widget->setVisible(true);
+			ui.whiteboard_widget->setVisible(true);
+			ui.label_space->setVisible(true);
+			ui.chatcamera_widget->setMaximumWidth(300);
 
-		QueryLiveInfo();
+			InitBoardView();
 
-		if (m_curTags)
-			m_curTags->setModle(true);
+			QueryLiveInfo();
+
+			if (m_curTags)
+				m_curTags->setModle(true);
+		}
 	}
 }
 
@@ -1318,24 +1329,37 @@ void UIWindowSet::slots_Modle(bool bModle)
 {
 	if (!bModle)
 	{
-		ui.line_label->setVisible(false);
-		ui.camera_widget->setVisible(false);
-		ui.whiteboard_widget->setVisible(false);
-		ui.label_space->setVisible(false);
-		ui.chatcamera_widget->setMaximumWidth(3000);
-		PlayLive("","");
+		if (m_curTags && m_curTags->Is1v1Lesson())
+		{
+			m_Ui1v1->ModleChange(false);
+		}
+		else
+		{
+			ui.line_label->setVisible(false);
+			ui.camera_widget->setVisible(false);
+			ui.whiteboard_widget->setVisible(false);
+			ui.label_space->setVisible(false);
+			ui.chatcamera_widget->setMaximumWidth(3000);
+			PlayLive("", "");
+		}
 	}
 	else
 	{
-		ui.line_label->setVisible(true);
-		ui.camera_widget->setVisible(true);
-		ui.whiteboard_widget->setVisible(true);
-		ui.label_space->setVisible(true);
-		ui.chatcamera_widget->setMaximumWidth(300);
+		if (m_curTags && m_curTags->Is1v1Lesson())
+		{
+			m_Ui1v1->ModleChange(true);
+		}
+		else
+		{
+			ui.line_label->setVisible(true);
+			ui.camera_widget->setVisible(true);
+			ui.whiteboard_widget->setVisible(true);
+			ui.label_space->setVisible(true);
+			ui.chatcamera_widget->setMaximumWidth(300);
 
-		InitBoardView();
-		
-		QueryLiveInfo();
+			InitBoardView();
+			QueryLiveInfo();
+		}
 	}
 }
 

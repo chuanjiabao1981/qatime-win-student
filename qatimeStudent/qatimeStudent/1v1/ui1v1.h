@@ -31,6 +31,10 @@ public:
 	void	show1v1ErrorTip(QString sError);
 	QLayout* chat1v1Widget();
 	void	initDevice();
+	void    ModleChange(bool bModle);								  // 模式改变
+
+protected:
+	virtual bool eventFilter(QObject *target, QEvent *event);
 
 private slots:
 	/*互动直播*/
