@@ -21,7 +21,6 @@ private:
 	QString				m_chatID;
 	QString				m_courseID;
 	QString				m_teacherID;
-	QString				m_token;
 	QString				m_studentName;
 	std::string			m_AudioPath;
 	QString				m_status;
@@ -36,7 +35,6 @@ public:
 	QString				ChatID();
 	QString				TeacherID();
 	QString				TeacherName();
-	QString				Token();
 	std::string			AudioPath();
 	QString				StudentName();
 	QString				Status();
@@ -56,7 +54,7 @@ private:
 	void setNetworkPic(const QString &szUrl);
 
 public:
-	QLabel* AddCourse(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID, QString teacherID, QString token,
+	QLabel* AddCourse(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID, QString teacherID,
 		QString studentName, std::string AudioPath, QString status, bool b1v1Lesson = false); // 新建辅导班
 
 	void AddMsgCount();			// 改变消息个数

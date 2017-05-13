@@ -49,11 +49,12 @@ private:
 	Ui::UIAuxiliaryWnd ui;
 	UIMainWindow*		m_parent;
 	Worker*				m_pWorker;
-	std::vector<UIAuxiliaryList*>	m_vecAuxiliaryList;			// 辅导班集合
+	std::vector<UIAuxiliaryList*>	m_vecAuxiliaryList;				// 辅导班集合
 
-	QMap<QString, UIAuxiliaryList*>		m_mapAuxiliaryChatID;	// 会话窗口ID、辅导班
-	QMap<QString, UIAuxiliaryList*>		m_mapAuxiliaryCourseID;	// 辅导班ID、  辅导班
-	QMap<QString, QLabel*>				m_mapUrl;				// url、   辅导班图片	
+	QMap<QString, UIAuxiliaryList*>		m_mapAuxiliaryChatID;		// 会话窗口ID、辅导班
+	QMap<QString, UIAuxiliaryList*>		m_mapAuxiliaryCourseID;		// 辅导班ID、  辅导班
+	QMap<QString, UIAuxiliaryList*>		m_mapAuxiliaryCourse1v1ID;	// 1v1辅导班ID、  辅导班
+	QMap<QString, QLabel*>				m_mapUrl;					// url、   辅导班图片	
 
 private:
 	void style(QScrollArea *style);
@@ -82,17 +83,16 @@ protected:
 public:
 	void setMainWindow(UIMainWindow* parent);
 	void AddAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName,QString chatID, QString courseID, 
-			QString teacherID, QString token, QString studentName, std::string AudioPath, QString status);				// 添加全部辅导班
-	void AddTodayAuxiliary(QString lessonName, QString courseID, QString courseName, QString time, QString status);		// 添加今日课程
+			QString teacherID, QString studentName, std::string AudioPath, QString status);				// 添加全部辅导班
+	void AddTodayAuxiliary(QString lessonName, QString courseID, QString courseName, QString time, QString status, bool b1v1);		// 添加今日课程
 	void AddOneToOneAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID,
-		QString teacherID, QString token, QString studentName, std::string AudioPath, QString status);					// 添加一对一互动
+		QString teacherID, QString studentName, std::string AudioPath, QString status);					// 添加一对一互动
 	void AddTodayNoLesson();																			// 今日无课程
 	QPixmap setStudentUrl(QString url);
 	void ReceiverNumber(QString chatID);
 	void LoadPic();
 	void setStudentName(QString studentName);
 	void setVersion(QString version);
-	void SetToken(QString mRemeberToken);
 };
 
 #endif // UIAUXILIARYWND_H

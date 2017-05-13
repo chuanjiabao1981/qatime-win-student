@@ -107,11 +107,11 @@ void UIAuxiliaryWnd::setMainWindow(UIMainWindow* parent)
 	m_parent = parent;
 }
 
-void UIAuxiliaryWnd::AddAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName , QString chatID, QString courseID, QString teacherID, QString token,
+void UIAuxiliaryWnd::AddAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName , QString chatID, QString courseID, QString teacherID,
 	QString studentName, std::string AudioPath, QString status)
 {
 	UIAuxiliaryList* auxiliary = new UIAuxiliaryList(ui.all_widget);
-	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, token, studentName, AudioPath, status);
+	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, studentName, AudioPath, status);
 	connect(auxiliary, SIGNAL(clickAuxiliary(UIAuxiliaryList*)), this, SLOT(clickAuxiliary(UIAuxiliaryList*)));
 	m_VerAll->addWidget(auxiliary);
 
@@ -140,10 +140,10 @@ void UIAuxiliaryWnd::AddAuxiliary(QString picUrl, QString courseName, QString gr
 }
 
 void UIAuxiliaryWnd::AddOneToOneAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID,
-	QString teacherID, QString token, QString studentName, std::string AudioPath, QString status)
+	QString teacherID, QString studentName, std::string AudioPath, QString status)
 {
 	UIAuxiliaryList* auxiliary = new UIAuxiliaryList(ui.all_widget);
-	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, token, studentName, AudioPath, status,true);
+	QLabel* pic = auxiliary->AddCourse(picUrl, courseName, grade, teacherName, chatID, courseID, teacherID, studentName, AudioPath, status,true);
 	connect(auxiliary, SIGNAL(clickAuxiliary(UIAuxiliaryList*)), this, SLOT(clickAuxiliary(UIAuxiliaryList*)));//TODO
 	m_VerOneToOne->addWidget(auxiliary);
 
@@ -153,7 +153,7 @@ void UIAuxiliaryWnd::AddOneToOneAuxiliary(QString picUrl, QString courseName, QS
 	m_VerOneToOne->addWidget(line);
 
 	m_mapAuxiliaryChatID.insert(chatID, auxiliary);
-	m_mapAuxiliaryCourseID.insert(courseID, auxiliary);
+	m_mapAuxiliaryCourse1v1ID.insert(courseID, auxiliary);
 	m_pWorker->m_mapUrl.insert(pic, picUrl);
 
 	// 添加到布局里
@@ -171,10 +171,10 @@ void UIAuxiliaryWnd::AddOneToOneAuxiliary(QString picUrl, QString courseName, QS
 	}
 }
 
-void UIAuxiliaryWnd::AddTodayAuxiliary(QString lessonName, QString courseID, QString courseName, QString time, QString status)
+void UIAuxiliaryWnd::AddTodayAuxiliary(QString lessonName, QString courseID, QString courseName, QString time, QString status, bool b1v1)
 {
 	UIAuxiliaryToday* auxiliary = new UIAuxiliaryToday(ui.today_widget);
-	auxiliary->AddLesson(lessonName, courseID, courseName, time, status);
+	auxiliary->AddLesson(lessonName, courseID, courseName, time, status, b1v1);
 	connect(auxiliary, SIGNAL(clickAuxiliaryToday(UIAuxiliaryToday*)), this, SLOT(clickAuxiliaryToday(UIAuxiliaryToday*)));
 	m_VerToday->addWidget(auxiliary);
 
@@ -239,7 +239,7 @@ void UIAuxiliaryWnd::clickAuxiliary(UIAuxiliaryList* auxiliary)
 {
 	if (m_parent)
 	{
-		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->Token(), auxiliary->StudentName(), 
+		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->StudentName(), 
 			auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status(), auxiliary->Is1v1Lesson());
 		auxiliary->ClearMsgNumber();
 	}
@@ -252,17 +252,21 @@ void UIAuxiliaryWnd::clickAuxiliaryOneToOne(UIAuxiliaryList*)
 
 void UIAuxiliaryWnd::clickAuxiliaryToday(UIAuxiliaryToday* auxiliaryToday)
 {
-	QMap<QString, UIAuxiliaryList*>::iterator it;
+	bool b1v1 = auxiliaryToday->Is1v1();
 	UIAuxiliaryList* auxiliary = NULL;
-	it = m_mapAuxiliaryCourseID.find(auxiliaryToday->GetCourseID());
-	if (it != m_mapAuxiliaryCourseID.end())
+	if (b1v1)
 	{
-		auxiliary = *it;
-		if (m_parent)
-		{
-			m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->Token(), auxiliary->StudentName(), auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status(),auxiliary->Is1v1Lesson());
-			auxiliary->ClearMsgNumber();
-		}
+		auxiliary = m_mapAuxiliaryCourse1v1ID.value(auxiliaryToday->GetCourseID(),NULL);
+	}
+	else
+	{
+		auxiliary = m_mapAuxiliaryCourseID.value(auxiliaryToday->GetCourseID(), NULL);
+	}
+	
+	if (m_parent&& auxiliary)
+	{
+		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->StudentName(), auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status(), auxiliary->Is1v1Lesson());
+		auxiliary->ClearMsgNumber();
 	}
 }
 
@@ -511,9 +515,4 @@ void UIAuxiliaryWnd::setStudentName(QString studentName)
 void UIAuxiliaryWnd::setVersion(QString version)
 {
 	m_UIMenu->setVersion(version);
-}
-
-void UIAuxiliaryWnd::SetToken(QString mRemeberToken)
-{
-	m_UIMenu->setToken(mRemeberToken);
 }

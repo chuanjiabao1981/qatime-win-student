@@ -87,7 +87,6 @@ private:
 	/************************************************************************/
 	QTextCursor*					m_TextCursor;
 	QMap<QString, QString>			m_StudentInfo;		// key ：accid 
-	QString							mRemeberToken;
 	std::string						m_AddMemberID;		// 新加入的成员ID
 	UIWindowSet*					m_parent;			// 主窗口对象
 	int								m_studentNum;		// 当前学生数量
@@ -168,12 +167,11 @@ private:
 
 public:
 	void	SendImage(const std::wstring src, QString &filename, QString msgid="");
-	void	setChatInfo(QJsonObject &chatInfo, QString token);	// 设置云信账户信息
 	bool	ReceiverMsg(nim::IMMessage* pMsg);					// 接收服务器发送过来的消息
 	void	ReceiverRecordMsg(nim::QueryMsglogResult* pMsg);	// 接收历史消息记录
 	void	ReceiverLoginMsg(nim::LoginRes pRes);				// 接收登录结果
 	void	ReceiverMemberMsg(std::list<nim::TeamMemberProperty>* pMemberMsg); //接收群成员信息
-	void	setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount, bool b1v1 = false);		// 设置当前窗口会话ID,用于接收消息时比较
+	void	setCurChatID(QString chatID, QString courseid, QString teacherid, QString studentName, QString accid, int UnreadCount, bool b1v1 = false);		// 设置当前窗口会话ID,用于接收消息时比较
 	bool	IsLogin();											// 是否登录
 	bool	IsCurChatRoom(QString chatID);						// 是否是当前会话ID
 

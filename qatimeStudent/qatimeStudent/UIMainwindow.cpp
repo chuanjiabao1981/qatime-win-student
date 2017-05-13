@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QDesktopWidget>
 #include "nim_tools_http_cpp.h"
+#include "HttpRequest.h"
 
 #define MAINWINDOW_X_MARGIN 2
 #define MAINWINDOW_Y_MARGIN 2
@@ -60,14 +61,6 @@ UIMainWindow::~UIMainWindow()
 	}
 }
 
-void UIMainWindow::setRemeberToken(const QString &token)
-{
-	mRemeberToken = token;
-	g_remeberToken = token;
-	m_WindowSet->SetToken(mRemeberToken);
-	m_AuxiliaryWnd->SetToken(mRemeberToken);
-}
-
 void UIMainWindow::setLoginWindow(LoginWindow* parent)
 {
 	m_LoginWindow = parent;
@@ -90,7 +83,7 @@ void UIMainWindow::setSudentInfo(QJsonObject &data)
 	// 学生云信信息
 	QJsonObject obj = data["chat_account"].toObject();
 	m_accid = obj["accid"].toString();
-	m_token = obj["token"].toString();
+	m_accidPassword = obj["token"].toString();
  
 	m_WindowSet->setAccid(m_accid);
 }
@@ -107,7 +100,7 @@ void UIMainWindow::setAutoSudentInfo(QString studentID, QString studentName, QSt
 
 	// 学生云信信息
 	m_accid= accid;
-	m_token = token;
+	m_accidPassword = token;
 
 	m_WindowSet->setAccid(m_accid);
 }
@@ -135,7 +128,7 @@ void UIMainWindow::ShowLesson()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIMainWindow::LessonRequestFinished);
 }
@@ -161,7 +154,7 @@ void UIMainWindow::LessonRequestFinished()
 			if (lesson->Date() == curTime)
 			{
 				if (m_AuxiliaryWnd)
-					m_AuxiliaryWnd->AddTodayAuxiliary(lesson->name(), lesson->CourseID(), lesson->CourseName(), lesson->LessonTime(), lesson->ChinaLessonStatus());
+					m_AuxiliaryWnd->AddTodayAuxiliary(lesson->name(), lesson->CourseID(), lesson->CourseName(), lesson->LessonTime(), lesson->ChinaLessonStatus(),lesson->Is1v1());
 
 				iCount++;
 			}
@@ -199,9 +192,8 @@ void UIMainWindow::ShowOneToOneAuxiliary()
 	strUrl += append;
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
 
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIMainWindow::OneToOneAuxiliaryRequestFinished);
 }
@@ -228,7 +220,7 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 				teacherId = data.teachers.first().id;
 			}
 			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, teacherName, data.chat_team_id, QString::number(data.id),
-				teacherId, mRemeberToken, m_studentName, m_AudioPath, data.status);
+				teacherId, m_studentName, m_AudioPath, data.status);
 		}
 
 		i++;
@@ -237,7 +229,6 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 	qDebug() << QString::number(i);
 	if (m_AuxiliaryWnd)
 		m_AuxiliaryWnd->LoadPic();
-	RequestKey();
 }
 
 void UIMainWindow::ShowAuxiliary()
@@ -260,9 +251,8 @@ void UIMainWindow::ShowAuxiliary()
 	strUrl += append;
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
 
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIMainWindow::AuxiliaryRequestFinished);
 }
@@ -282,7 +272,7 @@ void UIMainWindow::AuxiliaryRequestFinished()
 
  		if (m_AuxiliaryWnd)
  			m_AuxiliaryWnd->AddAuxiliary(course->PicUrl(), course->name(), course->Grade(), course->TeacherName(), course->ChatId(), course->id(), course->OwnerId(),
-				mRemeberToken, m_studentName, m_AudioPath, course->status());
+				m_studentName, m_AudioPath, course->status());
 
 		i++;
 
@@ -304,18 +294,10 @@ void UIMainWindow::RequestKey()
 	else
 		strUrl = "http://testing.qatime.cn/api/v1/app_constant/im_app_key";
 
-	QUrl url = QUrl(strUrl);
-	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
-
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
-	reply = manager.get(request);
-	connect(reply, &QNetworkReply::finished, this, &UIMainWindow::returnKey);
-}
-
-void UIMainWindow::returnKey()
-{
-	QByteArray result = reply->readAll();
+	HttpRequest http;
+	http.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+	
+	QByteArray result = http.httpGet(strUrl);
 	QJsonDocument document(QJsonDocument::fromJson(result));
 	QJsonObject obj = document.object();
 	QJsonObject data = obj["data"].toObject();
@@ -327,7 +309,7 @@ void UIMainWindow::returnKey()
 	}
 	else if (obj["status"].toInt() == 0)
 	{
-//		RequestError(error);
+		//		RequestError(error);
 	}
 }
 
@@ -343,7 +325,9 @@ void UIMainWindow::setKeyAndLogin(QString key)
 	m_WindowSet->initCallBack();
 
 	auto cb = std::bind(OnLoginCallback, std::placeholders::_1, nullptr);
-	nim::Client::Login(key.toStdString(), m_accid.toStdString(), m_token.toStdString(), cb);
+	nim::Client::Login(key.toStdString(), m_accid.toStdString(), m_accidPassword.toStdString(), cb);
+
+	ShowLesson();
 }
 
 void UIMainWindow::OnLoginCallback(const nim::LoginRes& login_res, const void* user_data)
@@ -600,10 +584,10 @@ void UIMainWindow::returnClick()
 		m_LoginWindow->ReturnLogin();
 }
 
-void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherID, QString token, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
+void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherID, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	if (m_WindowSet)
-		m_WindowSet->AddChatRoom(chatID, courseID, teacherID, token, studentName, audioPath, courseName, UnreadCount, status, b1v1Lesson);
+		m_WindowSet->AddChatRoom(chatID, courseID, teacherID, studentName, audioPath, courseName, UnreadCount, status, b1v1Lesson);
 }
 
 void UIMainWindow::ShowCourse()

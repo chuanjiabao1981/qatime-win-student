@@ -76,10 +76,9 @@ private:
 	// 自动登录时需要
 	QString m_studentID;
 	QString m_studentName;
-	QString m_studentToken;
 	QString m_studentUrl;
 	QString m_accid;
-	QString m_accidToken;
+	QString m_accidPassword;
 	QString m_version;
 	QSystemTrayIcon *trayIcon;
 	QMenu * menu;

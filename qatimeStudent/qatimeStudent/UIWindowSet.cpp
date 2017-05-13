@@ -33,6 +33,7 @@
 #define MAINWINDOW_TITLE_HEIGHT 0
 #define LIVE_BUTTON_NAME	"选课直播"
 #define LESSON_LABEL		"暂无直播"
+#define STATUS_TIME			3000
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
@@ -53,7 +54,6 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	, m_bInitLive(false)
 	, m_Ui1v1(NULL)
 	, m_timer(NULL)
-	, m_1v1Living(false)
 {
 	ui.setupUi(this);
 	m_This = this;
@@ -418,7 +418,7 @@ void UIWindowSet::DeleleTag(UITags* tag)
 	}
 }
 
-void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson)
+void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacherid, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	show();
 	if (isMinimized())
@@ -443,27 +443,9 @@ void UIWindowSet::AddChatRoom(QString chatID, QString courseid, QString teacheri
 		return;
 
 	if (b1v1Lesson)
-		OpenCourse1v1(chatID, courseid, teacherid, token, studentName, strCurAudioPath, name, UnreadCount, status, b1v1Lesson);
+		OpenCourse1v1(chatID, courseid, teacherid, studentName, strCurAudioPath, name, UnreadCount, status, b1v1Lesson);
 	else
-		OpenCourse(chatID, courseid, teacherid, token, studentName, strCurAudioPath, name, UnreadCount, status, b1v1Lesson);
-// 	UIChatRoom* chatRoom = IsHasRoom(chatID);
-// 	if (chatRoom == NULL)
-// 	{
-// 		chatRoom = new UIChatRoom(ui.chat_widget);
-// 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
-// 		chatRoom->setMainWindow(this);
-// 		chatRoom->SetEnvironmental(g_environmentType);
-// 		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount);
-// 		chatRoom->SetCurAudioPath(strCurAudioPath);
-// 		chatRoom->InitAudioCallBack();
-// 		ui.horizontalLayout_6->addWidget(chatRoom);
-// 		m_vecChatRoom.push_back(chatRoom);
-// 		m_mapChatRoom.insert(chatID, chatRoom);
-// 		chatRoom->show();
-// 		chatRoom->setEditFocus();
-// 	}
-// 
-// 	UITags* tag = AddTag(chatID, name, courseid, true, chatRoom, status);
+		OpenCourse(chatID, courseid, teacherid,studentName, strCurAudioPath, name, UnreadCount, status, b1v1Lesson);
 }
 
 bool UIWindowSet::ReceiverMsg(nim::IMMessage* pIMsg)
@@ -768,11 +750,6 @@ UIChatRoom* UIWindowSet::IsHasRoom(QString chatID)
 	return NULL;
 }
 
-void UIWindowSet::SetToken(QString token)
-{
-	m_Token = token;
-}
-
 void UIWindowSet::clickNotice()
 {
 	if (m_NoticeWnd)
@@ -803,21 +780,37 @@ void UIWindowSet::QueryNotice()
 		return;
 
 	QString strUrl;
-	if (g_environmentType)
+	if (m_curTags->Is1v1Lesson())
 	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-		strUrl.replace("{id}", strCourseID);
+		if (g_environmentType)
+		{
+			strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
+			strUrl.replace("{id}", strCourseID);
+		}
+		else
+		{
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
+			strUrl.replace("{id}", strCourseID);
+		}
 	}
 	else
 	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-		strUrl.replace("{id}", strCourseID);
+		if (g_environmentType)
+		{
+			strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
+			strUrl.replace("{id}", strCourseID);
+		}
+		else
+		{
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
+			strUrl.replace("{id}", strCourseID);
+		}
 	}
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", m_Token.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIWindowSet::returnNotice);
 }
@@ -897,7 +890,7 @@ void UIWindowSet::QueryCourse()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", m_Token.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIWindowSet::returnCourse);
 }
@@ -1021,7 +1014,7 @@ void UIWindowSet::QueryLesson()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", m_Token.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIWindowSet::returnLesson);
 }
@@ -1202,7 +1195,7 @@ void UIWindowSet::QueryLiveInfo()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", m_Token.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIWindowSet::returnLiveInfo);
 }
@@ -1316,8 +1309,18 @@ void UIWindowSet::init1v1()
 		delete m_Ui1v1;
 	}
 	m_Ui1v1 = new UI1v1(this);
-
+	
 	ui.horizontalLayout_8->addWidget(m_Ui1v1);
+	connect(m_Ui1v1, SIGNAL(teacherStatus(bool)), this, SLOT(teacherStatus(bool)));
+}
+
+void UIWindowSet::teacherStatus(bool bEnd)
+{
+	if (bEnd)
+	{
+		m_Ui1v1->setMuteBoard(true);
+		start1v1Status(STATUS_TIME);
+	}
 }
 
 void UIWindowSet::init1v1Timer()
@@ -1458,9 +1461,6 @@ void UIWindowSet::slot_onTimeout()
 
 void UIWindowSet::status1v1()
 {
-	if (m_1v1Living)
-		return;
-
 	QString strUrl;
 	if (g_environmentType)
 	{
@@ -1484,7 +1484,8 @@ void UIWindowSet::status1v1()
 
 	if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty())
 	{
-		m_1v1Living = true;
+		stop1v1Status();
+		m_Ui1v1->setMuteBoard(false);
 		m_Ui1v1->joinRtsRoom(otoStatus.data.room_id.toStdString());
 	}
 	qDebug() << otoStatus.data.status;
@@ -1613,7 +1614,7 @@ void UIWindowSet::OnGetTeamMemberCallback(const std::string& tid, int count, con
 }
 
 // 打开直播课
-void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath,
+void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid, QString studentName, std::string strCurAudioPath,
 	QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	UIChatRoom* chatRoom = IsHasRoom(chatID);
@@ -1622,8 +1623,9 @@ void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid
 		chatRoom = new UIChatRoom(ui.chat_widget);
 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
 		chatRoom->setMainWindow(this);
-		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount);
+		chatRoom->setCurChatID(chatID, courseid, teacherid, studentName, m_accid, UnreadCount);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
+		chatRoom->InitAudioCallBack();
 		ui.horizontalLayout_6->addWidget(chatRoom);
 		m_vecChatRoom.push_back(chatRoom);
 		m_mapChatRoom.insert(chatID, chatRoom);
@@ -1634,7 +1636,7 @@ void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid
 }
 
 // 打开互动直播
-void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath,
+void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString studentName, std::string strCurAudioPath,
 	QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
 {
 	UIChatRoom* chatRoom = IsHasRoom(chatID);
@@ -1643,8 +1645,9 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 		chatRoom = new UIChatRoom();
 		chatRoom->setWindowFlags(Qt::FramelessWindowHint);
 		chatRoom->setMainWindow(this);
-		chatRoom->setCurChatID(chatID, courseid, teacherid, token, studentName, m_accid, UnreadCount, true);
+		chatRoom->setCurChatID(chatID, courseid, teacherid, studentName, m_accid, UnreadCount, true);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
+		chatRoom->InitAudioCallBack();
 		m_Ui1v1->chat1v1Widget()->addWidget(chatRoom);
 		m_vecChatRoom.push_back(chatRoom);
 		m_mapChatRoom.insert(chatID, chatRoom);
@@ -1653,7 +1656,7 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 
 	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson);
 
-	start1v1Status(3000);//轮询直播状态， 3000毫秒查询一次
+	start1v1Status(STATUS_TIME);//轮询直播状态， 3000毫秒查询一次
 }
 
 void UIWindowSet::start1v1Status(int msec)

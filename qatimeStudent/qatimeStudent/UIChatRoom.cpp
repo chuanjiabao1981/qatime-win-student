@@ -19,7 +19,7 @@
 #include <QFileDialog>
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
-
+extern QString g_remeberToken;
 
 QColor timeColor(153, 153, 153);
 QColor contentColor(102, 102, 102);
@@ -1253,13 +1253,12 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 	m_switchTime = false;	
 }
 
-void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount, bool b1v1)
+void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacherid, QString studentName, QString accid, int UnreadCount, bool b1v1)
 {
 	m_CurChatID = chatID.toStdString();
 	m_CurCourseID = courseid;
 	m_CurTeacherID = teacherid;
 	m_accid = accid;
-	mRemeberToken = token;
 	m_StudentName = studentName;
 	m_UnreadCount = UnreadCount;
 
@@ -1267,14 +1266,6 @@ void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacheri
 		Request1v1Member();
 	else
 		RequestMember();
-}
-
-void UIChatRoom::setChatInfo(QJsonObject &chatInfo, QString token)
-{
-	m_accid = chatInfo["accid"].toString();
-	m_token = chatInfo["token"].toString();
-
-	mRemeberToken = token;
 }
 
 void UIChatRoom::ReceiverLoginMsg(nim::LoginRes pRes)
@@ -1473,7 +1464,7 @@ void UIChatRoom::OnSendAnnouncements(QString Announcements)
 	QByteArray append("content=");
 	append += Announcements;
 	QNetworkRequest request(url);
-	request.setRawHeader("Remember-Token", mRemeberToken.toUtf8());	
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());	
 	reply = manager.post(request, append);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::ReturnAnnouncements);
 }
@@ -1575,7 +1566,7 @@ void UIChatRoom::QueryMember()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnMember);
 }
@@ -2080,9 +2071,8 @@ void UIChatRoom::Request1v1Member()
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
 
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnAllMember);
 }
@@ -2103,9 +2093,8 @@ void UIChatRoom::RequestMember()
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
 
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnAllMember);
 }

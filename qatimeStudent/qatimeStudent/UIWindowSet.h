@@ -83,7 +83,6 @@ private:
 	QSpacerItem*				 	m_spacer;
 	std::vector<UITags*>			m_vecTags;			// 窗口标签集
 	std::vector<UIChatRoom*>		m_vecChatRoom;		// 所有的辅导班聊天窗
-	QString							m_Token;			// token
 	
 	QMap<QString, UITags*>			m_mapTags;			// 标签map
 	QMap<QString, UIChatRoom*>		m_mapChatRoom;		// 聊天窗口map
@@ -102,7 +101,6 @@ private:
 	QTimer*							m_timer;			//轮询1对1互动直播定时器
 	QString							m_course_id1v1;		//课程ID
 	QString							m_status;			//1v1直播状态
-	bool							m_1v1Living;		//直播中状态
 signals:
 	void sig_Modle(bool bModle);
 
@@ -121,6 +119,7 @@ private slots :
 	void slot_onTimeout();						// 时间
 
 	void status1v1();							// 获取1v1直播状态
+	void teacherStatus(bool bEnd);				// 老师状态
 
 //	void slot_refreshWnd();									// 刷新窗口
 
@@ -143,8 +142,7 @@ public:
 	void setStudent(QString id);				// 学生ID
 	UITags* AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status, bool b1v1Lesson);		// 添加标签窗口, 参数sel是否选中此标签
 	void DeleleTag(UITags* tag);				// 关闭Tag
-	void SetToken(QString token);
-	void AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson);// 创建聊天窗
+	void AddChatRoom(QString chatID, QString courseid, QString teacherid, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson);// 创建聊天窗
 	bool ReceiverMsg(nim::IMMessage* pIMsg);				// 接收消息
 	void ReceiverChatMsg(nim::IMMessage* pIMsg);			// 接收消息
 	void ReceiverRecordMsg(nim::QueryMsglogResult* pIMsg);  // 接收历史消息
@@ -183,9 +181,9 @@ public:
 	static void OnGetTeamMemberCallback(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list);		// 获取成员回调
 
 	/***************************互动直播*****************************/
-	void	OpenCourse(QString chatID, QString courseid, QString teacherid, QString token, QString studentName,
+	void	OpenCourse(QString chatID, QString courseid, QString teacherid, QString studentName,
 		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开辅导班
-	void	OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString token, QString studentName,
+	void	OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString studentName,
 		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开互动直播
 
 	void start1v1Status(int msec);		//开始轮询1v1直播状态

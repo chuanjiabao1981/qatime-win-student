@@ -47,7 +47,6 @@ public:
 private:
 	Ui::UIMainWindow ui;
 
-	QString							mRemeberToken;
 	QNetworkAccessManager			manager;
 	QNetworkReply*					reply;
 
@@ -57,7 +56,7 @@ private:
 	QString							m_studentName;			// 学生名字
 
 	QString							m_accid;				// 云信自己的ID
-	QString							m_token;				// 云信密码
+	QString							m_accidPassword;				// 云信密码
 	std::string						m_AudioPath;			// 语音消息路径
 	UIWindowSet*					m_WindowSet;			// 窗口集
 	UIAuxiliaryWnd*					m_AuxiliaryWnd;			// 辅导班窗口		
@@ -70,7 +69,6 @@ protected slots:
 	void slot_CameraTimeout();
 public:
 	void	setLoginWindow(LoginWindow* parent);			// 登录窗口
-	void	setRemeberToken(const QString &token);			// 设置token
 	void	ShowAuxiliary();								// 查询学生辅导班信息
 	void	AuxiliaryRequestFinished();						// 辅导班http请求
 	void    ShowLesson();									// 查询今日课程信息
@@ -84,13 +82,12 @@ public:
 	void	setNetworkPic(const QString &szUrl);			// 从网络上获取头像
 	void    returnClick();									// 重新登录
 	void	ShowCourse();									// 显示辅导班
-	void    CreateRoom(QString chatID, QString courseID, QString teacherID, QString token, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson = false);		// 创建聊天室
+	void    CreateRoom(QString chatID, QString courseID, QString teacherID, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson = false);		// 创建聊天室
 	void    CloseDialog();
 
 	/*添加云信功能*/
 	void    InitAudio();									// 初始化语音
 	void    RequestKey();									// 请求Key
-	void    returnKey();									// 返回Key
 	void	setKeyAndLogin(QString key);					// 获取Key							
 	static void OnLoginCallback(const nim::LoginRes& login_res, const void* user_data);
 

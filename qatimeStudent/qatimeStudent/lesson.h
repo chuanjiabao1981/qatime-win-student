@@ -18,6 +18,7 @@ public:
 	QString CourseID();
 	QString CourseName();
 	QString Date();
+	bool	Is1v1();
 
 private:
     int mId;
@@ -27,6 +28,7 @@ private:
 	QString mCourseID;		// 辅导班ID
 	QString mCourseName;	// 辅导班名字
 	QString	mDate;			// 日期 （2017-2-28）
+	bool	mb1v1;			// 是否是一对一直播课
 };
 
 #endif // LESSON_H

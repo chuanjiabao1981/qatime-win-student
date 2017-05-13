@@ -11,10 +11,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 
-#ifdef TEST
-	#define _DEBUG
-#else
-#endif
+extern QString g_remeberToken;
 TCHAR m_pathHomePage[MAX_PATH] = {0};
 TCHAR m_pathUserName[MAX_PATH] = { 0 };
 TCHAR m_pathTeacherName[MAX_PATH] = { 0 };
@@ -173,22 +170,21 @@ void LoginWindow::loginFinished()
 	if (obj["status"].toInt() == 1 && data.contains("remember_token"))
 	{
 		// 记住老师信息，用于自动登录
-		m_studentToken = data["remember_token"].toString();
+		g_remeberToken= data["remember_token"].toString();
 		QJsonObject objInfo = data["user"].toObject();
 		m_studentID = QString::number(objInfo["id"].toInt());
 		m_studentName = objInfo["name"].toString();
 		m_studentUrl = objInfo["avatar_url"].toString();
 		m_accid = objInfo["chat_account"].toObject()["accid"].toString();
-		m_accidToken = objInfo["chat_account"].toObject()["token"].toString();
+		m_accidPassword = objInfo["chat_account"].toObject()["token"].toString();
 
 		mainWin = new UIMainWindow();
 		mainWin->setWindowFlags(Qt::FramelessWindowHint|Qt::Tool);
 		mainWin->setAttribute(Qt::WA_DeleteOnClose, false);
 		mainWin->SetEnvironmental(m_EnvironmentalFormally);
-		mainWin->setRemeberToken(m_studentToken);
 		mainWin->setSudentInfo(data["user"].toObject());
 		mainWin->setVersion(m_version);
-		mainWin->ShowLesson();
+		mainWin->RequestKey();
 		mainWin->setLoginWindow(this);		
 		mainWin->resize(1, 1);
 		mainWin->show();
@@ -275,10 +271,10 @@ void LoginWindow::ReadSetting()
 
 	m_studentName = QString::fromStdWString(m_pathTeacherName);
 	m_studentID = QString::fromStdWString(m_pathTeacherID);
-	m_studentToken = QString::fromStdWString(m_pathTeacherToken);
+	g_remeberToken= QString::fromStdWString(m_pathTeacherToken);
 	m_studentUrl = QString::fromStdWString(m_pathTeacherUrl);
 	m_accid = QString::fromStdWString(m_pathAccid);
-	m_accidToken = QString::fromStdWString(m_pathAccidToken);
+	m_accidPassword = QString::fromStdWString(m_pathAccidToken);
 	m_version = QString::fromStdWString(m_pathVersion);
 	
 	QString sVersion = "  答疑时间学生端助手{version}";
@@ -316,7 +312,7 @@ void LoginWindow::RemeberPassword()
 	if (ui.remember_checkBox->isChecked())
 	{
 		// TOKEN
-		WritePrivateProfileString(L"CONFIG_PATH", L"TOKEN", (LPCTSTR)m_studentToken.utf16(), szTempPath);
+		WritePrivateProfileString(L"CONFIG_PATH", L"TOKEN", (LPCTSTR)g_remeberToken.utf16(), szTempPath);
 		// 老师ID
 		WritePrivateProfileString(L"CONFIG_PATH", L"TEACHERID", (LPCTSTR)m_studentID.utf16(), szTempPath);
 		// 老师名字
@@ -326,7 +322,7 @@ void LoginWindow::RemeberPassword()
 		// 老师accid
 		WritePrivateProfileString(L"CONFIG_PATH", L"ACCID", (LPCTSTR)m_accid.utf16(), szTempPath);
 		// 老师accidToken
-		WritePrivateProfileString(L"CONFIG_PATH", L"ACCIDTOKEN", (LPCTSTR)m_accidToken.utf16(), szTempPath);
+		WritePrivateProfileString(L"CONFIG_PATH", L"ACCIDTOKEN", (LPCTSTR)m_accidPassword.utf16(), szTempPath);
 	}
 }
 
@@ -359,10 +355,9 @@ void LoginWindow::AutoLogin()
 	mainWin->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
 	mainWin->setAttribute(Qt::WA_DeleteOnClose, false);
 	mainWin->SetEnvironmental(m_EnvironmentalFormally);
- 	mainWin->setRemeberToken(m_studentToken);
- 	mainWin->setAutoSudentInfo(m_studentID, m_studentName,m_studentUrl,m_accid,m_accidToken);
+ 	mainWin->setAutoSudentInfo(m_studentID, m_studentName,m_studentUrl,m_accid,m_accidPassword);
 	mainWin->setVersion(m_version);
-	mainWin->ShowLesson();
+	mainWin->RequestKey();
  	mainWin->setLoginWindow(this);
 	mainWin->resize(1, 1);
 	mainWin->show();
@@ -389,9 +384,8 @@ void LoginWindow::Checking()
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = m_studentToken;
 
-	request.setRawHeader("Remember-Token", m_studentToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &LoginWindow::CheckingFinished);
 }

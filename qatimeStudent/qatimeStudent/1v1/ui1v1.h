@@ -33,8 +33,12 @@ public:
 	void	initDevice();
 	void    ModleChange(bool bModle);								  // 模式改变
 	void	joinRtsRoom(const std::string & room);					  // 加入白板房间
+	void	setMuteBoard(bool bMute);								  // 设置禁用白板
 protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
+
+signals:
+	void teacherStatus(bool);
 
 private slots:
 	/*互动直播*/
@@ -57,6 +61,8 @@ private slots:
 	void setAudioChange1v1(QString path);				    // 设置一对一麦克风
 	void setAudioOutChange1v1(QString path);				// 设置一对一扬声器
 	void setValueChange1v1(int iVolumn, bool capturn);		// 设置麦克风、扬声器音量
+
+	void StatusTeacher(bool);								// 老师状态
 private:
 	Ui::UI1v1 ui;
 

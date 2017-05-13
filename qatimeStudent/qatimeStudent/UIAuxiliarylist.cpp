@@ -6,6 +6,7 @@
 #include <QNetworkRequest>
 #include <QMouseEvent>
 
+extern QString g_remeberToken;
 UIAuxiliaryList::UIAuxiliaryList(QWidget *parent)
 	: QWidget(parent)
 	, m_iMsgCount(0)
@@ -41,7 +42,7 @@ UIAuxiliaryList::~UIAuxiliaryList()
 
 
 QLabel* UIAuxiliaryList::AddCourse(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID, 
-	QString teacherID, QString token, QString studentName, std::string AudioPath, QString status, bool b1v1Lesson)
+	QString teacherID, QString studentName, std::string AudioPath, QString status, bool b1v1Lesson)
 {
 	m_picUrl = picUrl;
 	m_courseName = courseName;
@@ -49,7 +50,6 @@ QLabel* UIAuxiliaryList::AddCourse(QString picUrl, QString courseName, QString g
 	m_chatID = chatID;
 	m_courseID = courseID;
 	m_teacherID = teacherID;
-	m_token = token;
 	m_studentName = studentName;
 	m_AudioPath = AudioPath;
 	m_status = status;
@@ -128,10 +128,6 @@ QString	UIAuxiliaryList::TeacherID()
 QString	UIAuxiliaryList::TeacherName()
 {
 	return m_teacherName;
-}
-QString	UIAuxiliaryList::Token()
-{
-	return m_token;
 }
 std::string	UIAuxiliaryList::AudioPath()
 {

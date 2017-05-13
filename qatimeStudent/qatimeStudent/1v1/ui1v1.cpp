@@ -85,7 +85,7 @@ void UI1v1::initWhiteBoardWidget()
 {
 	mWhiteBoard = new Palette();
 	ui.horizontalLayout_21->addWidget(mWhiteBoard);
-	mWhiteBoard->setIsDraw(true);
+	mWhiteBoard->setIsDraw(false);
 	connect(mWhiteBoard, SIGNAL(PicData(QString)), this, SLOT(PicData(QString)));
 
 	m_WhiteBoardTool = new UIWhiteBoardTool(ui.live1v1_widget);
@@ -135,6 +135,8 @@ void UI1v1::initConnection()
 
 	connect(instance, SIGNAL(rtsDataReceived(const std::string&)), this, SLOT(rtsDataReceived(const std::string&)));
 	connect(instance, SIGNAL(PeopleStatus(bool)), m_CameraS1v1Info, SLOT(StartEndVideo(bool)));
+
+	connect(instance, SIGNAL(PeopleStatus(bool)), this, SLOT(StatusTeacher(bool)));
 }
 
 void UI1v1::setAudioChange1v1(QString path)
@@ -445,4 +447,18 @@ bool UI1v1::eventFilter(QObject *target, QEvent *event)
 		}
 	}
 	return false;
+}
+
+void UI1v1::setMuteBoard(bool bMute)
+{
+	if (mWhiteBoard)
+	{
+		mWhiteBoard->setIsDraw(!bMute);
+		mWhiteBoard->cleanUp();
+	}
+}
+
+void UI1v1::StatusTeacher(bool bEnd)
+{
+	emit teacherStatus(bEnd);
 }

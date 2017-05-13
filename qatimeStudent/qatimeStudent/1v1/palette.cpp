@@ -125,8 +125,7 @@ void Palette::setMouseStyle(bool isDraw)
 	else
 	{
 		QCursor cursor;
-		QPixmap pixmap("./images/pensign.png");
-		cursor = QCursor(pixmap, 0, pixmap.height());
+		cursor = QCursor(Qt::ArrowCursor);
 		setCursor(cursor);
 	}
 }

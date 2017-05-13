@@ -15,12 +15,9 @@ public:
 
 	QString			m_courseID;		 // 辅导班ID
 	QString			GetCourseID();	 // 获取辅导班ID
+	bool			m_b1v1;
 private:
 	Ui::UIAuxiliaryToday ui;
-
-protected:
-	virtual void enterEvent(QEvent *e);
-	virtual void leaveEvent(QEvent* e);
 
 signals:
 	void clickAuxiliaryToday(UIAuxiliaryToday*);
@@ -28,7 +25,8 @@ signals:
 private slots :
 	void clickedEnter();
 public:
-	void AddLesson(QString lessonName, QString courseID, QString courseName, QString time, QString status);
+	void AddLesson(QString lessonName, QString courseID, QString courseName, QString time, QString status, bool b1v1);
+	bool Is1v1();
 };
 
 #endif // UIAUXILIARYTODAY_H
