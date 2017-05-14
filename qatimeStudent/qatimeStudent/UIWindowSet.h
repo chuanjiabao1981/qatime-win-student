@@ -33,6 +33,19 @@ class UINoticeWnd;
 class UICourseWnd;
 class UILessonList;
 
+//互动直播
+class Palette;
+class UICamera1v1;
+class UICameraS1v1;
+class UIVideoChange1v1;
+class UIAudioChange1v1;
+class UIAudioOutChange1v1;
+class UIWhiteBoardTool;
+class UIVideo1v1;
+class UIAppWnd;
+class UIAppWndTool;
+class UI1v1;
+
 class UIWindowSet : public QWidget
 {
 	Q_OBJECT
@@ -61,7 +74,6 @@ public:
 
 	HWND							m_hBoardWnd;	// 白板窗口句柄
 	HWND							m_hCameraWnd;	// 摄像头窗口句柄
-	bool							m_EnvironmentalTyle; // 环境变量
 private:
 	bool							m_bInitLive;	// 初始化直播窗口
 	Ui::UIWindowSet ui;
@@ -71,7 +83,6 @@ private:
 	QSpacerItem*				 	m_spacer;
 	std::vector<UITags*>			m_vecTags;			// 窗口标签集
 	std::vector<UIChatRoom*>		m_vecChatRoom;		// 所有的辅导班聊天窗
-	QString							m_Token;			// token
 	
 	QMap<QString, UITags*>			m_mapTags;			// 标签map
 	QMap<QString, UIChatRoom*>		m_mapChatRoom;		// 聊天窗口map
@@ -84,6 +95,12 @@ private:
 	UIPersonWnd*					m_PersonWnd;		// 成员列表
 	UILessonList*					m_LessonWnd;		// 课程列表
 	QTimer*							m_LiveTimer;		// 直播定时器
+
+	/***************************互动直播*****************************/
+	UI1v1*							m_Ui1v1;
+	QTimer*							m_timer;			//轮询1对1互动直播定时器
+	QString							m_course_id1v1;		//课程ID
+	QString							m_status;			//1v1直播状态
 signals:
 	void sig_Modle(bool bModle);
 
@@ -101,6 +118,11 @@ private slots :
 	void slots_Modle(bool bModle);				// 改变模式
 	void slot_onTimeout();						// 时间
 
+	void status1v1();							// 获取1v1直播状态
+	void teacherStatus(bool bEnd);				// 老师状态
+
+//	void slot_refreshWnd();									// 刷新窗口
+
 protected:
 	virtual void paintEvent(QPaintEvent *event);
 	virtual bool eventFilter(QObject *target, QEvent *event);
@@ -112,13 +134,15 @@ private:
 	UIChatRoom* IsHasRoom(QString chatID);				// 判断当前是否有此聊天窗	
 	void InitBoardView();								// 初始化白板播放器
 	void PlayLive(QString sBoard, QString sCamera);		// 播放直播
+
+	void init1v1();
+	void init1v1Timer();
 public:
 	void setMainWindow(UIMainWindow* parent);	// 设置窗口
 	void setStudent(QString id);				// 学生ID
-	UITags* AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status);		// 添加标签窗口, 参数sel是否选中此标签
+	UITags* AddTag(QString chatID, QString name, QString ID, bool sel, UIChatRoom* room, QString status, bool b1v1Lesson);		// 添加标签窗口, 参数sel是否选中此标签
 	void DeleleTag(UITags* tag);				// 关闭Tag
-	void SetToken(QString token);
-	void AddChatRoom(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status);// 创建聊天窗
+	void AddChatRoom(QString chatID, QString courseid, QString teacherid, QString studentName, std::string strCurAudioPath, QString name, int UnreadCount, QString status, bool b1v1Lesson);// 创建聊天窗
 	bool ReceiverMsg(nim::IMMessage* pIMsg);				// 接收消息
 	void ReceiverChatMsg(nim::IMMessage* pIMsg);			// 接收消息
 	void ReceiverRecordMsg(nim::QueryMsglogResult* pIMsg);  // 接收历史消息
@@ -147,7 +171,6 @@ public:
 	QPushButton*	GetPersonBtn();
 	QPushButton*	GetCourseBtn();
 	void ChangeBtnStyle(bool bLive);						// 当前模式
-	void SetEnvironmental(bool bType);						// 环境变量
 	void ReceiverAudioStatus(std::string sid, char* msgid, bool bSuc=true); // 下载语音状态消息
 
 	// 云信聊天
@@ -156,6 +179,15 @@ public:
 	static void QueryFirstMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result);	// 第一次请求
 	static void QueryMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result);		// 正常历史记录请求
 	static void OnGetTeamMemberCallback(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list);		// 获取成员回调
+
+	/***************************互动直播*****************************/
+	void	OpenCourse(QString chatID, QString courseid, QString teacherid, QString studentName,
+		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开辅导班
+	void	OpenCourse1v1(QString chatID, QString courseid, QString teacherid, QString studentName,
+		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开互动直播
+
+	void start1v1Status(int msec);		//开始轮询1v1直播状态
+	void stop1v1Status();				//停止轮询1v1直播状态
 };
 
 #endif // UIWINDOWSET_H

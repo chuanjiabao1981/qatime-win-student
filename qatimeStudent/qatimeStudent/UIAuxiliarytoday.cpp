@@ -29,9 +29,10 @@ UIAuxiliaryToday::~UIAuxiliaryToday()
 
 }
 
-void UIAuxiliaryToday::AddLesson(QString lessonName, QString courseID, QString courseName, QString time, QString status)
+void UIAuxiliaryToday::AddLesson(QString lessonName, QString courseID, QString courseName, QString time, QString status,bool b1v1)
 {
 	m_courseID = courseID;
+	m_b1v1 = b1v1;
 
 	ui.course_label->setText(courseName);
 	ui.lesson_label->setText("¿Î³Ì:" + lessonName);
@@ -67,17 +68,7 @@ void UIAuxiliaryToday::clickedEnter()
 	emit clickAuxiliaryToday(this);
 }
 
-void UIAuxiliaryToday::enterEvent(QEvent *e)
+bool UIAuxiliaryToday::Is1v1()
 {
-	QString str = QString::number(ui.widget_2->width()) + QString::number(ui.widget_2->height());
-	qInfo(str.toUtf8().data());
-
-//	setStyleSheet("background-color: rgb(251, 239, 193)");
-	return;
-}
-
-void UIAuxiliaryToday::leaveEvent(QEvent* e)
-{
-//	setStyleSheet("background-color: rgb(255, 255, 255)");
-	return;
+	return m_b1v1;
 }

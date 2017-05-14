@@ -8,6 +8,17 @@
 
 using namespace Gdiplus;
 
+bool g_environmentType = true;	// 环境类型		true为生产环境		false为测试环境  默认为true
+QString g_remeberToken = "";	
+
+void registerMetaType()
+{
+	//注册该类型   用于非Qt类类型和非基本数据类型参数实现信号槽连接
+	qRegisterMetaType<std::string>("std::string");
+	qRegisterMetaType<__int64>("__int64");
+	qRegisterMetaType<int64_t>("int64_t");
+}
+
 int main(int argc, char *argv[])
 {
 	HANDLE hMutex = CreateMutex(NULL, TRUE, TEXT("QtStudentLive_Mutex"));
@@ -18,6 +29,8 @@ int main(int argc, char *argv[])
 		hMutex = NULL;
 		return 0;
 	}
+
+	registerMetaType();
 
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	ULONG_PTR           gdiplusToken;

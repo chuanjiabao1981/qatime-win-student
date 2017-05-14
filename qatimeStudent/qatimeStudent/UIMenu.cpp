@@ -5,6 +5,9 @@
 #include <tlhelp32.h>
 #include <string.h>
 
+extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
+extern QString g_remeberToken;
+
 UIMenu::UIMenu(QWidget *parent)
 	: QWidget(parent)
 	, m_parent(NULL)
@@ -149,7 +152,7 @@ void UIMenu::setVersion(QString version)
 void UIMenu::checkVersion()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle){
+	if (g_environmentType){
 		strUrl = "https://qatime.cn/api/v1/system/check_update?=category=student_client&version={version}&platform=windows";
 		strUrl.replace("{version}", m_version);
 	}
@@ -161,7 +164,7 @@ void UIMenu::checkVersion()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", m_token.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIMenu::returnVersion);
 }
@@ -187,14 +190,4 @@ void UIMenu::returnVersion()
 		else 
 			StartCheck("true", version, down_links);
 	}
-}
-
-void UIMenu::SetEnvironmental(bool Environmental)
-{
-	m_EnvironmentalTyle = Environmental;
-}
-
-void UIMenu::setToken(QString token)
-{
-	m_token = token;
 }

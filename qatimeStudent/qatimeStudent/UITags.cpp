@@ -10,6 +10,7 @@ UITags::UITags(QWidget *parent)
 	, m_boardStream("")
 	, m_cameraStream("")
 	, m_bModle(false)
+	, m_b1v1Lesson(false)
 {
 	ui.setupUi(this);
 	connect(ui.close_pushButton, SIGNAL(clicked()), this, SLOT(CloseDialog()));
@@ -95,27 +96,6 @@ void UITags::SetRoom(UIChatRoom* room)
 
 void UITags::setStyle(bool bSel)
 {
-// 	if (bSel)
-// 	{
-// 		ui.widget->setStyleSheet("background-color: rgb(0, 63, 86);border-radius:10px;");
-// // 		ui.left_label->setStyleSheet("border-image: url(:/LoginWindow/images/select_left.png)");
-// // 		ui.right_label->setStyleSheet("border-image: url(:/LoginWindow/images/select_right.png)");
-// // 		ui.widget->setStyleSheet("border-image: url(:/LoginWindow/images/select_center.png)");
-// 		ui.name_label->setStyleSheet("color: rgb(255, 255, 255)");
-// 		ui.ellipsis_label->setStyleSheet("color: rgb(255, 255, 255)");
-// 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/select_close.png)");
-// 	}
-// 	else
-// 	{
-// 		ui.widget->setStyleSheet("background-color: rgb(255, 255, 255);border-radius:10px;");
-// // 		ui.left_label->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_left.png)");
-// // 		ui.right_label->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_right.png)");
-// // 		ui.widget->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_center.png)");				 
-// 		ui.name_label->setStyleSheet("color: rgb(0, 0, 0)");
-// 		ui.ellipsis_label->setStyleSheet("color: rgb(0, 0, 0)");
-// 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_close.png)");
-// 	}
-
 	m_bSelect = bSel;
 }
 
@@ -168,4 +148,14 @@ bool UITags::IsModle()
 void UITags::setModle(bool bModle)
 {
 	m_bModle = bModle;
+}
+
+void UITags::set1v1Lesson(bool b1v1Lesson)
+{
+	m_b1v1Lesson = b1v1Lesson;
+}
+
+bool UITags::Is1v1Lesson()
+{
+	return m_b1v1Lesson;
 }

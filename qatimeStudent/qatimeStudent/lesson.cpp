@@ -1,5 +1,6 @@
 #include "lesson.h"
 #include "define.h"
+#include <QJsonObject>
 
 Lesson::Lesson()
 {
@@ -29,6 +30,17 @@ void Lesson::readJson(const QJsonObject &json)
 
 	// ÈÕÆÚ
 	mDate = json["class_date"].toString();
+
+	QJsonObject obj = json["product_interactive_course"].toObject();
+	if (obj.empty())
+		mb1v1 = false;
+	else
+		mb1v1 = true;
+}
+
+bool Lesson::Is1v1()
+{
+	return mb1v1;
 }
 
 QString Lesson::Date()

@@ -18,6 +18,8 @@
 #include <QNetworkRequest>
 #include <QFileDialog>
 
+extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
+extern QString g_remeberToken;
 
 QColor timeColor(153, 153, 153);
 QColor contentColor(102, 102, 102);
@@ -47,7 +49,6 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 	, m_pWorker(NULL)
 	, m_DisSendMsgTimer(NULL)
 	, m_bCanSend(true)
-	, m_EnvironmentalTyle(true)
 	, m_DisCount(2)
 {
 	ui.setupUi(this);
@@ -1252,24 +1253,19 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 	m_switchTime = false;	
 }
 
-void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacherid, QString token, QString studentName, QString accid, int UnreadCount)
+void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacherid, QString studentName, QString accid, int UnreadCount, bool b1v1)
 {
 	m_CurChatID = chatID.toStdString();
 	m_CurCourseID = courseid;
 	m_CurTeacherID = teacherid;
 	m_accid = accid;
-	mRemeberToken = token;
 	m_StudentName = studentName;
 	m_UnreadCount = UnreadCount;
-	RequestMember();
-}
 
-void UIChatRoom::setChatInfo(QJsonObject &chatInfo, QString token)
-{
-	m_accid = chatInfo["accid"].toString();
-	m_token = chatInfo["token"].toString();
-
-	mRemeberToken = token;
+	if (b1v1)
+		Request1v1Member();
+	else
+		RequestMember();
 }
 
 void UIChatRoom::ReceiverLoginMsg(nim::LoginRes pRes)
@@ -1453,7 +1449,7 @@ void UIChatRoom::OnSendAnnouncements(QString Announcements)
 		return;
 	
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/announcements";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -1468,7 +1464,7 @@ void UIChatRoom::OnSendAnnouncements(QString Announcements)
 	QByteArray append("content=");
 	append += Announcements;
 	QNetworkRequest request(url);
-	request.setRawHeader("Remember-Token", mRemeberToken.toUtf8());	
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());	
 	reply = manager.post(request, append);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::ReturnAnnouncements);
 }
@@ -1556,7 +1552,7 @@ void UIChatRoom ::colseBrow()
 void UIChatRoom::QueryMember()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -1570,7 +1566,7 @@ void UIChatRoom::QueryMember()
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
-	request.setRawHeader("Remember-Token", mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnMember);
 }
@@ -2059,10 +2055,32 @@ void UIChatRoom::SetCurAudioPath(std::string path)
 	m_AudioPath = path;
 }
 
+void UIChatRoom::Request1v1Member()
+{
+	QString strUrl;
+	if (g_environmentType)
+	{
+		strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
+		strUrl.replace("{id}", m_CurCourseID);
+	}
+	else
+	{
+		strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
+		strUrl.replace("{id}", m_CurCourseID);
+	}
+
+	QUrl url = QUrl(strUrl);
+	QNetworkRequest request(url);
+
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+	reply = manager.get(request);
+	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnAllMember);
+}
+
 void UIChatRoom::RequestMember()
 {
 	QString strUrl;
-	if (m_EnvironmentalTyle)
+	if (g_environmentType)
 	{
 		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
 		strUrl.replace("{id}", m_CurCourseID);
@@ -2075,9 +2093,8 @@ void UIChatRoom::RequestMember()
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
-	QString str = this->mRemeberToken;
 
-	request.setRawHeader("Remember-Token", this->mRemeberToken.toUtf8());
+	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
 	reply = manager.get(request);
 	connect(reply, &QNetworkReply::finished, this, &UIChatRoom::returnAllMember);
 }
@@ -2512,11 +2529,6 @@ void UIChatRoom::setEditFocus()
 {
 	ui.textEdit->activateWindow();
 	m_uitalk->setFocus();
-}
-
-void UIChatRoom::SetEnvironmental(bool bType)
-{
-	m_EnvironmentalTyle = bType;
 }
 
 void UIChatRoom::SetAudioStatus(char* msgid, bool bSuc)

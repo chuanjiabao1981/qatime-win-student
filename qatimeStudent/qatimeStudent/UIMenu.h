@@ -20,8 +20,6 @@ private:
 	QString							m_version;
 	QNetworkReply*					reply;
 	QNetworkAccessManager			manager;
-	bool							m_EnvironmentalTyle;
-	QString							m_token;
 private slots:
 	void clickPic();
 	void clickReturn();
@@ -36,8 +34,6 @@ public:
 	void setPic(QPixmap pix);
 	void setName(QString name);
 	void setVersion(QString version);
-	void SetEnvironmental(bool Environmental);
-	void setToken(QString token);
 	void StartCheck(QString enforce, QString version, QString downpath);
 	void checkVersion();
 };
