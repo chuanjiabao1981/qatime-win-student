@@ -28,7 +28,7 @@ protected Q_SLOTS:
 	void slot_Audioclicked(std::string, std::string, std::string, bool);
 	void slot_AudioLoadFail(nim::IMMessage);
 	void rangeChanged(int, int);
-
+	void slot_Delay();
 private:
 	Ui::UITalk ui;
 	QSpacerItem*		m_spacer;
@@ -41,6 +41,10 @@ private:
 
 	std::vector<CBtnAudio*> m_vecAudio;			// 所有的audio按钮
 	QScrollBar*			m_bar;					// 滚动条
+
+	QTimer*				m_timerDelay;
+
+	int					m_maxValue;				// 框的最大高度
 private:
 	bool isDigitStr(QString str);
 	void style(QScrollArea *style);
@@ -49,6 +53,7 @@ public:
 	void InsertAudioChat(QPixmap* head, QString name, QString time, QString text, std::string path,
 		std::string sid, std::string msgid, nim::IMMessage msg, bool bTeacher = true, bool bRead = false);  // 插入语音聊天
 	void InsertNotice(QString text);												// 消息通知
+	void InsertNewNotice(QString name, QString text);								// 插入公告
 	void InsertPic(QPixmap* head, QString name, QString time, QString URL, QString sMsgID="", bool bTeacher = true);	// 插入图片
 	void InsertPicUrl(QPixmap* head, QString name, QString time, QString URL, QString sMsgID = "", bool bTeacher = true);	// 插入图片
 	void InsertEmoji(QPixmap* head, QString name, QString time, QString text, bool bTeacher=true);		// 插入表情

@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QObject>
 #include <QScrollBar>
+#include "UITextEdit.h"
 
 UINoticeWnd::UINoticeWnd(QWidget *parent)
 	: QWidget(parent)
@@ -88,8 +89,9 @@ void UINoticeWnd::AddNotic(QString text, QString time)
 	font.setPixelSize(13);
 	font.setFamily(("微软雅黑"));
 
-	QLabel* LText = new QLabel();
-	LText->setWordWrap(true);
+	UITextEdit* LText = new UITextEdit();
+	LText->setMaximumWidth(375);
+//	LText->setWordWrap(true);
 	LText->setFont(font);
 	LText->setText(text);
 
@@ -98,6 +100,7 @@ void UINoticeWnd::AddNotic(QString text, QString time)
 	LTime->setAlignment(Qt::AlignRight);
 	LTime->setText("发布时间：" + time);
 	LTime->setStyleSheet("color:rgb(153,153,153)");
+	LTime->setMaximumWidth(375);
 
 	QLabel* LSpec = new QLabel();
 	LSpec->setFixedHeight(20);
@@ -106,7 +109,7 @@ void UINoticeWnd::AddNotic(QString text, QString time)
 	m_VerAll->addWidget(LTime);
 	m_VerAll->addWidget(LSpec);
 
-	m_veclabel.push_back(LText);
+	m_vecedit.push_back(LText);
 	m_veclabel.push_back(LTime);
 	m_veclabel.push_back(LSpec);
 
@@ -142,6 +145,20 @@ void UINoticeWnd::DeleteNotice()
 	}
 	
 	m_veclabel.clear();
+
+	if (m_vecedit.size() > 0)
+	{
+		std::vector<QTextEdit*>::iterator it;
+		for (it = m_vecedit.begin(); it != m_vecedit.end(); it++)
+		{
+			QTextEdit* label = *it;
+			m_VerAll->removeWidget(label);
+			delete label;
+			label = NULL;
+		}
+	}
+
+	m_vecedit.clear();
 }
 
 void UINoticeWnd::style(QScrollArea *style)

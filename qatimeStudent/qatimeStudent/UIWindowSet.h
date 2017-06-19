@@ -114,15 +114,14 @@ private slots :
 	void clickCourse();							// 辅导班详情
 	void clickPerson();							// 成员
 	void clickLesson();							// 课程列表
-	void clickChange(bool);						// 改变模式
 	void slots_Modle(bool bModle);				// 改变模式
 	void slot_onTimeout();						// 时间
 
 	void status1v1();							// 获取1v1直播状态
 	void teacherStatus(bool bEnd);				// 老师状态
-
-//	void slot_refreshWnd();									// 刷新窗口
-
+	void exitVChat();
+public slots :
+	void clickChange(bool);						// 改变模式
 protected:
 	virtual void paintEvent(QPaintEvent *event);
 	virtual bool eventFilter(QObject *target, QEvent *event);

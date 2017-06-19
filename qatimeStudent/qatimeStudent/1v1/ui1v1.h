@@ -34,18 +34,22 @@ public:
 	void    ModleChange(bool bModle);								  // 模式改变
 	void	joinRtsRoom(const std::string & room);					  // 加入白板房间
 	void	setMuteBoard(bool bMute);								  // 设置禁用白板
+	void    FullResize();
 protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 
 signals:
 	void teacherStatus(bool);
-
+	void exitVChat();
+	void sig_cameraStatus(bool);
+	
 private slots:
 	/*互动直播*/
 	void joinRoomSuccessfully(const std::string &, __int64, const std::string &);// 加入白板房间成功
 	void joinVChatSuccessfully();							// 加入音视频房间成功
 	void errorInfo(const QString &);						// 加入失败错误信息
 	void PicData(QString);									// 白板数据
+	void ExitVChat();										// 退出1对1
 	void setDeviceInfos(int);								// 设备参数
 	void clickVideo1v1Param();								// 摄像头参数
 	void clickAudio1v1Param();								// 麦克风参数
@@ -63,6 +67,7 @@ private slots:
 	void setValueChange1v1(int iVolumn, bool capturn);		// 设置麦克风、扬声器音量
 
 	void StatusTeacher(bool);								// 老师状态
+	void slot_SendFullScreen(bool);
 private:
 	Ui::UI1v1 ui;
 

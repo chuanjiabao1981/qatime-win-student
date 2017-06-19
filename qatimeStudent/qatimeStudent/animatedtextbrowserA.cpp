@@ -93,15 +93,33 @@ void AnimatedTextBrowserA::mousePressEvent(QMouseEvent *e)
 	}
 }
 
-void AnimatedTextBrowserA::resizeEvent(QResizeEvent *e)
-{
-// 	if (this->verticalScrollBar()->isVisible() && m_bTimer)
-// 	{
-// 		this->resize(width(), height() + 5);
-// 	}
-}
-
 void AnimatedTextBrowserA::autoHeight()
 {
-	m_timer->start(200);
+//	m_timer->start(200);
+}
+
+void AnimatedTextBrowserA::paintEvent(QPaintEvent *e)
+{
+	QTextBrowser::paintEvent(e);
+
+	if (!m_bTimer)
+		return;
+
+	static int iCount = 0;
+	if (this->verticalScrollBar()->isVisible())
+	{
+		this->setFixedHeight(height() + 100);
+		this->moveCursor(QTextCursor::End);
+	}
+	else
+	{
+		int h = this->document()->size().rheight();
+		this->setFixedHeight(h);
+
+		if (iCount != 0)
+			return;
+
+		emit sig_scrollDown();
+		iCount++;
+	}
 }

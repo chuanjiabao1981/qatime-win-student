@@ -219,7 +219,7 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 				teacherName = data.teachers.first().name;
 				teacherId = data.teachers.first().id;
 			}
-			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_url, data.name, data.grade, teacherName, data.chat_team_id, QString::number(data.id),
+			m_AuxiliaryWnd->AddOneToOneAuxiliary(data.publicize_info_url, data.name, data.grade, teacherName, data.chat_team_id, QString::number(data.id),
 				teacherId, m_studentName, m_AudioPath, data.status);
 		}
 
@@ -324,8 +324,14 @@ void UIMainWindow::setKeyAndLogin(QString key)
 	InitAudio();	  // ³õÊ¼»¯ÓïÒô
 	m_WindowSet->initCallBack();
 
+	auto Mcb = std::bind(OnMultispotLoginCallback, std::placeholders::_1);
+	nim::Client::RegMultispotLoginCb(Mcb);
+
 	auto cb = std::bind(OnLoginCallback, std::placeholders::_1, nullptr);
 	nim::Client::Login(key.toStdString(), m_accid.toStdString(), m_accidPassword.toStdString(), cb);
+
+	auto Kcb = std::bind(OnKickoutCallback, std::placeholders::_1);
+	nim::Client::RegKickoutCb(Kcb);
 
 	ShowLesson();
 }
@@ -333,6 +339,23 @@ void UIMainWindow::setKeyAndLogin(QString key)
 void UIMainWindow::OnLoginCallback(const nim::LoginRes& login_res, const void* user_data)
 {
 	m_This->m_WindowSet->ReceiverLoginMsg(login_res);
+}
+//¶à¶Ë
+void UIMainWindow::OnMultispotLoginCallback(const nim::MultiSpotLoginRes& res)
+{
+	bool online = res.notify_type_ == nim::kNIMMultiSpotNotifyTypeImIn;
+	if (!res.other_clients_.empty())
+	{
+	}
+}
+
+void UIMainWindow::OnKickoutCallback(const nim::KickoutRes& res)
+{
+	int i = 0;
+	if (res.client_type_ == nim::kNIMClientTypePCWindows)
+	{
+		i++;
+	}
 }
 
 bool UIMainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
@@ -590,6 +613,42 @@ void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherI
 		m_WindowSet->AddChatRoom(chatID, courseID, teacherID, studentName, audioPath, courseName, UnreadCount, status, b1v1Lesson);
 }
 
+void UIMainWindow::CreateRoomForCourseID(QString courseID)
+{
+	QString strUrl;
+	if (g_environmentType)
+		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
+	else
+		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
+
+	strUrl.replace("{id}", courseID);
+	strUrl.replace("{studentid}", m_studentID);
+
+	HttpRequest http;
+	http.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+
+	QByteArray result = http.httpGet(strUrl);
+	QJsonDocument document(QJsonDocument::fromJson(result));
+	QJsonObject obj = document.object();
+	QJsonObject data = obj["data"].toObject();
+	QJsonObject error = obj["error"].toObject();
+	if (obj["status"].toInt() == 1 )
+	{
+ 		QString chatID, teacherID, courseName, status;
+		chatID = data["chat_team_id"].toString();
+		teacherID = data["chat_team_owner"].toString();
+ 		courseName = data["name"].toString();
+		status = data["status"].toString();
+		
+		if (m_WindowSet)
+			m_WindowSet->AddChatRoom(chatID, courseID, teacherID, m_studentName, m_AudioPath, courseName, 0, status, false);
+	}
+	else if (obj["status"].toInt() == 0)
+	{
+		//		RequestError(error);
+	}
+}
+
 void UIMainWindow::ShowCourse()
 {
 	if (m_AuxiliaryWnd)
@@ -620,7 +679,7 @@ void UIMainWindow::CloseDialog()
 void UIMainWindow::slot_BoardTimeout()
 {
 	m_BoardTimer->stop();
-	MoveWindow(m_hBoardWnd, 0, 0, 656, 519, true);//QApplication::desktop()->width() QApplication::desktop()->height()
+	MoveWindow(m_hBoardWnd, 0, 0, 680, 525, true);//QApplication::desktop()->width() QApplication::desktop()->height()
 }
 
 void UIMainWindow::slot_CameraTimeout()

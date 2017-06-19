@@ -48,7 +48,7 @@ void UIWhiteBoardTool::colorClicked()
 
 		QPoint point = QCursor::pos();
 		int height = mColorPicker->height();
-		mColorPicker->move(point.x(), point.y() - height);
+		mColorPicker->move(point.x()-20, point.y() - height);
 		mColorPicker->setFocus();
 	}
 }

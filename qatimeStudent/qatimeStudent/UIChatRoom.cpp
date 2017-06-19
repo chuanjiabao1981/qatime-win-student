@@ -352,6 +352,7 @@ void UIChatRoom::clickBrow()
 	}
 
 	m_smallEmotionWidget->move(0, this->size().height()-210);
+	SetWindowPos((HWND)m_smallEmotionWidget->winId(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 }
 // 消息记录
 void UIChatRoom::clickNotes()
@@ -564,6 +565,7 @@ void UIChatRoom::clickSendMseeage()
 	ui.textEdit->setFocus();
 
 	ui.button_sendMseeage->setText("发送(2S)");
+	ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage_dis.png);color:rgb(255,255,255)");
 	m_DisSendMsgTimer->start(1000);
 	m_bCanSend = false;
 }
@@ -769,6 +771,26 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 							return bValid;
 						}
 					}
+				}
+			}
+			else if (id == nim::kNIMNotificationIdTeamUpdate) //公告
+			{
+				const std::string& from_account = pMsg->sender_accid_;
+				Json::Value tinfo_json = json[nim::kNIMNotificationKeyData][nim::kNIMNotificationKeyTeamInfo];
+				
+				personListBuddy* Buddy = NULL;
+				QString sName;
+				Buddy = ui.student_list->findID(QString::fromStdString(from_account));
+				if (Buddy)
+					sName = Buddy->name->text();
+
+				if (tinfo_json.isMember(nim::kNIMTeamInfoKeyAnnouncement))
+				{
+					QString info;
+					info = QString("%1 更新了群公告").arg(sName);
+
+					std::string Announcement = tinfo_json[nim::kNIMTeamInfoKeyAnnouncement].asString();
+					m_uitalk->InsertNewNotice(info, QString::fromStdString(Announcement));
 				}
 			}
 		}
@@ -1090,6 +1112,26 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 					name += "已被解除禁言";
 
 				m_uitalkRecord->InsertNotice(name);
+			}
+			else if (id == nim::kNIMNotificationIdTeamUpdate) //公告
+			{
+				const std::string& from_account = pMsg.sender_accid_;
+				Json::Value tinfo_json = json[nim::kNIMNotificationKeyData]["tinfo"];
+
+				personListBuddy* Buddy = NULL;
+				QString sName;
+				Buddy = ui.student_list->findID(QString::fromStdString(from_account));
+				if (Buddy)
+					sName = Buddy->name->text();
+
+				if (tinfo_json.isMember("15"))
+				{
+					QString info;
+					info = QString("%1 更新了群公告").arg(sName);
+
+					std::string Announcement = tinfo_json["15"].asString();
+					m_uitalkRecord->InsertNewNotice(info, QString::fromStdString(Announcement));
+				}
 			}
 		}
 		return;
@@ -1894,6 +1936,7 @@ void UIChatRoom::clickPic()
 	ui.textEdit->setFocus();
 
 	ui.button_sendMseeage->setText("发送(2S)");
+	ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage_dis.png);color:rgb(255,255,255)");
 	m_DisSendMsgTimer->start(1000);
 	m_bCanSend = false;
 }
@@ -2048,6 +2091,11 @@ QString UIChatRoom::GetCourseID()
 QString UIChatRoom::GetTeacherID()
 {
 	return m_CurTeacherID;
+}
+
+QString UIChatRoom::GetAccid()
+{
+	return m_accid;
 }
 
 void UIChatRoom::SetCurAudioPath(std::string path)
@@ -2215,6 +2263,7 @@ void UIChatRoom::SendAudio(QString msgid, QString path, long size, int audio_dur
 		AddAudioMsg(msg, audio);
 
 		ui.button_sendMseeage->setText("发送(2S)");
+		ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage_dis.png);color:rgb(255,255,255)");
 		m_DisSendMsgTimer->start(1000);
 		m_bCanSend = false;
 	}
@@ -2347,6 +2396,26 @@ void UIChatRoom::ShowChatMsg(nim::IMMessage pMsg)
 					name += "已被解除禁言";
 
 				m_uitalk->InsertNotice(name);
+			}
+			else if (id == nim::kNIMNotificationIdTeamUpdate) //公告
+			{
+				const std::string& from_account = pMsg.sender_accid_;
+				Json::Value tinfo_json = json[nim::kNIMNotificationKeyData][nim::kNIMNotificationKeyTeamInfo];
+
+				personListBuddy* Buddy = NULL;
+				QString sName;
+				Buddy = ui.student_list->findID(QString::fromStdString(from_account));
+				if (Buddy)
+					sName = Buddy->name->text();
+
+				if (tinfo_json.isMember(nim::kNIMTeamInfoKeyAnnouncement))
+				{
+					QString info;
+					info = QString("%1 更新了群公告").arg(sName);
+
+					std::string Announcement = tinfo_json[nim::kNIMTeamInfoKeyAnnouncement].asString();
+					m_uitalk->InsertNewNotice(info, QString::fromStdString(Announcement));
+				}
 			}
 		}
 		return;
@@ -2520,6 +2589,7 @@ void UIChatRoom::DisSendMsgTimeout()
 	{
 		m_DisCount = 2;
 		ui.button_sendMseeage->setText("发送");
+		ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage.png);color:rgb(255,255,255)");
 		m_DisSendMsgTimer->stop();
 		m_bCanSend = true;
 	}

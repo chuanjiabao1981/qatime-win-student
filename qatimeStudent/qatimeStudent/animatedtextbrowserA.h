@@ -23,7 +23,7 @@ signals:
 	void sig_scrollDown();
 protected:
 	void mousePressEvent(QMouseEvent *e);       //--鼠标按下事件 
-	virtual void resizeEvent(QResizeEvent *);	//窗口改变
+	virtual void paintEvent(QPaintEvent *e);	
 private:
 	QList<QUrl> lstUrl;
 	QList<QMovie *> lstMovie;

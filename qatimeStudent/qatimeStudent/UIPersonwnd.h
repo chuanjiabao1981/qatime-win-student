@@ -30,7 +30,7 @@ protected:
 	virtual void focusOutEvent(QFocusEvent *);
 
 public:
-	void AddPerson(std::vector<personListBuddy*> vecBuddy, QString teacherID);
+	void AddPerson(std::vector<personListBuddy*> vecBuddy, QString teacherID, bool b1v1=false);
 	void DeletePerson();
 	void style(QScrollArea *style);
 	void setParentBtn(UIWindowSet* parent);

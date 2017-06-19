@@ -109,6 +109,7 @@ private:
 	int								m_DisCount;			// 
 
 	QTimer*							m_AudioBarTimer;	// 语音条显示定时器
+	
 public:
 	QString							m_StudentName;		// 学生名字
 protected:
@@ -191,6 +192,7 @@ public:
 	std::string    GetCurChatID();								// 当前会话ID
 	QString	GetCourseID();										// 当前辅导班ID
 	QString GetTeacherID();										// 当前老师ID
+	QString GetAccid();											// 获取用户ID
 	void    SetCurAudioPath(std::string path);					// 设置当前语音路径
 	void    InitAudioCallBack();								// 录制语音初始化回调
 	void    finishAudio();										// 完成录音,默认发送语音

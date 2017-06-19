@@ -99,3 +99,18 @@ void UICameraS1v1::StartEndVideo(bool bEndVideo)
 {
 	m_bEndVideo = bEndVideo;
 }
+
+void UICameraS1v1::mouseDoubleClickEvent(QMouseEvent* e)
+{
+	return;
+	if (this->isFullScreen())
+	{
+		setWindowFlags(Qt::SubWindow);
+		showNormal();
+	}
+	else
+	{
+		setWindowFlags(Qt::Window);
+		showFullScreen();
+	}
+}

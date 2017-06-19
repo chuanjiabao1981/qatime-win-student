@@ -22,6 +22,7 @@ public:
 	QSpacerItem*		m_spacer;
 
 	std::vector<QLabel*>	m_veclabel;
+	std::vector<QTextEdit*>	m_vecedit;
 	UIWindowSet*		m_parent;
 	QPushButton*		m_btn;
 private:

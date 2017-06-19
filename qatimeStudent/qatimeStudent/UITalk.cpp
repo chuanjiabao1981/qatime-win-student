@@ -7,6 +7,7 @@
 #include <QScrollBar>
 #include "windows.h"
 
+#define TIME_DELAY 100
 void sleep(int secs)
 {
 	QTime dieTime = QTime::currentTime().addMSecs(secs);
@@ -23,6 +24,8 @@ UITalk::UITalk(QWidget *parent)
 	, m_parent(NULL)
 	, m_vecAudio(NULL)
 	, m_bar(NULL)
+	, m_timerDelay(NULL)
+	, m_maxValue(0)
 {
 	ui.setupUi(this);
 
@@ -45,7 +48,10 @@ UITalk::UITalk(QWidget *parent)
 	style(m_view);
 
 	m_bar = m_view->verticalScrollBar();
-	connect(m_bar, SIGNAL(rangeChanged(int, int)), this, SLOT(rangeChanged(int,int)));
+//	connect(m_bar, SIGNAL(rangeChanged(int, int)), this, SLOT(rangeChanged(int,int)));
+
+	m_timerDelay = new QTimer(this);
+	connect(m_timerDelay, SIGNAL(timeout()), this, SLOT(slot_Delay()));
 }
 
 UITalk::~UITalk()
@@ -157,6 +163,7 @@ void UITalk::InsertChat(QPixmap* pixmap, QString name, QString time, QString tex
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
+	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -240,6 +247,8 @@ void UITalk::InsertAudioChat(QPixmap* pixmap, QString name, QString time, QStrin
 
 	if (!bRead)
 		nim::NOS::FetchMedia(msg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
+
+	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -258,7 +267,7 @@ void UITalk::InsertNotice(QString text)
 	LNotice->setFont(font);
 	LNotice->setStyleSheet("color: rgb(85, 85, 85);"); //学生名字颜色
 	LNotice->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-	LNotice->setFixedHeight(35);
+	LNotice->setWordWrap(true);
 	FirstRow->addWidget(LNotice);
 
 	m_Ver->addLayout(FirstRow);
@@ -277,8 +286,60 @@ void UITalk::InsertNotice(QString text)
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
+	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
+}
+
+// 插入格式化通知消息等
+void UITalk::InsertNewNotice(QString name, QString text)
+{
+	QFont font;
+	font.setPixelSize(12);
+	font.setFamily(("微软雅黑"));
+
+	QFont font1;
+	font1.setPixelSize(13);
+	font1.setFamily(("微软雅黑"));
+
+	// 第一行（消息）
+	QVBoxLayout* FirstRow = new QVBoxLayout();
+	FirstRow->setContentsMargins(30, 0, 30, 0);
+	QLabel* LName = new QLabel();
+	LName->setText(name);
+	LName->setFont(font);
+	LName->setStyleSheet("color: rgb(153,153,153);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
+	LName->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	LName->setWordWrap(true);
+	FirstRow->addWidget(LName);
+
+	QLabel* LNotice = new QLabel();
+	LNotice->setText(text);
+	LNotice->setFont(font1);
+	LNotice->setStyleSheet("color: rgb(102,102,102);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
+	LNotice->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	LNotice->setWordWrap(true);
+	FirstRow->addWidget(LNotice);
+
+	m_Ver->addLayout(FirstRow);
+
+	// 添加到布局里
+	if (m_spacer == NULL)
+	{
+		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_Ver->addSpacerItem(m_spacer);
+	}
+	else
+	{
+		m_Ver->removeItem(m_spacer);
+		m_spacer = NULL;
+		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_Ver->addSpacerItem(m_spacer);
+	}
+
+	m_timerDelay->start(TIME_DELAY);
+	// 	sleep(50);
+	// 	ScrollDown();
 }
 
 // 插入图片聊天信息
@@ -374,6 +435,7 @@ void UITalk::InsertPic(QPixmap* pixmap, QString name, QString time, QString url,
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
+	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -455,6 +517,7 @@ void UITalk::InsertPicUrl(QPixmap* pixmap, QString name, QString time, QString u
 		SecRow->addWidget(pImgProcess);
 
 		m_vecImgProcess.push_back(pBtn);
+		pBtn->show();
 	}
 
 	QSpacerItem* spacer = new QSpacerItem(5, 5, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -478,6 +541,7 @@ void UITalk::InsertPicUrl(QPixmap* pixmap, QString name, QString time, QString u
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
+//	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -571,7 +635,8 @@ void UITalk::InsertEmoji(QPixmap* pixmap, QString name, QString time, QString te
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-	
+
+	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -638,8 +703,16 @@ void UITalk::stringToHtml(QString &str, QColor crl)
 // 滚动到最底部
 void UITalk::ScrollDown()
 {
+	int iMax = m_view->verticalScrollBar()->maximum();;
+	if (iMax == m_maxValue)
+	{
+		m_timerDelay->start(TIME_DELAY);
+	}
+	else
+		m_maxValue = iMax;
+
 	if (m_view)
-		m_view->verticalScrollBar()->setValue(m_view->verticalScrollBar()->maximum());
+		m_view->verticalScrollBar()->setValue(m_maxValue);
 }
 
 void UITalk::PicProcess(double iProcess)
@@ -845,4 +918,10 @@ void UITalk::SetAudioStatus(char* msgid, bool bSuc)
 			}
 		}
 	}
+}
+
+void UITalk::slot_Delay()
+{
+	m_timerDelay->stop();
+	ScrollDown();
 }

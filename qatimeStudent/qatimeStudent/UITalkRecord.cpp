@@ -326,6 +326,55 @@ void UITalkRecord::InsertNotice(QString text)
 	ScrollDown();
 }
 
+// 插入格式化通知消息等
+void UITalkRecord::InsertNewNotice(QString name, QString text)
+{
+	QFont font;
+	font.setPixelSize(12);
+	font.setFamily(("微软雅黑"));
+
+	QFont font1;
+	font1.setPixelSize(13);
+	font1.setFamily(("微软雅黑"));
+
+	// 第一行（消息）
+	QVBoxLayout* FirstRow = new QVBoxLayout();
+	QLabel* LName = new QLabel();
+	LName->setText(name);
+	LName->setFont(font);
+	LName->setStyleSheet("color: rgb(153,153,153);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
+	LName->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	LName->setWordWrap(true);
+	FirstRow->addWidget(LName);
+
+	QLabel* LNotice = new QLabel();
+	LNotice->setText(text);
+	LNotice->setFont(font1);
+	LNotice->setStyleSheet("color: rgb(102,102,102);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
+	LNotice->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	LNotice->setWordWrap(true);
+	FirstRow->addWidget(LNotice);
+
+	m_Ver->insertLayout(0, FirstRow);
+
+	// 添加到布局里
+	if (m_spacer == NULL)
+	{
+		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_Ver->addSpacerItem(m_spacer);
+	}
+	else
+	{
+		m_Ver->removeItem(m_spacer);
+		m_spacer = NULL;
+		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_Ver->addSpacerItem(m_spacer);
+	}
+
+	RecordSleep(50);
+	ScrollDown();
+}
+
 // 插入图片聊天信息
 void UITalkRecord::InsertPic(QPixmap* pixmap, QString name, QString time, QString url_, QString sMsgID, bool bTeacher)
 {

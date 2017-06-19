@@ -23,7 +23,7 @@ UIPersonWnd::~UIPersonWnd()
 
 }
 
-void UIPersonWnd::AddPerson(std::vector<personListBuddy*> vecBuddy, QString teacherID)
+void UIPersonWnd::AddPerson(std::vector<personListBuddy*> vecBuddy, QString strID, bool b1v1)
 {
 	QFont font;
 	font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
@@ -50,20 +50,38 @@ void UIPersonWnd::AddPerson(std::vector<personListBuddy*> vecBuddy, QString teac
 				LText->setMaximumWidth(85);
 				LText->setFont(font);
 				LText->setText(buddy->name->text());
-				if (buddy->m_ID == teacherID)
-					LText->setStyleSheet("color:rgb(255,0,0)");
+				if (!b1v1)
+				{
+					if (buddy->m_ID == strID)
+						LText->setStyleSheet("color:rgb(255,0,0)");
+				}
 				
 				QLabel* LStyle = new QLabel();
 				LStyle->setFixedSize(30, 30);
 				LStyle->setFont(font);
-				if (buddy->m_ID == teacherID)
+				if (b1v1)
 				{
-					LStyle->setText("老师");
-					LStyle->setStyleSheet("color:rgb(255,0,0)");
+					if (buddy->m_ID == strID)
+					{
+						LStyle->setText("学生");
+						LStyle->setStyleSheet("color:rgb(100,100,100)");
+					}
+					else{
+						LStyle->setText("老师");
+						LStyle->setStyleSheet("color:rgb(255,0,0)");
+					}
 				}
-				else{
-					LStyle->setText("学生");
-					LStyle->setStyleSheet("color:rgb(100,100,100)");
+				else
+				{
+					if (buddy->m_ID == strID)
+					{
+						LStyle->setText("老师");
+						LStyle->setStyleSheet("color:rgb(255,0,0)");
+					}
+					else{
+						LStyle->setText("学生");
+						LStyle->setStyleSheet("color:rgb(100,100,100)");
+					}
 				}
 
 				// 加省略号
@@ -78,10 +96,20 @@ void UIPersonWnd::AddPerson(std::vector<personListBuddy*> vecBuddy, QString teac
 				SecRow->addWidget(LPic);
 				SecRow->addWidget(LText);
 				SecRow->addWidget(LStyle);
-				if (buddy->m_ID == teacherID)
-					ui.verticalLayout->insertLayout(0,SecRow);
+				if (b1v1)
+				{
+					if (buddy->m_ID != strID)
+						ui.verticalLayout->insertLayout(0, SecRow);
+					else
+						ui.verticalLayout->addLayout(SecRow);
+				}
 				else
-					ui.verticalLayout->addLayout(SecRow);
+				{
+					if (buddy->m_ID == strID)
+						ui.verticalLayout->insertLayout(0, SecRow);
+					else
+						ui.verticalLayout->addLayout(SecRow);
+				}
 
 				if (m_spacer == NULL)
 				{

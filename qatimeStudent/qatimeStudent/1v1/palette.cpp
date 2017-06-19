@@ -9,6 +9,7 @@
 #include "shape.h"
 #include "windows.h"
 #include <QThread>
+#include <QDateTime>
 
 #define  COLOR_VALUE_BLACK QColor(0, 0, 0)
 #define  COLOR_VALUE_RED QColor(204, 0, 0)
@@ -22,6 +23,7 @@ Palette::Palette(QWidget *parent) :
     ui(new Ui::Palette)
 	, m_timer(NULL)
 	, m_LaserShape(NULL)
+	, m_OnlyTime(0)
 {
     ui->setupUi(this);
 	setMouseTracking(true);
@@ -37,6 +39,7 @@ Palette::Palette(QWidget *parent) :
 	{
 		m_LaserShape = new Shape();
 		m_LaserShape->setLaserPen(true);
+		mLaserShapeStack.append(m_LaserShape);
 		mSycnShapeStack.append(m_LaserShape);
 	}
 }
@@ -149,6 +152,11 @@ void Palette::paintEvent(QPaintEvent *)
 		{
 			shape->paint(paint, lsize);
 		}
+
+		foreach(Shape *shape, mLaserShapeStack)
+		{
+			shape->paint(paint, lsize);
+		}
 	}
 }
 
@@ -194,22 +202,6 @@ void Palette::mouseMoveEvent(QMouseEvent *event)
 {
 	if (!mIsDraw)
 	{
-		QPoint point = event->pos();
-		QSize lSize = size();
-
-		update();
-
-		float x = (float)(point.x() * 1.0 / lSize.width());
-		float y = (float)(point.y() * 1.0 / lSize.height());
-		QString ptX = QString("%1").arg(x);				//	x的相对坐标
-		QString ptY = QString("%1").arg(y);				//  y的相对坐标
-		QString opType = QString::number(kMultiBoardOpSign);//  消息类型
-		DWORD clr = colorConvert(getPenColor());
-		QString sClr = QString::number(clr);			//  颜色类型
-		QString strInfo;
-		strInfo.append(QString("%1:%2,%3,%4;").arg(opType).arg(ptX).arg(ptY).arg(sClr));
-		qDebug() << strInfo;
-		emit PicData(strInfo);
 		return;
 	}
 
@@ -270,13 +262,19 @@ void Palette::RecData(const std::string& data)
 
 	QString strData = QString::fromStdString(data);
 
-	QStringList list = strData.split(";");
+	if (strData.mid(0, 1).toInt() == kMultiBoardOpSync)
+	{
+		RecSyncData(strData);
+		return;
+	}
 
+	QStringList list = strData.split(";");
 	foreach(const QString& p, list)
 	{
 		QStringList param_list = p.split(":");
 		draw_op_type_ = param_list.first().toInt();
 		QStringList pointInfo = param_list.last().split(",");
+		
 		if (pointInfo.length() == 3)
 		{
 			x = pointInfo.at(0).toFloat();
@@ -284,10 +282,8 @@ void Palette::RecData(const std::string& data)
 			clr_ = pointInfo.at(2).toULong();
 		}
 		else
-		{
 			continue;
-		}
-		
+
 		switch (draw_op_type_)
 		{
 		case kMultiBoardOpStart:
@@ -318,7 +314,7 @@ void Palette::RecData(const std::string& data)
 			update();
 			return;
 		case kMultiBoardOpSignEnd:
-			m_LaserShape->setLaserPT(QPointF(-100, -100));
+			m_LaserShape->setLaserPT(QPointF(0, 0));
 			update();
 			return;
 		case kMultiBoardOpClear:
@@ -386,8 +382,62 @@ int Palette::colorConvert(QColor color)
 
 void Palette::sendSyncQuery()
 {
+	qint64 cdate = QDateTime::currentMSecsSinceEpoch();
+	m_OnlyTime = cdate;
 	QThread::sleep(1);
 	QString strInfo;
-	strInfo.append(QString("%1:%2,%3,%4;").arg(kMultiBoardOpSyncQuery).arg("0.3").arg("0.3").arg("1478787"));
+	strInfo.append(QString("%1:%2,%3,%4;").arg(kMultiBoardOpSyncQuery).arg(m_OnlyTime).arg("0.3").arg("1478787"));
 	emit PicData(strInfo);
+}
+
+void Palette::RecSyncData(QString SyncData)
+{
+	float x;
+	float y;
+	DWORD clr_;
+	int draw_op_type_;
+
+	QStringList list = SyncData.split(";");
+	foreach(const QString& p, list)
+	{
+		QStringList param_list = p.split(":");
+		draw_op_type_ = param_list.first().toInt();
+		QStringList pointInfo = param_list.last().split(",");
+
+		if (pointInfo.length() == 3)
+		{
+			x = pointInfo.at(0).toFloat();
+			y = pointInfo.at(1).toFloat();
+			clr_ = pointInfo.at(2).toULong();
+		}
+		else
+			continue;
+
+		switch (draw_op_type_)
+		{
+		case kMultiBoardOpStart:
+		case kMultiBoardOpMove:
+		case kMultiBoardOpEnd:
+		{
+			QPointF pt(x, y);
+			if (mShapeStack.size() > 0 && draw_op_type_ != kMultiBoardOpStart)
+			{
+				mShapeStack.last()->append(pt);
+				update();
+			}
+			else
+			{
+				Shape *shape = new Shape();
+				mShapeStack.append(shape);
+				shape->append(pt);
+				QPen pen;
+				pen.setWidth(2);
+				pen.setColor(QColor(QRgb(clr_)));
+				shape->setPen(pen);
+				update();
+			}
+			break;
+		}
+		}
+	}
 }

@@ -261,6 +261,11 @@ void UIAuxiliaryWnd::clickAuxiliaryToday(UIAuxiliaryToday* auxiliaryToday)
 	else
 	{
 		auxiliary = m_mapAuxiliaryCourseID.value(auxiliaryToday->GetCourseID(), NULL);
+		if (auxiliary==NULL && m_parent)
+		{
+			m_parent->CreateRoomForCourseID(auxiliaryToday->GetCourseID());
+			return;
+		}
 	}
 	
 	if (m_parent&& auxiliary)
@@ -402,73 +407,6 @@ void UIAuxiliaryWnd::CloseDialog()
 	if (m_parent)
 		m_parent->CloseDialog();
 }
-
-// bool UIAuxiliaryWnd::nativeEvent(const QByteArray &eventType, void *message, long *result)
-// {
-// 	if ("windows_generic_MSG" == eventType)
-// 	{
-// 		PMSG pMsg = static_cast<PMSG>(message);
-// 		switch (pMsg->message)
-// 		{
-// 		case WM_NCHITTEST:
-// 		{
-// 			int x = GET_X_LPARAM(pMsg->lParam) - this->frameGeometry().x();
-// 			int y = GET_Y_LPARAM(pMsg->lParam) - this->frameGeometry().y();
-// 
-// 			int xflag = (x <= MAINWINDOW_X_MARGIN) ? -1 : ((x < this->width() - MAINWINDOW_X_MARGIN) ? 0 : 1);
-// 			int yflag = (y <= MAINWINDOW_Y_MARGIN) ? -1 : ((y < this->height() - MAINWINDOW_Y_MARGIN) ? 0 : 1);
-// 
-// 			if (-1 == xflag && -1 == yflag)
-// 			{
-// 				*result = HTTOPLEFT;
-// 			}
-// 			else if (-1 == xflag && 0 == yflag)
-// 			{
-// 				*result = HTLEFT;
-// 			}
-// 			else if (-1 == xflag && 1 == yflag)
-// 			{
-// 				*result = HTBOTTOMLEFT;
-// 			}
-// 			else if (0 == xflag && -1 == yflag)
-// 			{
-// 				*result = HTTOP;
-// 			}
-// 			else if (0 == xflag && 0 == yflag)
-// 			{
-// 				*result = HTCLIENT;
-// 			}
-// 			else if (0 == xflag && 1 == yflag)
-// 			{
-// 				*result = HTBOTTOM;
-// 			}
-// 			else if (1 == xflag && -1 == yflag)
-// 			{
-// 				*result = HTTOPRIGHT;
-// 			}
-// 			else if (1 == xflag && 0 == yflag)
-// 			{
-// 				*result = HTRIGHT;
-// 			}
-// 			else if (1 == xflag && 1 == yflag)
-// 			{
-// 				*result = HTBOTTOMRIGHT;
-// 			}
-// 			if (0 == xflag && y > MAINWINDOW_Y_MARGIN && y <= MAINWINDOW_TITLE_HEIGHT)
-// 			{
-// 				qInfo("¼¤»î´°¿Ú");
-// 				*result = HTCAPTION;
-// 			}
-// 			return true;
-// 		}
-// 		break;
-// 		default:
-// 			return false;
-// 			break;
-// 		}
-// 	}
-// 	return false;
-// }
 
 void UIAuxiliaryWnd::ReceiverNumber(QString chatID)
 {

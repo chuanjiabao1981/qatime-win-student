@@ -154,6 +154,12 @@ void UIWindowSet::CloseDialog()
 			delete tags;
 		}
 	}
+
+	if (m_curTags->Is1v1Lesson())
+	{
+		m_Ui1v1->setMuteBoard(true);
+	}
+
 	m_vecTags.clear();
 	m_mapTags.clear();
 	m_curTags = NULL;
@@ -371,6 +377,8 @@ UITags* UIWindowSet::AddTag(QString chatID, QString name, QString ID, bool sel, 
 	{
 		m_curTags->setModle(true);
 		emit sig_Modle(true);
+		if (b1v1Lesson)
+			start1v1Status(STATUS_TIME);
 	}
 	else
 	{
@@ -876,15 +884,31 @@ void UIWindowSet::QueryCourse()
 	QString strUrl;
 	if (g_environmentType)
 	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-		strUrl.replace("{id}", strCourseID);
-		strUrl.replace("{studentid}", m_studentID);
+		if (m_curTags->Is1v1Lesson())
+		{
+			strUrl = "http://qatime.cn/api/v1/live_studio/interactive_courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+		}
+		else
+		{
+			strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+			strUrl.replace("{studentid}", m_studentID);
+		}
 	}
 	else
 	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-		strUrl.replace("{id}", strCourseID);
-		strUrl.replace("{studentid}", m_studentID);
+		if (m_curTags->Is1v1Lesson())
+		{
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+		}
+		else
+		{
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+			strUrl.replace("{studentid}", m_studentID);
+		}
 	}
 
 	QUrl url = QUrl(strUrl);
@@ -906,18 +930,39 @@ void UIWindowSet::returnCourse()
 	if (obj["status"].toInt() == 1)
 	{
 		// 辅导班信息
-		QString coursePic = data["publicize"].toString();
+		QString coursePic;
+		if (m_curTags->Is1v1Lesson())
+		{
+			coursePic = data["publicize_list_url"].toString();
+		}
+		else
+		{
+			coursePic = data["publicize"].toString();
+		}
+
 		QString courseName = data["name"].toString();
 		QString courseGrade = data["grade"].toString();
 		QString courseGrade1 = data["subject"].toString();
-		QString teacherName = data["teacher_name"].toString();
-		QString coursePross = QString::number(data["completed_lesson_count"].toInt());
-		QString courseProsses = QString::number(data["preset_lesson_count"].toInt());
-
+		QString courseProsses = QString::number(data["lessons_count"].toInt());
+		QString coursePross = QString::number(data["closed_lessons_count"].toInt());
 		QString courseStart = data["live_start_time"].toString();
 		QString courseEnd = data["live_end_time"].toString();
 		QString courseDesc = data["description"].toString();
 	
+		QString teacherName;
+		if (m_curTags->Is1v1Lesson())
+		{
+			QJsonArray lesson1v1 = data["interactive_lessons"].toArray();
+			foreach(const QJsonValue & value, lesson1v1)
+			{
+				QJsonObject teacherObj = value.toObject()["teacher"].toObject();
+				teacherName = teacherObj["name"].toString();
+				break;
+			}	
+		}
+		else
+			teacherName = data["teacher_name"].toString();
+
 		// 年级信息
 		courseGrade = courseGrade + courseGrade1 + " | 主讲:" + teacherName;
 		coursePross = "课程进度: " + coursePross +"/"+ courseProsses;
@@ -963,9 +1008,15 @@ void UIWindowSet::QueryPerson()
 			return;
 		}
 
+		QString strID;
+		if (m_curTags->Is1v1Lesson())
+			strID = m_curChatRoom->GetAccid();
+		else
+			strID = m_curChatRoom->GetTeacherID();
+
 		vecBuddy = m_curChatRoom->GetBuddy();
 		if (m_PersonWnd)
-			m_PersonWnd->AddPerson(vecBuddy, m_curChatRoom->GetTeacherID());
+			m_PersonWnd->AddPerson(vecBuddy, strID, m_curTags->Is1v1Lesson());
 	}
 }
 
@@ -1000,15 +1051,31 @@ void UIWindowSet::QueryLesson()
 	QString strUrl;
 	if (g_environmentType)
 	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-		strUrl.replace("{id}", strCourseID);
-		strUrl.replace("{studentid}", m_studentID);
+		if (m_curTags->Is1v1Lesson())
+		{
+			strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+		}
+		else
+		{
+			strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+			strUrl.replace("{studentid}", m_studentID);
+		}
 	}
 	else
 	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-		strUrl.replace("{id}", strCourseID);
-		strUrl.replace("{studentid}", m_studentID);
+		if (m_curTags->Is1v1Lesson())
+		{
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+		}
+		else
+		{
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
+			strUrl.replace("{id}", strCourseID);
+			strUrl.replace("{studentid}", m_studentID);
+		}
 	}
 
 	QUrl url = QUrl(strUrl);
@@ -1030,19 +1097,41 @@ void UIWindowSet::returnLesson()
 	if (obj["status"].toInt() == 1)
 	{
 		// 群公告信息
-		QJsonArray lesson = data["lessons"].toArray();
-		foreach(const QJsonValue & value, lesson)
+		QJsonArray lesson;
+		if (m_curTags->Is1v1Lesson())
 		{
-			iCount++;
-			QJsonObject obj = value.toObject();
-			QString strClassDate = obj["class_date"].toString();
-			QString strLiveTime = obj["live_time"].toString();
-			QString strStatus = obj["status"].toString();
-			QString strName = obj["name"].toString();
+			lesson = data["interactive_lessons"].toArray();
+			foreach(const QJsonValue & value, lesson)
+			{
+				iCount++;
+				QJsonObject obj = value.toObject();
+				QString strClassDate = obj["class_date"].toString();
+				QString strStartTime = obj["start_time"].toString();
+				QString strEndTime = obj["end_time"].toString();
+				QString strStatus = obj["status"].toString();
+				QString strName = obj["name"].toString();
 
-			strClassDate = strClassDate + "  " + strLiveTime;
-			if (m_LessonWnd)
-				m_LessonWnd->AddLesson(QString().sprintf("%02d", iCount), strClassDate, strName, strStatus);
+				strClassDate = strClassDate + "  " + strStartTime + "-" + strEndTime;
+				if (m_LessonWnd)
+					m_LessonWnd->AddLesson(QString().sprintf("%02d", iCount), strClassDate, strName, strStatus);
+			}
+		}
+		else
+		{
+			lesson = data["lessons"].toArray();
+			foreach(const QJsonValue & value, lesson)
+			{
+				iCount++;
+				QJsonObject obj = value.toObject();
+				QString strClassDate = obj["class_date"].toString();
+				QString strLiveTime = obj["live_time"].toString();
+				QString strStatus = obj["status"].toString();
+				QString strName = obj["name"].toString();
+
+				strClassDate = strClassDate + "  " + strLiveTime;
+				if (m_LessonWnd)
+					m_LessonWnd->AddLesson(QString().sprintf("%02d", iCount), strClassDate, strName, strStatus);
+			}
 		}
 	}
 	else if (obj["status"].toInt() == 0)
@@ -1080,6 +1169,14 @@ void UIWindowSet::clickChange(bool checked)
 
 		if (m_curTags)
 			m_curTags->setModle(!m_curTags->IsModle());
+
+		if (m_curTags->IsModle())
+			start1v1Status(STATUS_TIME);//轮询直播状态， 3000毫秒查询一次
+		else
+		{
+			m_Ui1v1->setMuteBoard(true);
+			stop1v1Status();
+		}
 	}
 	else
 	{
@@ -1312,6 +1409,7 @@ void UIWindowSet::init1v1()
 	
 	ui.horizontalLayout_8->addWidget(m_Ui1v1);
 	connect(m_Ui1v1, SIGNAL(teacherStatus(bool)), this, SLOT(teacherStatus(bool)));
+	connect(m_Ui1v1, SIGNAL(exitVChat()), this, SLOT(exitVChat()));
 }
 
 void UIWindowSet::teacherStatus(bool bEnd)
@@ -1321,6 +1419,11 @@ void UIWindowSet::teacherStatus(bool bEnd)
 		m_Ui1v1->setMuteBoard(true);
 		start1v1Status(STATUS_TIME);
 	}
+}
+
+void UIWindowSet::exitVChat()
+{
+	clickChange(true);
 }
 
 void UIWindowSet::init1v1Timer()
@@ -1655,8 +1758,6 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 	}
 
 	AddTag(chatID, courseName, courseid, true, chatRoom, status, b1v1Lesson);
-
-	start1v1Status(STATUS_TIME);//轮询直播状态， 3000毫秒查询一次
 }
 
 void UIWindowSet::start1v1Status(int msec)

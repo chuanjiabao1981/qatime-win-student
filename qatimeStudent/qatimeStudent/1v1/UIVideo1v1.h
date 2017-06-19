@@ -3,13 +3,7 @@
 
 #include <QWidget>
 #include "ui_UIVideo1v1.h"
-
-struct CaptureWindowInfo
-{
-	HWND id;
-	std::wstring title;
-};
-typedef std::vector<CaptureWindowInfo> CaptureWindowInfoList;
+#include "nlss_type.h"
 
 class UIVideo1v1 : public QWidget
 {
@@ -29,11 +23,12 @@ private:
 	Ui::UIVideo1v1 ui;
 	QTimer*							m_capturnTimer;	//Í¼Ïñ×¥È¡¶¨Ê±Æ÷
 	QTimer*							m_refreshTimer;	//Ë¢ÐÂ
-	QPixmap							m_pBkImage;		// ±³¾°
+	QPixmap							m_pBkImage;		//±³¾°
 	QScreen*						m_screen;
 	
-	HWND							capture_hwnd_;
-	HBITMAP							capture_bitmap_;
+	static ST_NLSS_VIDEO_SAMPLER	m_SvideoSampler;
+	static QMutex					m_mutex;
+
 	char*							capture_data_;
 	int								capture_width_;
 	int								capture_height_;
@@ -46,16 +41,10 @@ signals:
 private slots:
 	void slot_onCapturnTimeout();
 	void slot_onRefreshTimeout();
-
+	void VideoCapture(const char* data, unsigned int iwidth, unsigned int iheight, unsigned int iSize);
 public:
-	bool GetCaptureWindowList(CaptureWindowInfoList* windows);
-	void InitHBitmap(int width, int height);
-	void CustomFrame();
 	int	 ScreenWidth();
 	int  ScreenHeight();
-	void setCaptureWnd(HWND hwnd);
-
-	void AddVideoFrame(bool capture, __int64 time, const char* data, int size, int width, int height, const std::string& json, FrameType frame_type);
 };
 
 #endif // UIVIDEO1V1_H

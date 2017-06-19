@@ -32,6 +32,7 @@ public:
 	void DrawUndo();							//对方撤销
 	int  colorConvert(QColor color);			//解析数据
 	void sendSyncQuery();						//发送同步查询
+	void RecSyncData(QString SyncData);			//介绍自己的同步数据
 	enum DrawOpType
 	{
 		DrawOpStart = 1,
@@ -60,6 +61,8 @@ public:
 		kMultiBoardOpSign = 12,
 		kMultiBoardOpSignEnd = 13,
 		kMultiBoardOpDocInfo = 14, //"14:id（文档id）,page_num(当前页数，1开始计算),page_count（总页数）,type(状态通知：0，翻页操作：1);" "14:8c17c252-1276-4817-92ce-688576b8df4c,2,4,1;"
+		kMultiBoardOpFullScreen = 15, //全屏分享
+		kMultiBoardOpSyncTime = 16, // 同步返回
 	};
 
 private:
@@ -73,6 +76,7 @@ protected:
 
 signals:
 	void PicData(QString);
+	void ExitVChat();
 private slots:
 	void slot_onCountTimeout();
 private:
@@ -80,12 +84,14 @@ private:
 
     QStack< Shape * > mShapeStack;
 	QStack< Shape * > mSycnShapeStack;			//接收的数据显示
+	QStack< Shape * > mLaserShapeStack;			//激光笔
 
     bool mMouseIsPress;							//鼠标是否按下
 	bool mIsDraw;								//是否需要画
     QPen mPen;
 	QTimer*	 m_timer;
 	Shape *m_LaserShape;
+	qint64 m_OnlyTime;							//进入的唯一标识
 };
 
 #endif // PALETTE_H

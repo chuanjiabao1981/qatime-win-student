@@ -57,6 +57,7 @@ public:
 	void InsertChat(QPixmap* head, QString name, QString time, QString text, bool bTeacher=true);  // bTeacher 区分名字颜色
 	void InsertAudioChat(QPixmap* pixmap, QString name, QString time, QString text, std::string path, std::string sid, std::string msgid, bool bTeacher); // 插入语音
 	void InsertNotice(QString text);												// 消息通知
+	void InsertNewNotice(QString name, QString text);
 	void InsertPic(QPixmap* head, QString name, QString time, QString URL, QString sMsgID="", bool bTeacher = true);	// 插入图片
 	void InsertEmoji(QPixmap* head, QString name, QString time, QString text, bool bTeacher=true);		// 插入表情
 	void ParseFace(AnimatedTextBrowserA* Anim, QString qContect);					// 解析表情

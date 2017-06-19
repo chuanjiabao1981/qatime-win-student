@@ -35,7 +35,7 @@ IMInterface::IMInterface(QObject *parent)
 	: QObject(parent)
 {
 	mVChatInitSuccess = false;
-
+	m_bFullStatus = false;
 	mLastError = "无错误";
 }
 
@@ -196,10 +196,10 @@ void IMInterface::EnumDeviceDevpath(int deviceType)
 
 void IMInterface::startDevice(int type, const std::string& device_path, unsigned fps, int width, int height)
 {
-	if (device_path.empty())
-	{
-		emit IMInterface::getInstance()->hasError("启动设备失败，设备路径为空");
-	}
+// 	if (device_path.empty())
+// 	{
+// 		emit IMInterface::getInstance()->hasError("启动设备失败，设备路径为空");
+// 	}
 	switch (type)
 	{
 	case 0:
@@ -272,6 +272,12 @@ void IMInterface::SetCustomData(bool bVideo)
 void IMInterface::CustomVideoData(__int64 time, const char* data, int size, int width, int height)
 {
 	VChat::CustomVideoData(time, data, size, width, height, nullptr);
+}
+
+void IMInterface::EndLive()
+{
+	Rts::Hangup(IMInterface::getInstance()->getSessionID(), &CallbackHangup);
+	VChat::End("");
 }
 
 void CallbackStartChannel(nim::NIMResCode res_code, const std::string& session_id, int channel_type, const std::string& uid)
@@ -384,6 +390,8 @@ void CallbackMemberNotify(const std::string& session_id, int channel_type, const
 		if (channel_type == kNIMRtsMemberStatusJoined)
 		{
 			//成员进入，此时可以在tcp通道发送数据
+			int i = 0;
+			i++;
 		}
 	}
 }
@@ -410,8 +418,39 @@ void CallbackRecData(const std::string& session_id, int channel_type, const std:
 {
 	if (session_id == IMInterface::getInstance()->getSessionID())
 	{
+		float x;
+		float y;
+		DWORD clr_;
+		int draw_op_type_;
+
+		QString strData = QString::fromStdString(data);
+		if (strData.mid(0, 2).toInt() == 15)
+		{
+			QStringList list = strData.split(";");
+			foreach(const QString& p, list)
+			{
+				QStringList param_list = p.split(":");
+				QStringList pointInfo = param_list.last().split(",");
+
+				int iopen = pointInfo.at(0).toInt();
+				IMInterface::getInstance()->setFullScreenStatus((bool)iopen);
+				return;
+			}
+			return;
+		}
+
 		emit IMInterface::getInstance()->rtsDataReceived(data);
 	}	
+}
+
+void IMInterface::setFullScreenStatus(bool bopen)
+{
+	m_bFullStatus = bopen;
+}
+
+bool IMInterface::IsFullScreen()
+{
+	return m_bFullStatus;
 }
 
 void CallbackNetDetect(int code, nim::NetDetectCbInfo info)
@@ -453,7 +492,12 @@ void CallbackVideoRecData(uint64_t time, const char *data, unsigned int size, un
 {
 	char* copydata = new char[size];
 	memcpy(copydata, data, size);
-	emit IMInterface::getInstance()->RecVideoCapture(copydata, width, height, size);
+	if (IMInterface::getInstance()->IsFullScreen())
+		emit IMInterface::getInstance()->RecFullScreen(copydata, width, height, size);
+	else
+		emit IMInterface::getInstance()->RecVideoCapture(copydata, width, height, size);
+
+	emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
 }
 
 void CallbackAudioCaptureData(uint64_t time, const char *data, unsigned int size, const char *json_extension, const void *user_data)

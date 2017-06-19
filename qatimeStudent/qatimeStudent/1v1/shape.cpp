@@ -28,6 +28,9 @@ void Shape::paint(QPainter &painter, const QSize &size)
     int vecsize = mPointVec.size();
 	if (m_bLaserPen)
 	{
+		if (m_pTLaser.x() == 0 && m_pTLaser.y() == 0)
+			return;
+		
 		painter.drawPixmap(QPointF(m_pTLaser.x()*width, m_pTLaser.y()*height-m_signPen.height()), m_signPen);
 	}
 	else if (vecsize <= 0)

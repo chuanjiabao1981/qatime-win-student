@@ -87,6 +87,7 @@ void UI1v1::initWhiteBoardWidget()
 	ui.horizontalLayout_21->addWidget(mWhiteBoard);
 	mWhiteBoard->setIsDraw(false);
 	connect(mWhiteBoard, SIGNAL(PicData(QString)), this, SLOT(PicData(QString)));
+	connect(mWhiteBoard, SIGNAL(ExitVChat()), this, SLOT(ExitVChat()));
 
 	m_WhiteBoardTool = new UIWhiteBoardTool(ui.live1v1_widget);
 	m_WhiteBoardTool->hide();
@@ -104,6 +105,7 @@ void UI1v1::initWhiteBoardWidget()
 	m_CameraS1v1Info->setWindowFlags(Qt::FramelessWindowHint);
 	ui.horizontalLayout_23->addWidget(m_CameraS1v1Info);
 	m_CameraS1v1Info->show();
+	connect(this, SIGNAL(sig_cameraStatus(bool)), m_CameraS1v1Info, SLOT(StartEndVideo(bool)));
 
 	//1v1全屏桌面
 	m_VideoInfo1v1 = new UIVideo1v1(ui.fullS1v1_widget);
@@ -132,9 +134,11 @@ void UI1v1::initConnection()
 	connect(instance, SIGNAL(startDeviceSuccessfully(int)), this, SLOT(startDeviceSuccessfully(int)));
 	connect(instance, SIGNAL(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)), m_Camera1v1Info, SLOT(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)));
 	connect(instance, SIGNAL(RecVideoCapture(const char*, unsigned int, unsigned int, unsigned int)), m_CameraS1v1Info, SLOT(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)));
+	connect(instance, SIGNAL(RecFullScreen(const char*, unsigned int, unsigned int, unsigned int)), m_VideoInfo1v1, SLOT(VideoCapture(const char*, unsigned int, unsigned int, unsigned int)));
 
 	connect(instance, SIGNAL(rtsDataReceived(const std::string&)), this, SLOT(rtsDataReceived(const std::string&)));
 	connect(instance, SIGNAL(PeopleStatus(bool)), m_CameraS1v1Info, SLOT(StartEndVideo(bool)));
+	connect(instance, SIGNAL(sig_SendFullScreen(bool)), this, SLOT(slot_SendFullScreen(bool)));
 
 	connect(instance, SIGNAL(PeopleStatus(bool)), this, SLOT(StatusTeacher(bool)));
 }
@@ -214,7 +218,7 @@ void UI1v1::errorInfo(const QString & error)
 	m_bLiving1v1 = false;
 	CMessageBox::showMessage(
 		QString("答疑时间"),
-		QString("加入房间出现错误！代码：") + error,
+		QString("加入房间出现错误！代码:") + error,
 		QString("确定"),
 		QString("取消"));
 }
@@ -223,6 +227,20 @@ void UI1v1::PicData(QString str)
 {
 	std::string picData = str.toStdString();
 	IMInterface::getInstance()->SendData("", 1, picData);
+}
+
+void UI1v1::slot_SendFullScreen(bool iOpen)
+{
+	mWhiteBoard->setVisible(!iOpen);
+	m_VideoInfo1v1->setVisible(iOpen);
+	FullResize();
+	m_WhiteBoardTool->setVisible(!iOpen);
+	emit sig_cameraStatus(iOpen);
+}
+
+void UI1v1::ExitVChat()
+{
+	emit exitVChat();
 }
 
 void UI1v1::setDeviceInfos(int type)
@@ -416,45 +434,50 @@ bool UI1v1::eventFilter(QObject *target, QEvent *event)
 	{
 		if (event->type() == QEvent::Resize)
 		{
-			int iWidth = ui.full1v1_widget->width();
-			int iHeight = ui.full1v1_widget->height();
-
-			int iVideoWidth = iWidth;
-			int iVideoHeight = ((double)iWidth / (double)4)*3;
-			// 如果VIDEO的高大于容器的高，这用高来决定VIDEO的大小
-			if (iVideoHeight > iHeight)
-			{
-				iVideoWidth = ((double)iHeight / (double)3)*4;
-				mWhiteBoard->setFixedSize(iVideoWidth, iHeight);
-			}
-			else
-				mWhiteBoard->setFixedSize(iVideoWidth, iVideoHeight);
-
-			QRect rc = ui.full1v1_widget->geometry();
-			m_WhiteBoardTool->move(rc.x() + (iWidth - m_WhiteBoardTool->width()) / 2, rc.y() + iHeight - 30);
-
-
-			// 窗口抓取
-			int iScreenWidth = iWidth;
-			int iScreenHeight = ((double)iWidth / (double)m_VideoInfo1v1->ScreenWidth())*m_VideoInfo1v1->ScreenHeight();
-			if (iScreenHeight > iHeight)
-			{
-				iScreenWidth = ((double)iHeight / (double)m_VideoInfo1v1->ScreenHeight())*m_VideoInfo1v1->ScreenWidth();
-				m_VideoInfo1v1->setFixedSize(iScreenWidth, iHeight);
-			}
-			else
-				m_VideoInfo1v1->setFixedSize(iScreenWidth, iScreenHeight);
+			FullResize();
 		}
 	}
 	return false;
 }
 
+void UI1v1::FullResize()
+{
+	int iWidth = ui.full1v1_widget->width();
+	int iHeight = ui.full1v1_widget->height();
+
+	int iVideoWidth = iWidth;
+	int iVideoHeight = ((double)iWidth / (double)4) * 3;
+	// 如果VIDEO的高大于容器的高，这用高来决定VIDEO的大小
+	if (iVideoHeight > iHeight)
+	{
+		iVideoWidth = ((double)iHeight / (double)3) * 4;
+		mWhiteBoard->setFixedSize(iVideoWidth, iHeight);
+	}
+	else
+		mWhiteBoard->setFixedSize(iVideoWidth, iVideoHeight);
+
+	QRect rc = ui.full1v1_widget->geometry();
+	m_WhiteBoardTool->move(rc.x() + (iWidth - m_WhiteBoardTool->width()) / 2, rc.y() + iHeight - 30);
+
+
+	// 窗口抓取
+	int iScreenWidth = iWidth;
+	int iScreenHeight = ((double)iWidth / (double)m_VideoInfo1v1->ScreenWidth())*m_VideoInfo1v1->ScreenHeight();
+	if (iScreenHeight > iHeight)
+	{
+		iScreenWidth = ((double)iHeight / (double)m_VideoInfo1v1->ScreenHeight())*m_VideoInfo1v1->ScreenWidth();
+		m_VideoInfo1v1->setFixedSize(iScreenWidth, iHeight);
+	}
+	else
+		m_VideoInfo1v1->setFixedSize(iScreenWidth, iScreenHeight);
+}
 void UI1v1::setMuteBoard(bool bMute)
 {
 	if (mWhiteBoard)
 	{
 		mWhiteBoard->setIsDraw(!bMute);
 		mWhiteBoard->cleanUp();
+		IMInterface::getInstance()->EndLive();
 	}
 }
 

@@ -24,6 +24,7 @@ private:
 	bool							m_bEndVideo;
 protected:
 	virtual void paintEvent(QPaintEvent *);
+	virtual	void mouseDoubleClickEvent(QMouseEvent* e);
 private slots:
 	void slot_onRefreshTimeout();						// Ë¢ÐÂ½çÃæ
 	void VideoCapture(const char* data, unsigned int iwidth, unsigned int iheight, unsigned int iSize);

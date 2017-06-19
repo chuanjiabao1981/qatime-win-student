@@ -83,6 +83,7 @@ public:
 	void    returnClick();									// 重新登录
 	void	ShowCourse();									// 显示辅导班
 	void    CreateRoom(QString chatID, QString courseID, QString teacherID, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson = false);		// 创建聊天室
+	void	CreateRoomForCourseID(QString courseID);		// 依据辅导班ID创建（试听课用）
 	void    CloseDialog();
 
 	/*添加云信功能*/
@@ -90,7 +91,8 @@ public:
 	void    RequestKey();									// 请求Key
 	void	setKeyAndLogin(QString key);					// 获取Key							
 	static void OnLoginCallback(const nim::LoginRes& login_res, const void* user_data);
-
+	static void OnMultispotLoginCallback(const nim::MultiSpotLoginRes& res);
+	static void OnKickoutCallback(const nim::KickoutRes& res);
 	/**
 	* 停止播放语音消息的回调
 	* @param[in] code 返回码

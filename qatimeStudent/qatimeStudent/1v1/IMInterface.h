@@ -46,6 +46,8 @@ void CallbackVChatCb(nim::NIMVideoChatSessionType type, __int64 channel_id, int 
 void CallbackDeviceDevpath(bool ret, nim::NIMDeviceType type, const char *json_extension, const void *user_data);//遍历设备回调
 void CallbackStartDevice(nim::NIMDeviceType type, bool ret, const char *json_extension, const void *user_data);//启动设备异步回调
 
+#pragma execution_character_set("utf-8")
+
 typedef struct DeviceInfo
 {
 	int type;
@@ -109,6 +111,9 @@ public:
 	void setAudioChange(int volumn, bool captrue);				//设置声音大小， capture true 标识设置麦克风音量，false 标识设置播放音量
 	void SetCustomData(bool bVideo);							//设置发送数据模式
 	void CustomVideoData(__int64 time, const char* data, int size, int width, int height);	//自定义数据发送
+	void EndLive();												//结束互动
+	void setFullScreenStatus(bool bopen);
+	bool IsFullScreen();								
 
 signals:
 	/****************************************************************白板相关***********************************************************************************/
@@ -129,7 +134,9 @@ signals:
 
 	void VideoCapture(const char*, unsigned int, unsigned int, unsigned int);	//video采集的数据
 	void RecVideoCapture(const char*, unsigned int, unsigned int, unsigned int);	//接收的video数据
+	void RecFullScreen(const char*, unsigned int, unsigned int, unsigned int);	//接收的全屏数据
 	void hasError(const QString &);
+	void sig_SendFullScreen(bool);
 
 private:
 	IMInterface(QObject *parent = 0);
@@ -155,6 +162,7 @@ private:
 	QString mLastError;
 
 	DeviceInfoMap mDeviceInfoMap;	//设备类别
+	bool m_bFullStatus;				//是否是全屏状态，默认为false
 };
 
 #endif // WHITEBOARD_H
