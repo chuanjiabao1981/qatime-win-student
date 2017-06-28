@@ -121,6 +121,7 @@ void LoginWindow::mouseReleaseEvent(QMouseEvent *e)
 // 开始登陆
 void LoginWindow::OnLogIn()
 {
+	Logining(true);
 	if (ui.UserName_Edit->text().isEmpty())
 	{
 		ui.ErrorTip_Label->setText(QString("请输入用户名"));
@@ -217,6 +218,7 @@ void LoginWindow::loginFinished()
 	ui.UserPass_Edit->setText(QString(""));
 
 	RemeberPassword();
+	Logining(false);
 }
 
 void LoginWindow::BrowseHomePage()
@@ -330,6 +332,7 @@ void LoginWindow::InitUserName()
 {
 	if (m_iRemeber == 1)
 	{
+		Logining(true);
 		ui.UserName_Edit->setText(QString::fromStdWString(m_pathUserName));
 		ui.remember_checkBox->setCheckState(Qt::Checked);
 
@@ -408,7 +411,9 @@ void LoginWindow::CheckingFinished()
 	else
 	{
 		AutoLogin();
+		hide();
 	}
+	Logining(false);
 }
 
 // 拖动标题做的处理
@@ -640,4 +645,24 @@ void LoginWindow::SetEnvironmental()
 		m_EnvironmentalFormally = false;
 	else
 		m_EnvironmentalFormally = true;
+}
+
+void LoginWindow::Logining(bool bLogining)
+{
+	if (bLogining)
+	{
+		ui.login_pushBtn->setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(190, 190, 190); ");
+		ui.login_pushBtn->setText("正在登陆中...");
+		ui.login_pushBtn->setEnabled(false);
+		ui.UserName_Edit->setEnabled(false);
+		ui.UserPass_Edit->setEnabled(false);
+	}
+	else
+	{
+		ui.login_pushBtn->setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(87, 207, 248); ");
+		ui.login_pushBtn->setText("登陆");
+		ui.login_pushBtn->setEnabled(true);
+		ui.UserName_Edit->setEnabled(true);
+		ui.UserPass_Edit->setEnabled(true);
+	}
 }

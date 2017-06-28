@@ -2,9 +2,11 @@
 #include <QFile>
 #include <QMovie>
 #include <QScrollBar>
+#include <QDebug>
 AnimatedTextBrowser::AnimatedTextBrowser(QWidget *parent)
 	:QTextBrowser(parent)
 {
+	m_bAutoLeft = false;
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(slot_onTimeout()));
 }
@@ -63,9 +65,27 @@ void AnimatedTextBrowser::mousePressEvent(QMouseEvent *e)
 	}
 }
 
+void AnimatedTextBrowser::paintEvent(QPaintEvent *e)
+{
+	QTextBrowser::paintEvent(e);
+	if (m_bAutoLeft)
+	{
+		int fontSize = this->fontMetrics().width(toPlainText());//获取之前设置的字符串的像素大小
+		if (fontSize+10 >= width())
+			this->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+		else
+			this->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	}
+}
+
 void AnimatedTextBrowser::autoHeight()
 {
 	m_timer->start(200);
+}
+
+void AnimatedTextBrowser::AutoLeftOrEnter()
+{
+	m_bAutoLeft = true;
 }
 
 void AnimatedTextBrowser::slot_onTimeout()

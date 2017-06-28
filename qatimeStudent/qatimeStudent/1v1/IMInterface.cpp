@@ -433,7 +433,9 @@ void CallbackRecData(const std::string& session_id, int channel_type, const std:
 				QStringList pointInfo = param_list.last().split(",");
 
 				int iopen = pointInfo.at(0).toInt();
+				qDebug() << __FILE__ << __LINE__ << iopen;
 				IMInterface::getInstance()->setFullScreenStatus((bool)iopen);
+				emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
 				return;
 			}
 			return;
@@ -493,7 +495,9 @@ void CallbackVideoRecData(uint64_t time, const char *data, unsigned int size, un
 	char* copydata = new char[size];
 	memcpy(copydata, data, size);
 	if (IMInterface::getInstance()->IsFullScreen())
+	{
 		emit IMInterface::getInstance()->RecFullScreen(copydata, width, height, size);
+	}
 	else
 		emit IMInterface::getInstance()->RecVideoCapture(copydata, width, height, size);
 

@@ -173,9 +173,11 @@ void UIWindowSet::MaxDialog()
 {
 	if (this->isMaximized())
 	{
+		ui.max_pushButton->setStyleSheet("border-image: url(./images/login_max.png);");
 		showNormal();
 		return;
 	}
+	ui.max_pushButton->setStyleSheet("border-image: url(./images/login_max1.png);");
 	showMaximized();
 }
 
@@ -269,6 +271,8 @@ bool UIWindowSet::eventFilter(QObject *target, QEvent *event)
 {
 	if (target == ui.logo_pushButton)
 	{
+		if (this->isMaximized())//最大化不让拖动
+			return false;
 		QMouseEvent* pMe = static_cast<QMouseEvent*>(event);
 		if (event->type() == QEvent::MouseButtonPress)
 		{
@@ -284,6 +288,8 @@ bool UIWindowSet::eventFilter(QObject *target, QEvent *event)
 	}
 	else if (target == ui.title_pushButton)
 	{
+		if (this->isMaximized())//最大化不让拖动
+			return false;
 		QMouseEvent* pMe = static_cast<QMouseEvent*>(event);
 		if (event->type() == QEvent::MouseButtonPress)
 		{
@@ -410,6 +416,11 @@ void UIWindowSet::DeleleTag(UITags* tag)
 			{
 				bSel = tags->IsSelect();
 				tags->GetRoom()->setVisible(false);
+
+				if (tags->Is1v1Lesson())
+				{
+					m_Ui1v1->setMuteBoard(true);
+				}
 
 				m_vecTags.erase(it);
 				tags->close();

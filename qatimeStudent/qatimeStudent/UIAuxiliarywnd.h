@@ -27,6 +27,12 @@ public:
 	QPoint							m_clickPos;
 	QPoint							m_WndCurPos;
 
+	typedef enum enum_LESSON_TYPE{
+		EN_TODAY_LESSON = 0,                  //!< 今日直播
+		EN_ALL_LESSON,                       //!< 全部辅导
+		EN_1V1_LESSON                       //!< 1对1直播
+	}EN_LESSON_TYPE;
+
 	// 全部辅导布局
 	QWidget*						m_mainAllView;
 	QVBoxLayout*					m_VerAll;
@@ -87,7 +93,7 @@ public:
 	void AddTodayAuxiliary(QString lessonName, QString courseID, QString courseName, QString time, QString status, bool b1v1);		// 添加今日课程
 	void AddOneToOneAuxiliary(QString picUrl, QString courseName, QString grade, QString teacherName, QString chatID, QString courseID,
 		QString teacherID, QString studentName, std::string AudioPath, QString status);					// 添加一对一互动
-	void AddTodayNoLesson();																			// 今日无课程
+	void AddTodayNoLesson(EN_LESSON_TYPE type);																			// 今日无课程
 	QPixmap setStudentUrl(QString url);
 	void ReceiverNumber(QString chatID);
 	void LoadPic();

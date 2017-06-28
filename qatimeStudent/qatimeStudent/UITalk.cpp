@@ -7,7 +7,7 @@
 #include <QScrollBar>
 #include "windows.h"
 
-#define TIME_DELAY 100
+#define TIME_DELAY 150
 void sleep(int secs)
 {
 	QTime dieTime = QTime::currentTime().addMSecs(secs);
@@ -126,14 +126,14 @@ void UITalk::InsertChat(QPixmap* pixmap, QString name, QString time, QString tex
 	SecRow->setContentsMargins(30, 0, 20, 0);
 	if (isDigitStr(text))
 	{
-		AnimatedTextBrowser* Text = new AnimatedTextBrowser(this);
+		AnimatedTextBrowserA* Text = new AnimatedTextBrowserA(true, this);
+		Text->setOpenLinks(true);
+		Text->setMinimumWidth(245);
 		Text->setFont(font);
 		Text->append(text);
-		Text->setStyleSheet("color: rgb(85, 85, 85);");
-		Text->setFixedHeight(Text->document()->size().height());
+		SecRow->addWidget(Text);
 		Text->autoHeight();
 		connect(Text, SIGNAL(sig_scrollDown()), this, SLOT(slot_scrollDown()));
-		SecRow->addWidget(Text);
 	}
 	else
 	{
@@ -303,25 +303,39 @@ void UITalk::InsertNewNotice(QString name, QString text)
 	font1.setFamily(("微软雅黑"));
 
 	// 第一行（消息）
+	QVBoxLayout* ver = new QVBoxLayout();
+	ver->setSpacing(0);
+
 	QVBoxLayout* FirstRow = new QVBoxLayout();
 	FirstRow->setContentsMargins(30, 0, 30, 0);
 	QLabel* LName = new QLabel();
 	LName->setText(name);
 	LName->setFont(font);
-	LName->setStyleSheet("color: rgb(153,153,153);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
+	LName->setStyleSheet("color: rgb(153,153,153);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色 
 	LName->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	LName->setWordWrap(true);
 	FirstRow->addWidget(LName);
 
-	QLabel* LNotice = new QLabel();
-	LNotice->setText(text);
-	LNotice->setFont(font1);
-	LNotice->setStyleSheet("color: rgb(102,102,102);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
-	LNotice->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-	LNotice->setWordWrap(true);
-	FirstRow->addWidget(LNotice);
+	QHBoxLayout* SecRow = new QHBoxLayout();
+	SecRow->setContentsMargins(30, 0, 30, 0);
 
-	m_Ver->addLayout(FirstRow);
+	AnimatedTextBrowserA* EditNotice = new AnimatedTextBrowserA(true, this);
+	EditNotice->setText(text);
+	EditNotice->setFont(font1);
+	EditNotice->setStyleSheet("color: rgb(102,102,102);border-radius:5px;border-image:url(./images/notice_back.png);"); //学生名字颜色
+	EditNotice->setWordWrapMode(QTextOption::WrapAnywhere);
+	EditNotice->autoHeight();
+	EditNotice->AutoLeftOrEnter();
+	EditNotice->setEnabled(false);
+	connect(EditNotice, SIGNAL(sig_scrollDown()), this, SLOT(slot_scrollDown()));
+	SecRow->addWidget(EditNotice);
+
+	QSpacerItem* spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	ver->addLayout(FirstRow);
+	ver->addLayout(SecRow);
+	ver->addSpacerItem(spacer);
+
+	m_Ver->addLayout(ver);
 
 	// 添加到布局里
 	if (m_spacer == NULL)
@@ -775,7 +789,7 @@ void UITalk::slot_faildclicked(CBtnPix* img)
 
 void UITalk::slot_scrollDown()
 {
-//	ScrollDown();
+	ScrollDown();
 }
 
 // 判断是否有连续的10个数字或者英文

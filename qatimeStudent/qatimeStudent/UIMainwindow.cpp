@@ -166,7 +166,7 @@ void UIMainWindow::LessonRequestFinished()
 	if (iCount == 0)
 	{
 		if (m_AuxiliaryWnd)
-			m_AuxiliaryWnd->AddTodayNoLesson();
+			m_AuxiliaryWnd->AddTodayNoLesson(UIAuxiliaryWnd::EN_TODAY_LESSON);
 	}
 
 	ShowAuxiliary();
@@ -200,7 +200,7 @@ void UIMainWindow::ShowOneToOneAuxiliary()
 
 void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 {
-	int i = 0;
+	int iCount = 0;
 	QByteArray result = reply->readAll();
 	QJsonDocument document(QJsonDocument::fromJson(result));
 	QJsonObject obj = document.object();
@@ -223,12 +223,17 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 				teacherId, m_studentName, m_AudioPath, data.status);
 		}
 
-		i++;
+		iCount++;
 	}
 
-	qDebug() << QString::number(i);
 	if (m_AuxiliaryWnd)
 		m_AuxiliaryWnd->LoadPic();
+
+	if (iCount == 0)
+	{
+		if (m_AuxiliaryWnd)
+			m_AuxiliaryWnd->AddTodayNoLesson(UIAuxiliaryWnd::EN_1V1_LESSON);
+	}
 }
 
 void UIMainWindow::ShowAuxiliary()
@@ -259,7 +264,7 @@ void UIMainWindow::ShowAuxiliary()
 
 void UIMainWindow::AuxiliaryRequestFinished()
 {
-	int i = 0;
+	int iCount = 0;
 	QByteArray result = reply->readAll();
 	QJsonDocument document(QJsonDocument::fromJson(result));
 	QJsonObject obj = document.object();
@@ -274,14 +279,19 @@ void UIMainWindow::AuxiliaryRequestFinished()
  			m_AuxiliaryWnd->AddAuxiliary(course->PicUrl(), course->name(), course->Grade(), course->TeacherName(), course->ChatId(), course->id(), course->OwnerId(),
 				m_studentName, m_AudioPath, course->status());
 
-		i++;
+		iCount++;
 
 		delete course;
 	}
 
-	qDebug() << QString::number(i);
 	if (m_AuxiliaryWnd)
 		m_AuxiliaryWnd->LoadPic();
+
+	if (iCount == 0)
+	{
+		if (m_AuxiliaryWnd)
+			m_AuxiliaryWnd->AddTodayNoLesson(UIAuxiliaryWnd::EN_ALL_LESSON);
+	}
 
 	ShowOneToOneAuxiliary();
 }

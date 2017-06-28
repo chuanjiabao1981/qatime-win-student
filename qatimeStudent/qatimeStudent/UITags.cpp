@@ -51,32 +51,28 @@ QString UITags::CourseID()
 
 void UITags::paintEvent(QPaintEvent *event)
 {
- 	ui.name_label->setText(m_name);                                       //设置label上的字符串
+ 	ui.name_label->setText(m_name);            //设置label上的字符串
 
 	int fontSize = fontMetrics().width(m_name);//获取之前设置的字符串的像素大小
 	if (fontSize >= ui.name_label->width()) //与label自身相比较
-	{
 		ui.ellipsis_label->setVisible(true);
-	}
 	else
-	{
 		ui.ellipsis_label->setVisible(false);
-	}
-
-	if (m_bSelect)
-	{
-		ui.widget->setStyleSheet("background-color: rgb(0, 63, 86);border-radius:10px;");
-		ui.name_label->setStyleSheet("color: rgb(255, 255, 255)");
-		ui.ellipsis_label->setStyleSheet("color: rgb(255, 255, 255)");
-		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/select_close.png)");
-	}
-	else
-	{
-		ui.widget->setStyleSheet("background-color: rgb(255, 255, 255);border-radius:10px;");		 
-		ui.name_label->setStyleSheet("color: rgb(0, 0, 0)");
-		ui.ellipsis_label->setStyleSheet("color: rgb(0, 0, 0)");
-		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_close.png)");
-	}
+// 
+// 	if (m_bSelect)
+// 	{
+// 		ui.widget->setStyleSheet("background-color: rgb(0, 63, 86);border-radius:10px;");
+// 		ui.name_label->setStyleSheet("color: rgb(255, 255, 255)");
+// 		ui.ellipsis_label->setStyleSheet("color: rgb(255, 255, 255)");
+// 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/select_close.png)");
+// 	}
+// 	else
+// 	{
+// 		ui.widget->setStyleSheet("background-color: rgb(255, 255, 255);border-radius:10px;");		 
+// 		ui.name_label->setStyleSheet("color: rgb(0, 0, 0)");
+// 		ui.ellipsis_label->setStyleSheet("color: rgb(0, 0, 0)");
+// 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_close.png)");
+// 	}
 }
 
 void UITags::CloseDialog()
@@ -97,6 +93,20 @@ void UITags::SetRoom(UIChatRoom* room)
 void UITags::setStyle(bool bSel)
 {
 	m_bSelect = bSel;
+	if (m_bSelect)
+	{
+		ui.widget->setStyleSheet("background-color: rgb(0, 63, 86);border-radius:10px;");
+		ui.name_label->setStyleSheet("color: rgb(255, 255, 255)");
+		ui.ellipsis_label->setStyleSheet("color: rgb(255, 255, 255)");
+		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/select_close.png)");
+	}
+	else
+	{
+		ui.widget->setStyleSheet("background-color: rgb(255, 255, 255);border-radius:10px;");		 
+		ui.name_label->setStyleSheet("color: rgb(0, 0, 0)");
+		ui.ellipsis_label->setStyleSheet("color: rgb(0, 0, 0)");
+		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_close.png)");
+	}
 }
 
 bool UITags::IsSelect()

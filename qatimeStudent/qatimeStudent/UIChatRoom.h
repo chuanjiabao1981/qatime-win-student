@@ -106,6 +106,7 @@ private:
 	void initEmotion();
 	QTimer*							m_DisSendMsgTimer;	// 发消息需要2秒间隔
 	bool							m_bCanSend;			// true为可发送消息
+	bool							m_bMute;			// true为被禁言
 	int								m_DisCount;			// 
 
 	QTimer*							m_AudioBarTimer;	// 语音条显示定时器

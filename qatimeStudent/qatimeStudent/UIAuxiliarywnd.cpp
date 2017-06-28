@@ -64,6 +64,7 @@ UIAuxiliaryWnd::UIAuxiliaryWnd(QWidget *parent)
 	ui.scrollArea->installEventFilter(this);
 	ui.today_scrollArea->installEventFilter(this);
 	ui.title_pushButton->installEventFilter(this);
+	ui.pic_widget->installEventFilter(this);
 	ui.all_widget->setVisible(false);
 	ui.oneToOne_widget->setVisible(false);
 
@@ -232,6 +233,14 @@ bool UIAuxiliaryWnd::eventFilter(QObject *target, QEvent *event)
 			m_mainTodayView->setMaximumWidth(ui.today_scrollArea->width());
 		}
 	}
+	else if (target == ui.pic_widget)
+	{
+		QMouseEvent* pMe = static_cast<QMouseEvent*>(event);
+		if (event->type() == QEvent::Enter)
+		{
+			clickPic();
+		}
+	}
 	return false;
 }
 
@@ -356,7 +365,7 @@ void UIAuxiliaryWnd::clickOneToOne()
 	ui.all_widget->setVisible(false);
 }
 
-void UIAuxiliaryWnd::AddTodayNoLesson()
+void UIAuxiliaryWnd::AddTodayNoLesson(EN_LESSON_TYPE type)
 {
 	QHBoxLayout* layout = new QHBoxLayout();
 	QPixmap pix = QPixmap("./images/nolesson.png");
@@ -364,7 +373,20 @@ void UIAuxiliaryWnd::AddTodayNoLesson()
 	noLesson->setFixedSize(180, 180);
 	noLesson->setPixmap(pix);
 	layout->addWidget(noLesson);
-	m_VerToday->addLayout(layout);
+	switch (type)
+	{
+	case EN_TODAY_LESSON:
+		m_VerToday->addLayout(layout);
+		break;
+	case EN_ALL_LESSON:
+		m_VerAll->addLayout(layout);
+		break;
+	case EN_1V1_LESSON:
+		m_VerOneToOne->addLayout(layout);
+		break;
+	default:
+		break;
+	}
 }
 
 QPixmap UIAuxiliaryWnd::setStudentUrl(QString Url)
@@ -427,7 +449,6 @@ void UIAuxiliaryWnd::LoadPic()
 
 void UIAuxiliaryWnd::clickPic()
 {
-//	m_menu->exec(QCursor::pos());//在当前鼠标位置显示
 	if (m_UIMenu)
 	{
 		m_UIMenu->move(165,0);

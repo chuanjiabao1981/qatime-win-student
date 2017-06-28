@@ -470,6 +470,9 @@ void UI1v1::FullResize()
 	}
 	else
 		m_VideoInfo1v1->setFixedSize(iScreenWidth, iScreenHeight);
+// 
+// 	qDebug() << __FILE__ << __LINE__ << "iScreenWidth:" << iScreenWidth;
+// 	qDebug() << __FILE__ << __LINE__ << "iScreenHeight:" << iScreenHeight;
 }
 void UI1v1::setMuteBoard(bool bMute)
 {

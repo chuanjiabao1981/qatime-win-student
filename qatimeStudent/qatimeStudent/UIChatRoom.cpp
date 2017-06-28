@@ -49,6 +49,7 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 	, m_pWorker(NULL)
 	, m_DisSendMsgTimer(NULL)
 	, m_bCanSend(true)
+	, m_bMute(false)
 	, m_DisCount(2)
 {
 	ui.setupUi(this);
@@ -352,7 +353,6 @@ void UIChatRoom::clickBrow()
 	}
 
 	m_smallEmotionWidget->move(0, this->size().height()-210);
-	SetWindowPos((HWND)m_smallEmotionWidget->winId(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 }
 // 消息记录
 void UIChatRoom::clickNotes()
@@ -478,6 +478,12 @@ void UIChatRoom::clickSendMseeage()
 	if (!m_bCanSend)
 	{
 		QToolTip::showText(QCursor::pos(), "发送消息间隔为2秒！");
+		return;
+	}
+
+	if (m_bMute)
+	{
+		QToolTip::showText(QCursor::pos(), "已被禁言！");
 		return;
 	}
 
@@ -792,6 +798,42 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 					std::string Announcement = tinfo_json[nim::kNIMTeamInfoKeyAnnouncement].asString();
 					m_uitalk->InsertNewNotice(info, QString::fromStdString(Announcement));
 				}
+			}
+			else if (id == nim::kNIMNotificationIdTeamMuteMember) //解、禁言
+			{
+				std::string obj_account = json[nim::kNIMNotificationKeyData][nim::kNIMNotificationKeyDataId].asString();
+				Json::Value tinfo_json = json[nim::kNIMNotificationKeyData][nim::kNIMNotificationKeyTeamInfo];
+
+				personListBuddy* Buddy = NULL;
+				QString sName;
+				Buddy = ui.student_list->findID(QString::fromStdString(obj_account));
+				if (Buddy)
+					sName = Buddy->name->text();
+
+				QString info;
+				bool set_mute = json[nim::kNIMNotificationKeyData]["mute"].asInt() == 1;
+				if (set_mute)
+				{
+					info = QString("%1 被禁言").arg(sName);
+					if (QString::fromStdString(obj_account) == m_accid)
+					{
+						// 自己被禁言
+						m_bMute = true;
+						ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage_dis.png);color:rgb(255,255,255)");
+					}
+				}
+				else
+				{
+					info = QString("%1 被解除禁言").arg(sName);
+					if (QString::fromStdString(obj_account) == m_accid)
+					{
+						// 自己被解除禁言
+						m_bMute = false;
+						ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage.png);color:rgb(255,255,255)");
+					}
+				}
+
+				m_uitalk->InsertNotice(info);
 			}
 		}
 		return bValid;
@@ -1339,16 +1381,21 @@ void UIChatRoom::ReceiverMemberMsg(std::list<nim::TeamMemberProperty>* pMemberMs
 		if (it.IsMute())
 		{
 			QString accid = QString::fromStdString(it.GetAccountID());
-			personListBuddy* pBuddy = NULL;
-			pBuddy = ui.student_list->findID(accid);
-			if (pBuddy)
+			if (accid == m_accid)
 			{
-				pBuddy->setCheckBox(true);
+				m_bMute = true;
+				ui.button_sendMseeage->setStyleSheet("border-image: url(./images/sendmessage_dis.png);color:rgb(255,255,255)");
 			}
+// 			personListBuddy* pBuddy = NULL;
+// 			pBuddy = ui.student_list->findID(accid);
+// 			if (pBuddy)
+// 			{
+// 				pBuddy->setCheckBox(true);
+// 			}
 		}
 	}
 
-	ui.student_list->setBuddyWidth(width());
+//	ui.student_list->setBuddyWidth(width());
 }
 
 bool UIChatRoom::IsLogin()
@@ -1907,6 +1954,12 @@ void UIChatRoom::clickPic()
 		return;
 	}
 
+	if (m_bMute)
+	{
+		QToolTip::showText(QCursor::pos(), "已被禁言！");
+		return;
+	}
+
 	m_bClickPic = true;
 	if (strcmp(m_CurChatID.c_str(), "") == 0)
 	{
@@ -1946,6 +1999,12 @@ void UIChatRoom::clickAudio()
 	if (!m_bCanSend)
 	{
 		QToolTip::showText(QCursor::pos(), "发送消息间隔为2秒！");
+		return;
+	}
+
+	if (m_bMute)
+	{
+		QToolTip::showText(QCursor::pos(), "已被禁言！");
 		return;
 	}
 
@@ -2179,6 +2238,8 @@ void UIChatRoom::returnAllMember()
 		m_bPerson = true;
 		
 		ResultMsg();
+
+		QueryGroup();
 	}
 	else if (obj["status"].toInt() == 0)
 	{

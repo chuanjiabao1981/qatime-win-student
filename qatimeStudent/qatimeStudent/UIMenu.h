@@ -28,7 +28,7 @@ private slots:
 protected:
 	virtual void focusOutEvent(QFocusEvent* e);
 	virtual void paintEvent(QPaintEvent *event);
-
+	virtual void leaveEvent(QEvent *e);
 public:
 	void SetMainParent(UIAuxiliaryWnd* pWnd);
 	void setPic(QPixmap pix);

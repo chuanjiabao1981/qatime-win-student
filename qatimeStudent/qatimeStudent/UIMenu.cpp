@@ -22,6 +22,7 @@ UIMenu::UIMenu(QWidget *parent)
 						"QPushButton:hover{border-image:url(./images/return_h.png);}");
 	ui.check_pushButton->setStyleSheet("QPushButton{border-image:url(./images/check_nor.png);}"
 		"QPushButton:hover{border-image:url(./images/check_hover.png);}");
+	ui.label->setEnabled(false);
 }
 
 UIMenu::~UIMenu()
@@ -190,4 +191,9 @@ void UIMenu::returnVersion()
 		else 
 			StartCheck("true", version, down_links);
 	}
+}
+
+void UIMenu::leaveEvent(QEvent *e)
+{
+	hide();
 }

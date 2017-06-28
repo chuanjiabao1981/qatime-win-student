@@ -22,6 +22,8 @@ UIVideo1v1::UIVideo1v1(QWidget *parent)
 	, m_capturnTimer(NULL)
 	, m_refreshTimer(NULL)
 	, m_screen(NULL)
+	, capture_width_(1920)
+	, capture_height_(1080)
 {
 	ui.setupUi(this);
 
@@ -102,4 +104,18 @@ void UIVideo1v1::VideoCapture(const char* data, unsigned int iwidth, unsigned in
 	}
 	m_mutex.unlock();
 	delete data;
+}
+
+void UIVideo1v1::mouseDoubleClickEvent(QMouseEvent* e)
+{
+	if (this->isFullScreen())
+	{
+		setWindowFlags(Qt::SubWindow);
+		showNormal();
+	}
+	else
+	{
+		setWindowFlags(Qt::Window);
+		showFullScreen();
+	}
 }

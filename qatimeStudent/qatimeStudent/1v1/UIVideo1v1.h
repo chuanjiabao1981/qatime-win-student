@@ -34,7 +34,7 @@ private:
 	int								capture_height_;
 protected:
 	virtual void paintEvent(QPaintEvent *);
-
+	virtual	void mouseDoubleClickEvent(QMouseEvent* e);
 signals:
 	void sig_refreshWnd();
 	void sig_CustomVideoData(__int64, const char*, int, int, int);
