@@ -222,7 +222,6 @@ void Palette::mouseMoveEvent(QMouseEvent *event)
 		QString sClr = QString::number(clr);			//  颜色类型
 		QString strInfo;
 		strInfo.append(QString("%1:%2,%3,%4;").arg(opType).arg(ptX).arg(ptY).arg(sClr));
-		qDebug() << strInfo;
 		emit PicData(strInfo);
     }
 }

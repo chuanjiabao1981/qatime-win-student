@@ -27,7 +27,7 @@ protected Q_SLOTS:
 	void slot_scrollDown();
 	void slot_Audioclicked(std::string, std::string, std::string, bool);
 	void slot_AudioLoadFail(nim::IMMessage);
-	void rangeChanged(int, int);
+	void slot_ScrollDownBottom(int, int);
 	void slot_Delay();
 private:
 	Ui::UITalk ui;

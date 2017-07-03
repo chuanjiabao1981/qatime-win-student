@@ -35,6 +35,7 @@ public:
 	void	joinRtsRoom(const std::string & room);					  // 加入白板房间
 	void	setMuteBoard(bool bMute);								  // 设置禁用白板
 	void    FullResize();
+	void    SetShapeScreen(bool bType);
 protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 
@@ -42,7 +43,7 @@ signals:
 	void teacherStatus(bool);
 	void exitVChat();
 	void sig_cameraStatus(bool);
-	
+	void sig_sendCustomMsg();
 private slots:
 	/*互动直播*/
 	void joinRoomSuccessfully(const std::string &, __int64, const std::string &);// 加入白板房间成功

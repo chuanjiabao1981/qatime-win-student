@@ -15,6 +15,8 @@ public:
 
 	QString			m_courseID;		 // 辅导班ID
 	QString			GetCourseID();	 // 获取辅导班ID
+	QString			m_status;		 // 辅导班状态
+	QString			GetStatus();	 // 获取辅导班状态
 	bool			m_b1v1;
 private:
 	Ui::UIAuxiliaryToday ui;

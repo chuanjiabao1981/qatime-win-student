@@ -307,8 +307,15 @@ void CallbackConnectNotify(const std::string& session_id, int channel_type, int 
 	{
 		if (code != 200)//连接异常，挂断
 		{
+			// 白板连接出现异常
 			Rts::Hangup(session_id.c_str(), &CallbackHangup);
 			IMInterface::getInstance()->setSessionID("");
+			VChat::End("");
+
+			qDebug() << __FILE__ << __LINE__ << "rts fail server discontect errorcode：" << code;
+
+			// 等同于成员离开，重新再次进入
+			emit IMInterface::getInstance()->PeopleStatus(true);
 		}
 	}
 }
@@ -426,6 +433,7 @@ void CallbackRecData(const std::string& session_id, int channel_type, const std:
 		QString strData = QString::fromStdString(data);
 		if (strData.mid(0, 2).toInt() == 15)
 		{
+			qDebug() << __FILE__ << __LINE__ << "共享白板消息：" << QString::fromStdString(data);
 			QStringList list = strData.split(";");
 			foreach(const QString& p, list)
 			{
@@ -433,7 +441,7 @@ void CallbackRecData(const std::string& session_id, int channel_type, const std:
 				QStringList pointInfo = param_list.last().split(",");
 
 				int iopen = pointInfo.at(0).toInt();
-				qDebug() << __FILE__ << __LINE__ << iopen;
+				qDebug() << __FILE__ << __LINE__ << "共享白板类型："<<iopen;
 				IMInterface::getInstance()->setFullScreenStatus((bool)iopen);
 				emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
 				return;
@@ -595,7 +603,6 @@ void CallbackStartDevice(nim::NIMDeviceType type, bool ret, const char *json_ext
 {
 	if (ret)
 	{
-		qDebug() << VChat::Start(kNIMVideoChatModeVideo, "", "", "");
 		emit IMInterface::getInstance()->startDeviceSuccessfully(type);
 	}
 }

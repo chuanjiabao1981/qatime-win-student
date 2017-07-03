@@ -348,7 +348,7 @@ border-image: url(:/LoginWindow/images/alpha.png);</string>
          <number>0</number>
         </property>
         <property name="rightMargin">
-         <number>20</number>
+         <number>10</number>
         </property>
         <property name="bottomMargin">
          <number>0</number>
@@ -505,14 +505,14 @@ QPushButton:pressed{color:#059dd5}</string>
          <widget class="QPushButton" name="change_pushButton">
           <property name="minimumSize">
            <size>
-            <width>97</width>
-            <height>29</height>
+            <width>104</width>
+            <height>25</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>97</width>
-            <height>29</height>
+            <width>104</width>
+            <height>25</height>
            </size>
           </property>
           <property name="font">

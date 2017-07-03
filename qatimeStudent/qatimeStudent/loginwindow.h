@@ -58,7 +58,6 @@ private:
 protected:
 	void RemeberPassword();
 	void InitUserName();
-	void AutoLogin();			// 自动登录（记住密码功能）
 
 private:
 	CButton* m_MinBtn;
@@ -80,6 +79,7 @@ private:
 	QString m_accid;
 	QString m_accidPassword;
 	QString m_version;
+	QString m_password;
 	QSystemTrayIcon *trayIcon;
 	QMenu * menu;
 
@@ -87,8 +87,6 @@ public:
 	void ReturnLogin();			// 重新登陆
 	void ReadSetting();			// 读取配置文件路径信息
 	bool IsAutoLogin();			// 是否自动登录
-	void Checking();			// 验证当前token是否可用
-	void CheckingFinished();
 	void CreateTray();			// 创建托盘
 	void CloseTray();
 	QString parse(QString str);	// 解析密码

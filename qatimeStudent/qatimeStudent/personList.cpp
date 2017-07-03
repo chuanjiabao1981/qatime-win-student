@@ -321,23 +321,17 @@ personListBuddy* personList::findID(const QString id)
 {
 	personListBuddy* Buddy = NULL;
 
-	if (!id.isEmpty() && !IdStudents.isEmpty() && !groupMap.isEmpty())
+	QListWidgetItem* item = NULL;
+	item = IdStudents.value(id, NULL);
+	if (item)
 	{
-		QMap<QString, QListWidgetItem*>::iterator iter;
-		QListWidgetItem* item = NULL;
-		iter = IdStudents.find(id);
-		if (iter == IdStudents.end())
-		{
-			return Buddy;
-		}
-		else
-		{
-			item = *iter;
-			Buddy = *groupMap.find(item);
-		}
+		Buddy = groupMap.value(item, NULL);
+		return Buddy;
 	}
-	
-	return Buddy;
+	else
+	{
+		return Buddy;
+	}
 }
 
 // 拉伸屏幕宽度，按钮也需要改变位置

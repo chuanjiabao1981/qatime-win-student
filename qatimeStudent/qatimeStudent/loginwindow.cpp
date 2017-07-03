@@ -21,6 +21,7 @@ TCHAR m_pathTeacherUrl[MAX_PATH] = { 0 };
 TCHAR m_pathAccid[MAX_PATH] = { 0 };
 TCHAR m_pathAccidToken[MAX_PATH] = { 0 };
 TCHAR m_pathVersion[MAX_PATH] = { 0 };
+TCHAR m_pathUserPass[MAX_PATH] = { 0 };
 int	  m_iRemeber = 0;
 
 #define MAINWINDOW_MAXHEIGHT 832	//客户端最大高度
@@ -170,6 +171,7 @@ void LoginWindow::loginFinished()
 	// 记住老师信息，用于自动登录
 	if (obj["status"].toInt() == 1 && data.contains("remember_token"))
 	{
+		this->hide();
 		// 记住老师信息，用于自动登录
 		g_remeberToken= data["remember_token"].toString();
 		QJsonObject objInfo = data["user"].toObject();
@@ -189,7 +191,6 @@ void LoginWindow::loginFinished()
 		mainWin->setLoginWindow(this);		
 		mainWin->resize(1, 1);
 		mainWin->show();
-		this->hide();
 	}
 	else if (error["code"].toInt() == 1001)
 		strError = QString("用户未登录");
@@ -215,7 +216,6 @@ void LoginWindow::loginFinished()
 		strError = QString("用户名或密码不正确");
 
 	ui.ErrorTip_Label->setText(strError);
-	ui.UserPass_Edit->setText(QString(""));
 
 	RemeberPassword();
 	Logining(false);
@@ -268,7 +268,7 @@ void LoginWindow::ReadSetting()
 	GetPrivateProfileString(L"CONFIG_PATH", L"ACCID", L"", m_pathAccid, MAX_PATH, szTempPath);
 	GetPrivateProfileString(L"CONFIG_PATH", L"ACCIDTOKEN", L"", m_pathAccidToken, MAX_PATH, szTempPath);
 	GetPrivateProfileString(L"CONFIG_PATH", L"VERSION", L"", m_pathVersion, MAX_PATH, szTempPath);
-//	GetPrivateProfileString(L"CONFIG_PATH", L"VERSIONPATH", L"", m_pathVersion, MAX_PATH, szTempPath);
+	GetPrivateProfileString(L"CONFIG_PATH", L"USERPASSWORD", L"", m_pathUserPass, MAX_PATH, szTempPath);
 	m_iRemeber = GetPrivateProfileInt(L"CONFIG_PATH", L"REMEBER", 0, szTempPath);
 
 	m_studentName = QString::fromStdWString(m_pathTeacherName);
@@ -278,7 +278,8 @@ void LoginWindow::ReadSetting()
 	m_accid = QString::fromStdWString(m_pathAccid);
 	m_accidPassword = QString::fromStdWString(m_pathAccidToken);
 	m_version = QString::fromStdWString(m_pathVersion);
-	
+	m_password = QString::fromStdWString(m_pathUserPass);
+
 	QString sVersion = "  答疑时间学生端助手{version}";
 	sVersion.replace("{version}", m_version);
 	ui.title_label->setText(sVersion);
@@ -311,6 +312,10 @@ void LoginWindow::RemeberPassword()
 	QString strName = ui.UserName_Edit->text();
 	WritePrivateProfileString(L"CONFIG_PATH", L"USERNAME", (LPCTSTR)strName.utf16(), szTempPath);
 
+	QString strPassWord = ui.UserPass_Edit->text();
+	QByteArray bPassWord = strPassWord.toLatin1().toBase64();
+	m_password = bPassWord;
+
 	if (ui.remember_checkBox->isChecked())
 	{
 		// TOKEN
@@ -325,21 +330,26 @@ void LoginWindow::RemeberPassword()
 		WritePrivateProfileString(L"CONFIG_PATH", L"ACCID", (LPCTSTR)m_accid.utf16(), szTempPath);
 		// 老师accidToken
 		WritePrivateProfileString(L"CONFIG_PATH", L"ACCIDTOKEN", (LPCTSTR)m_accidPassword.utf16(), szTempPath);
+		// 老师密码
+		WritePrivateProfileString(L"CONFIG_PATH", L"USERPASSWORD", (LPCTSTR)m_password.utf16(), szTempPath);
 	}
+	ui.UserPass_Edit->setText(QString(""));
 }
 
 void LoginWindow::InitUserName()
 {
+	ui.UserName_Edit->setText(QString::fromStdWString(m_pathUserName));
+
 	if (m_iRemeber == 1)
 	{
-		Logining(true);
-		ui.UserName_Edit->setText(QString::fromStdWString(m_pathUserName));
 		ui.remember_checkBox->setCheckState(Qt::Checked);
 
-		Checking();
+		QByteArray bPassword = m_password.toLatin1();
+		QString password = QByteArray::fromBase64(bPassword);
+		ui.UserPass_Edit->setText(password);
 	}
-	else
-		this->show();
+
+	this->show();
 }
 
 void LoginWindow::ReturnLogin()
@@ -352,68 +362,9 @@ void LoginWindow::ReturnLogin()
 	this->show();
 }
 
-void LoginWindow::AutoLogin()
-{
-	mainWin = new UIMainWindow();
-	mainWin->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
-	mainWin->setAttribute(Qt::WA_DeleteOnClose, false);
-	mainWin->SetEnvironmental(m_EnvironmentalFormally);
- 	mainWin->setAutoSudentInfo(m_studentID, m_studentName,m_studentUrl,m_accid,m_accidPassword);
-	mainWin->setVersion(m_version);
-	mainWin->RequestKey();
- 	mainWin->setLoginWindow(this);
-	mainWin->resize(1, 1);
-	mainWin->show();
-}
-
 bool LoginWindow::IsAutoLogin()
 {
 	return (bool)m_iRemeber;
-}
-
-void LoginWindow::Checking()
-{
-	QString strUrl;
-	if (m_EnvironmentalFormally)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/courses";
-		strUrl.replace("{student_id}", m_studentID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{student_id}/courses";
-		strUrl.replace("{student_id}", m_studentID);
-	}
-
-	QUrl url = QUrl(strUrl);
-	QNetworkRequest request(url);
-
-	request.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
-	reply = manager.get(request);
-	connect(reply, &QNetworkReply::finished, this, &LoginWindow::CheckingFinished);
-}
-
-void LoginWindow::CheckingFinished()
-{
-	QByteArray result = reply->readAll();
-	QJsonDocument document(QJsonDocument::fromJson(result));
-	QJsonObject obj = document.object();
-	if (obj["status"].toInt() == 0)
-	{
-		QString sError;
-		QJsonObject error = obj["error"].toObject();
-		if (error["code"].toInt() == 1002)
-			sError = QString("授权已过期，请重新输入密码");
-
-		ui.ErrorTip_Label->setText(sError);
-		this->show();
-	}
-	else
-	{
-		AutoLogin();
-		hide();
-	}
-	Logining(false);
 }
 
 // 拖动标题做的处理
@@ -652,7 +603,7 @@ void LoginWindow::Logining(bool bLogining)
 	if (bLogining)
 	{
 		ui.login_pushBtn->setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(190, 190, 190); ");
-		ui.login_pushBtn->setText("正在登陆中...");
+		ui.login_pushBtn->setText("正在登录中...");
 		ui.login_pushBtn->setEnabled(false);
 		ui.UserName_Edit->setEnabled(false);
 		ui.UserPass_Edit->setEnabled(false);
@@ -660,7 +611,7 @@ void LoginWindow::Logining(bool bLogining)
 	else
 	{
 		ui.login_pushBtn->setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(87, 207, 248); ");
-		ui.login_pushBtn->setText("登陆");
+		ui.login_pushBtn->setText("登录");
 		ui.login_pushBtn->setEnabled(true);
 		ui.UserName_Edit->setEnabled(true);
 		ui.UserPass_Edit->setEnabled(true);

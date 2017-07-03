@@ -39,6 +39,9 @@
     <Filter Include="nim_http_cpp">
       <UniqueIdentifier>{32257cab-d06d-4544-9f9c-c483e0b6991e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Calendar">
+      <UniqueIdentifier>{110d8af2-7ff2-4d90-b29f-5f5797fe467f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -524,6 +527,27 @@
     <ClCompile Include="GeneratedFiles\Release\moc_UITextEdit.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="app_dump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="calendar\DefDateTimeEdit.cpp">
+      <Filter>Calendar</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_DefDateTimeEdit.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_DefDateTimeEdit.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="calendar\DefineCalendar.cpp">
+      <Filter>Calendar</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_DefineCalendar.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_DefineCalendar.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="loginwindow.h">
@@ -772,6 +796,12 @@
     <CustomBuild Include="UITextEdit.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="calendar\DefDateTimeEdit.h">
+      <Filter>Calendar</Filter>
+    </CustomBuild>
+    <CustomBuild Include="calendar\DefineCalendar.h">
+      <Filter>Calendar</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_loginwindow.h">
@@ -889,6 +919,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="1v1\nlss_type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app_dump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

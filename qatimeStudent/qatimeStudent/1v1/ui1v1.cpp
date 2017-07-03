@@ -207,10 +207,9 @@ void UI1v1::joinRoomSuccessfully(const std::string &session_id, __int64 channel_
 // 加入音视频成功后，开始直播流程
 void UI1v1::joinVChatSuccessfully()
 {
-	/*m_bLiving1v1 = true;
-	m_LiveStatusManager->SendStart1v1LiveHttpMsg(m_lessonid, m_curTags->ChatID(), m_Token);*/
 	//TODO  加入直播房间后应接受音视频流
 	mWhiteBoard->sendSyncQuery();
+	emit sig_sendCustomMsg();
 }
 
 void UI1v1::errorInfo(const QString & error)
@@ -234,7 +233,8 @@ void UI1v1::slot_SendFullScreen(bool iOpen)
 	mWhiteBoard->setVisible(!iOpen);
 	m_VideoInfo1v1->setVisible(iOpen);
 	FullResize();
-	m_WhiteBoardTool->setVisible(!iOpen);
+	if (this->isVisible())
+		m_WhiteBoardTool->setVisible(!iOpen);
 	emit sig_cameraStatus(iOpen);
 }
 
@@ -424,6 +424,9 @@ void UI1v1::ModleChange(bool bModle)
 			IMInterface::getInstance()->startDevice(AudioOut, dPath.toStdString(), 0, 0, 0);
 		}
 		ui.chatcamera1v1_widget->setMaximumWidth(300);
+
+		mWhiteBoard->setVisible(true);
+		m_VideoInfo1v1->setVisible(false);
 	}
 }
 
@@ -470,9 +473,13 @@ void UI1v1::FullResize()
 	}
 	else
 		m_VideoInfo1v1->setFixedSize(iScreenWidth, iScreenHeight);
-// 
-// 	qDebug() << __FILE__ << __LINE__ << "iScreenWidth:" << iScreenWidth;
-// 	qDebug() << __FILE__ << __LINE__ << "iScreenHeight:" << iScreenHeight;
+
+	if (iScreenWidth <0 || iScreenHeight<0)
+	{
+		m_VideoInfo1v1->setFixedSize(iWidth, 200);//出现错误，以此窗口大小替代
+	 	qDebug() << __FILE__ << __LINE__ << "iScreenWidth:" << iScreenWidth;
+	 	qDebug() << __FILE__ << __LINE__ << "iScreenHeight:" << iScreenHeight;
+	}
 }
 void UI1v1::setMuteBoard(bool bMute)
 {
@@ -486,5 +493,34 @@ void UI1v1::setMuteBoard(bool bMute)
 
 void UI1v1::StatusTeacher(bool bEnd)
 {
+	if (bEnd)
+	{
+		mWhiteBoard->setVisible(true);
+		m_VideoInfo1v1->setVisible(false);
+	}
+	
 	emit teacherStatus(bEnd);
+}
+
+void UI1v1::SetShapeScreen(bool bType)
+{
+	IMInterface::getInstance()->setFullScreenStatus(bType);
+	emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
+}
+
+void UIChatRoom::SendCustomMsg()
+{
+	nim::IMMessage msg;
+	PackageMsg(msg);
+	msg.type_ = nim::kNIMMessageTypeCustom;
+
+	msg.content_ = "{\"event\":\"FetchPlayStatus\"}";
+
+	msg.msg_setting_.need_offline_ = nim::BS_FALSE;
+	msg.msg_setting_.roaming_ = nim::BS_FALSE;
+	msg.msg_setting_.server_history_saved_ = nim::BS_FALSE;
+	msg.msg_setting_.push_need_badge_ = nim::BS_FALSE;
+	msg.msg_setting_.need_push_ = nim::BS_FALSE;
+
+	nim::Talk::SendMsg(msg.ToJsonString(true));
 }

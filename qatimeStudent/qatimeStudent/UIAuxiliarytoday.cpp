@@ -33,6 +33,7 @@ void UIAuxiliaryToday::AddLesson(QString lessonName, QString courseID, QString c
 {
 	m_courseID = courseID;
 	m_b1v1 = b1v1;
+	m_status = status;
 
 	ui.course_label->setText(courseName);
 	ui.lesson_label->setText("¿Î³Ì:" + lessonName);
@@ -71,4 +72,9 @@ void UIAuxiliaryToday::clickedEnter()
 bool UIAuxiliaryToday::Is1v1()
 {
 	return m_b1v1;
+}
+
+QString UIAuxiliaryToday::GetStatus()
+{
+	return m_status;
 }

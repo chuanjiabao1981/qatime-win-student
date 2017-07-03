@@ -62,10 +62,10 @@ void UIVideo1v1::paintEvent(QPaintEvent *)
 			QImage qimage;
 			m_mutex.lock();
 			qimage = QImage((uchar*)m_SvideoSampler.puaData, m_SvideoSampler.iWidth, m_SvideoSampler.iHeight, QImage::Format_RGB32);
-			capture_width_ = m_SvideoSampler.iWidth;
-			capture_height_ = m_SvideoSampler.iHeight;
 			QImage q = qimage.mirrored(false, true);
-			p.drawImage(rect(), q);
+
+			QPixmap pixmap = QPixmap::fromImage(q);
+			p.drawPixmap(rect(), pixmap.scaled(rect().size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 			m_mutex.unlock();
 		}
 	}
@@ -100,6 +100,10 @@ void UIVideo1v1::VideoCapture(const char* data, unsigned int iwidth, unsigned in
 		m_SvideoSampler.iWidth = iwidth;
 		m_SvideoSampler.iHeight = iheight;
 		m_SvideoSampler.iDataSize = iSize;
+
+		capture_width_ = iwidth;
+		capture_height_ = iheight;
+
 		memcpy(m_SvideoSampler.puaData, data, iSize);
 	}
 	m_mutex.unlock();

@@ -115,7 +115,6 @@ void AnimatedTextBrowserA::paintEvent(QPaintEvent *e)
 	if (!m_bTimer)
 		return;
 
-	static int iCount = 0;
 	if (this->verticalScrollBar()->isVisible())
 	{
 		this->setFixedHeight(height() + 100);
@@ -125,12 +124,6 @@ void AnimatedTextBrowserA::paintEvent(QPaintEvent *e)
 	{
 		int h = this->document()->size().rheight();
 		this->setFixedHeight(h);
-
-		if (iCount != 0)
-			return;
-
-		emit sig_scrollDown();
-		iCount++;
 	}
 }
 

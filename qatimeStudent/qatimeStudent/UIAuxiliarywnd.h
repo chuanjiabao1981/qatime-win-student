@@ -10,6 +10,8 @@
 #include "UIWorkThread.h"
 #include "UIMenu.h"
 
+#pragma execution_character_set("utf-8")
+
 class UIMainWindow;
 class UIAuxiliaryList;
 class UIAuxiliaryToday;

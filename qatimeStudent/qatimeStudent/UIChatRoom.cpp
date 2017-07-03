@@ -151,6 +151,14 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 	font.setPixelSize(12);
 	ui.button_sendMseeage->setFont(font);
 	ui.button_sendMseeage->setText("发送");
+
+	// 日历
+	m_defDateTimeEdit = new DefDateTimeEdit(this);
+	ui.calendar_horizontalLayout->addWidget(m_defDateTimeEdit);
+	connect(m_defDateTimeEdit, SIGNAL(sig_CalendarClick(QDate)), this, SLOT(slot_CalendarClick(QDate)));
+
+	// 消息输入框可自由换行
+	ui.textEdit->setWordWrapMode(QTextOption::WrapAnywhere);
 }
 
 UIChatRoom::~UIChatRoom()
@@ -174,7 +182,6 @@ bool UIChatRoom::eventFilter(QObject *target, QEvent *event)
 			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 			if (keyEvent->matches(QKeySequence::Paste))
 			{
-				qDebug() << "Ctrl + V";
 				QClipboard *board = QApplication::clipboard();
 				QString strClip = board->text();
 				strClip.replace("￼", "");
@@ -191,7 +198,6 @@ bool UIChatRoom::eventFilter(QObject *target, QEvent *event)
 		{
 			QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 			if (mouseEvent->button() == Qt::MidButton) {
-				qDebug() << "Mouse MidButton Release";
 				QClipboard *board = QApplication::clipboard();
 				QString strClip = board->text();
 				strClip.replace("￼", "");
@@ -360,16 +366,12 @@ void UIChatRoom::clickNotes()
 	if (strcmp(m_CurChatID.c_str(), "") == 0)
 	{
 		QToolTip::showText(QCursor::pos(), "请选择直播间！");
-		//CMessageBox::showMessage(QString("答疑时间"),QString("请选择直播间！"),QString("确定"),QString());
 		return;
 	}
 	// 消息记录日期
 	
-	QDateTime date = QDateTime::currentDateTime();
-	QString dtstr = date.toString("yyyy-MM-dd");
-	QDate cdate = QDate::currentDate();
-	ui.timeWidget->setSelectedDate(cdate);
-	ui.timeShow->setText(dtstr);
+	m_RecordTime = QDateTime::currentDateTime();
+	m_defDateTimeEdit->setDate(m_RecordTime.date());
 
 	ui.btn_widget->setVisible(false);
 	ui.send_widget->setVisible(false);
@@ -614,23 +616,31 @@ void UIChatRoom::choseTime(QDate date)
 	
 }
 
+void UIChatRoom::slot_CalendarClick(QDate date)
+{
+	m_defDateTimeEdit->setDate(date);
+	QString dtstr = date.toString("yyyy-MM-dd");
+
+	QueryRecord(dtstr);
+}
+
 void UIChatRoom::forwardTime()
 {
-	QDate date = ui.timeWidget->selectedDate().addDays(1);	
-	ui.timeWidget->setSelectedDate(date);
+	QDate date = m_defDateTimeEdit->date().addDays(1);
+	m_defDateTimeEdit->setDate(date);
 	QString dtstr = date.toString("yyyy-MM-dd");
-	ui.timeShow->setText(dtstr);
 
+//	if (!m_parent->m_bQueryMsg)
 	QueryRecord(dtstr);
 }
 
 void UIChatRoom::afterTime()
 {
-	QDate date = ui.timeWidget->selectedDate().addDays(-1);
-	ui.timeWidget->setSelectedDate(date);
+	QDate date = m_defDateTimeEdit->date().addDays(-1);
+	m_defDateTimeEdit->setDate(date);
 	QString dtstr = date.toString("yyyy-MM-dd");
-	ui.timeShow->setText(dtstr);
 
+//	if (!m_parent->m_bQueryMsg)
 	QueryRecord(dtstr);
 }
 
@@ -838,11 +848,24 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 		}
 		return bValid;
 	}
+	else if (pMsg->type_ == nim::kNIMMessageTypeCustom)
+	{
+		std::string strContent = pMsg->content_;
+		std::string strFullScreenC = "PublishPlayStatus:board";
+		std::string strFullScreenO = "PublishPlayStatus:desktop";
+		if (strcmp(strContent.c_str(), strFullScreenC.c_str()) == 0)
+		{
+			m_parent->shapeScreen(false);
+		}
+		else if (strcmp(strContent.c_str(), strFullScreenO.c_str()) == 0)
+		{
+			m_parent->shapeScreen(true);
+		}
+	}
 
 	// 判断当前过来的消息，是不是此会话窗口
 	if (strcmp(pMsg->local_talk_id_.c_str(), m_CurChatID.c_str()) == 0 && pMsg->type_ == nim::kNIMMessageTypeText)
 	{
-		qDebug() << "进入此聊天";
 		stepMsgDays(QDateTime::fromMSecsSinceEpoch(pMsg->timetag_));
 
 		std::string strName = pMsg->readonly_sender_nickname_;
@@ -862,7 +885,10 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 		
 		bool bTeacher = false;
 		if (strcmp(strID.c_str(), m_CurTeacherID.toStdString().c_str()) == 0)
+		{
+			qName += "(老师)";
 			bTeacher = true;
+		}
 
 		if (IsHasFace(qContent))
 			m_uitalk->InsertEmoji(img, qName, qTime, qContent, bTeacher);
@@ -910,7 +936,10 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 
 		bool bTeacher = false;
 		if (strcmp(strID.c_str(), m_CurTeacherID.toStdString().c_str()) == 0)
+		{
+			qName += "(老师)";
 			bTeacher = true;
+		}
 
 		m_uitalk->InsertPic(img, qName, qTime, qContentNew, "", bTeacher);
 		bValid = true;
@@ -953,7 +982,10 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 
 		bool bTeacher = false;
 		if (strcmp(strID.c_str(), m_CurTeacherID.toStdString().c_str()) == 0)
+		{
+			qName += "(老师)";
 			bTeacher = true;
+		}
 
 		m_uitalk->InsertAudioChat(img, qName, qTime, qduration, path, sid, msgid, *pMsg, bTeacher);
 		bValid = true;
@@ -1185,7 +1217,6 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 	// 判断当前过来的消息，是不是此会话窗口
 	if (pMsg.type_ == nim::kNIMMessageTypeText)
 	{
-		qDebug() << "进入此聊天";
 		std::string strName = pMsg.readonly_sender_nickname_;
 		std::string strContent = pMsg.content_;
 		std::string strID = pMsg.sender_accid_;
@@ -1691,8 +1722,6 @@ void UIChatRoom::returnMember()
 				sName += " 加入了群聊";
 				
 				m_uitalk->InsertNotice(sName);
-
-				SetStudentName(m_studentNum + 1);
 			}
 
 			//用完之后删除
@@ -1818,17 +1847,6 @@ void UIChatRoom::style(QTextBrowser *style,QTextEdit* pEidt)
 			"}"
 			);
 	}
-}
-
-void UIChatRoom::SetStudentName(int iNum)
-{
-	m_studentNum = iNum;
-	QString liveNum = "学员";
-	liveNum += "(";
-	liveNum.append(QString::number(iNum));
-	liveNum += ")";
-	
-	ui.button_studentList->setText(liveNum);
 }
 
 void UIChatRoom::setMainWindow(UIWindowSet* parent)
@@ -2488,7 +2506,6 @@ void UIChatRoom::ShowChatMsg(nim::IMMessage pMsg)
 	// 判断当前过来的消息，是不是此会话窗口
 	if (pMsg.type_ == nim::kNIMMessageTypeText)
 	{
-		qDebug() << "进入此聊天";
 		std::string strName = pMsg.readonly_sender_nickname_;
 		std::string strContent = pMsg.content_;
 		std::string strID = pMsg.sender_accid_;

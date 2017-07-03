@@ -246,10 +246,14 @@ bool UIAuxiliaryWnd::eventFilter(QObject *target, QEvent *event)
 
 void UIAuxiliaryWnd::clickAuxiliary(UIAuxiliaryList* auxiliary)
 {
+	QString status = auxiliary->Status();
+	if (auxiliary->Status() == "teaching")
+		status = "closed"; // 辅导班teaching状态,不等于有人正在上课,所以把次状态修改成closed,以免打开窗口时，直接切换成直播室模式
+	
 	if (m_parent)
 	{
 		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->StudentName(), 
-			auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status(), auxiliary->Is1v1Lesson());
+			auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), status, auxiliary->Is1v1Lesson());
 		auxiliary->ClearMsgNumber();
 	}
 }
@@ -261,6 +265,10 @@ void UIAuxiliaryWnd::clickAuxiliaryOneToOne(UIAuxiliaryList*)
 
 void UIAuxiliaryWnd::clickAuxiliaryToday(UIAuxiliaryToday* auxiliaryToday)
 {
+	QString status = auxiliaryToday->GetStatus();
+	if (status == "直播中")
+		status = "teaching";
+
 	bool b1v1 = auxiliaryToday->Is1v1();
 	UIAuxiliaryList* auxiliary = NULL;
 	if (b1v1)
@@ -279,7 +287,7 @@ void UIAuxiliaryWnd::clickAuxiliaryToday(UIAuxiliaryToday* auxiliaryToday)
 	
 	if (m_parent&& auxiliary)
 	{
-		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->StudentName(), auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), auxiliary->Status(), auxiliary->Is1v1Lesson());
+		m_parent->CreateRoom(auxiliary->ChatID(), auxiliary->CourseID(), auxiliary->TeacherID(), auxiliary->StudentName(), auxiliary->AudioPath(), auxiliary->CourseName(), auxiliary->UnreadMsgCount(), status, auxiliary->Is1v1Lesson());
 		auxiliary->ClearMsgNumber();
 	}
 }

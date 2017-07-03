@@ -12,6 +12,7 @@
 #include "UIAudioBar.h"
 #include "UIWindowSet.h"
 #include "UIWorkThread.h"
+#include "calendar/DefDateTimeEdit.h"
 
 #include "assert.h"
 #include <string>
@@ -51,7 +52,7 @@ public:
 	void stringToHtmlPos(QString &str, QColor crl);			//QString转html带颜色切位置上移
 	void imgPathToHtml(QString &path);						//edit 设置图片
 	void setMainWindow(UIWindowSet* parent);
-
+	void SendCustomMsg();									//发送同步屏幕消息
 public slots:
 	void setBrow(QString path);
 
@@ -64,6 +65,8 @@ private:
 	UITalk*							m_uitalk;			// 聊天窗的自定义聊天控件
 	UITalkRecord*					m_uitalkRecord;		// 聊天记录
 
+	//日历
+	DefDateTimeEdit*				m_defDateTimeEdit;
 	//表情框	
 	MyEmotionWidget*				m_smallEmotionWidget;
 	MyEmotionWidget*				m_normalEmotionWidget;
@@ -143,6 +146,7 @@ public slots :
 	void DisSendMsgTimeout();							// 禁止发送消息，2秒间隔
 	void clickAudio();									// 点击语音
 	void AudioBarTimer();								// 改变窗口后，语音条的显示位置
+	void slot_CalendarClick(QDate date);				// 点击日历
 private:
 	void		PackageMsg(nim::IMMessage &msg);
 	void        style(QTextBrowser *style,QTextEdit* pEidt=NULL);
@@ -182,7 +186,6 @@ public:
 	void	ParseFace(QString qContect, QString name, QString time);						// 解析接收到的消息
 	bool	IsHasFace(QString qContect);						// 判断是否有表情
 	QString BuildFaceToUrl(QString qFace);						// 通过表情返回url路径（例如：传入[em_1]返回./images/em_1.gif）
-	void	SetStudentName(int iNum);
 	void	setAdaptHeight(int iHeight);						// 自适应高度
 	bool	IsFous();
 	void	UpLoadPicProcess(double iProcess);					// 上传图片进度

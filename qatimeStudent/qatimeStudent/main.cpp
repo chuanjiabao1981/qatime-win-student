@@ -5,7 +5,7 @@
 #include <gdiplus.h>
 #include "UIMessageBox.h"
 #include "UIWindowSet.h"
-
+#include "app_dump.h"
 using namespace Gdiplus;
 
 bool g_environmentType = true;	// 环境类型		true为生产环境		false为测试环境  默认为true
@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
 		hMutex = NULL;
 		return 0;
 	}
+
+	::SetUnhandledExceptionFilter(MyUnhandledExceptionFilter);
 
 	registerMetaType();
 

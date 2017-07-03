@@ -472,16 +472,15 @@ bool UIWindowSet::ReceiverMsg(nim::IMMessage* pIMsg)
 	QString strChatID = QString::fromStdString(pIMsg->local_talk_id_.c_str());
 	QMap<QString, UIChatRoom*>::Iterator it;
 	UIChatRoom* room=NULL;
-	it = m_mapChatRoom.find(strChatID);
-	if (it != m_mapChatRoom.end())
+	room = m_mapChatRoom.value(strChatID,NULL);
+	if (room)
 	{
-		room = *it;
 		room->ReceiverMsg(pIMsg);
 	}
 
-	QMap<QString, UITags*>::Iterator itTag;
-	itTag = m_mapTags.find(strChatID);
-	if (itTag != m_mapTags.end())
+	UITags* tag = NULL;
+	tag = m_mapTags.value(strChatID,NULL);
+	if (tag)
 	{
 		return true;
 	}
@@ -1173,6 +1172,16 @@ void UIWindowSet::clickChange(bool checked)
 {
 	if (m_curTags->Is1v1Lesson())
 	{
+		EndOpendTag1v1();
+
+		if (!m_curTags->IsModle())
+			start1v1Status(STATUS_TIME);//轮询直播状态， 3000毫秒查询一次
+		else
+		{
+			m_Ui1v1->setMuteBoard(true);
+			stop1v1Status();
+		}
+
 		ui.live_widget->setVisible(false);
 		ui.live1v1_widget->setVisible(true);
 
@@ -1180,14 +1189,6 @@ void UIWindowSet::clickChange(bool checked)
 
 		if (m_curTags)
 			m_curTags->setModle(!m_curTags->IsModle());
-
-		if (m_curTags->IsModle())
-			start1v1Status(STATUS_TIME);//轮询直播状态， 3000毫秒查询一次
-		else
-		{
-			m_Ui1v1->setMuteBoard(true);
-			stop1v1Status();
-		}
 	}
 	else
 	{
@@ -1221,6 +1222,8 @@ void UIWindowSet::clickChange(bool checked)
 				m_curTags->setModle(true);
 		}
 	}
+
+	ChangeBtnStyle(m_curTags->IsModle());
 }
 
 void UIWindowSet::InitBoardView()
@@ -1421,6 +1424,7 @@ void UIWindowSet::init1v1()
 	ui.horizontalLayout_8->addWidget(m_Ui1v1);
 	connect(m_Ui1v1, SIGNAL(teacherStatus(bool)), this, SLOT(teacherStatus(bool)));
 	connect(m_Ui1v1, SIGNAL(exitVChat()), this, SLOT(exitVChat()));
+	connect(m_Ui1v1, SIGNAL(sig_sendCustomMsg()), this, SLOT(slot_sendCustomMsg()));
 }
 
 void UIWindowSet::teacherStatus(bool bEnd)
@@ -1441,6 +1445,7 @@ void UIWindowSet::init1v1Timer()
 {
 	if (m_timer)
 	{
+		m_timer->stop();
 		delete m_timer;
 		m_timer = NULL;
 	}
@@ -1476,6 +1481,7 @@ void UIWindowSet::slots_Modle(bool bModle)
 	{
 		if (m_curTags && m_curTags->Is1v1Lesson())
 		{
+			EndOpendTag1v1();
 			ui.live_widget->setVisible(false);
 			ui.live1v1_widget->setVisible(true);
 
@@ -1496,6 +1502,7 @@ void UIWindowSet::slots_Modle(bool bModle)
 			QueryLiveInfo();
 		}
 	}
+	ChangeBtnStyle(bModle);
 }
 
 void UIWindowSet::setBoardHwnd(HWND hwnd)
@@ -1574,7 +1581,15 @@ void UIWindowSet::slot_onTimeout()
 }
 
 void UIWindowSet::status1v1()
-{
+{	
+	// 如果当前页面不是在直播室模式，则不查询
+	if (m_curTags == NULL || !m_curTags->IsModle())
+		return;
+
+	// 设置当天界面辅导班ID
+	if (m_curChatRoom)
+		m_course_id1v1 = m_curChatRoom->GetCourseID();
+
 	QString strUrl;
 	if (g_environmentType)
 	{
@@ -1591,6 +1606,9 @@ void UIWindowSet::status1v1()
 
 	QByteArray byteArray = httpRequest.httpGet(strUrl);
 
+	if (m_curChatRoom && m_course_id1v1 != m_curChatRoom->GetCourseID())
+		return;
+
 	QJsonDocument document(QJsonDocument::fromJson(byteArray));
 	QJsonObject obj = document.object();
 
@@ -1602,7 +1620,7 @@ void UIWindowSet::status1v1()
 		m_Ui1v1->setMuteBoard(false);
 		m_Ui1v1->joinRtsRoom(otoStatus.data.room_id.toStdString());
 	}
-	qDebug() << otoStatus.data.status;
+	qDebug() << __FILE__ << __LINE__ << "1对1课程状态："<<otoStatus.data.status;
 }
 
 void UIWindowSet::ChangeBtnStyle(bool bLive)
@@ -1610,12 +1628,12 @@ void UIWindowSet::ChangeBtnStyle(bool bLive)
 	if (bLive)
 	{
 		ui.change_pushButton->setStyleSheet("QPushButton{border-image:url(./images/liveChange_nor.png);}"
-			"QPushButton:pressed{border-image:url(./images/liveChange_hover.png);}");
+			"QPushButton:pressed{border-image:url(./images/liveChange_nor.png);}");
 	}
 	else
 	{
 		ui.change_pushButton->setStyleSheet("QPushButton{border-image:url(./images/noliveChange_nor.png);}"
-				"QPushButton:pressed{border-image:url(./images/noliveChange_hover.png);}");
+				"QPushButton:pressed{border-image:url(./images/noliveChange_nor.png);}");
 	}
 }
 
@@ -1786,5 +1804,39 @@ void UIWindowSet::stop1v1Status()
 	if (m_timer)
 	{
 		m_timer->stop();
+	}
+}
+
+void UIWindowSet::shapeScreen(bool bType)
+{
+	m_Ui1v1->SetShapeScreen(bType);
+}
+
+void UIWindowSet::slot_sendCustomMsg()
+{
+	if (m_curChatRoom)
+		m_curChatRoom->SendCustomMsg();
+}
+
+// 关闭进入直播室的1对1辅导班
+void UIWindowSet::EndOpendTag1v1()
+{
+	if (m_vecTags.size() > 0)
+	{
+		std::vector<UITags*>::iterator it;
+		for (it = m_vecTags.begin(); it != m_vecTags.end(); it++)
+		{
+			UITags * tag = *it;
+			if (m_curTags && m_curTags == tag)
+				continue;
+			
+			if (tag->Is1v1Lesson() && tag->IsModle())
+			{
+				tag->setModle(false);
+
+				//关闭白板
+				m_Ui1v1->setMuteBoard(true);
+			}
+		}
 	}
 }

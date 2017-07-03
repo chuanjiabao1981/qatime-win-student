@@ -48,7 +48,7 @@ UITalk::UITalk(QWidget *parent)
 	style(m_view);
 
 	m_bar = m_view->verticalScrollBar();
-//	connect(m_bar, SIGNAL(rangeChanged(int, int)), this, SLOT(rangeChanged(int,int)));
+	connect(m_bar, SIGNAL(rangeChanged(int, int)), this, SLOT(slot_ScrollDownBottom(int, int)));
 
 	m_timerDelay = new QTimer(this);
 	connect(m_timerDelay, SIGNAL(timeout()), this, SLOT(slot_Delay()));
@@ -163,7 +163,7 @@ void UITalk::InsertChat(QPixmap* pixmap, QString name, QString time, QString tex
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
-	m_timerDelay->start(TIME_DELAY);
+//	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -248,7 +248,7 @@ void UITalk::InsertAudioChat(QPixmap* pixmap, QString name, QString time, QStrin
 	if (!bRead)
 		nim::NOS::FetchMedia(msg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
 
-	m_timerDelay->start(TIME_DELAY);
+//	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -286,7 +286,7 @@ void UITalk::InsertNotice(QString text)
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
-	m_timerDelay->start(TIME_DELAY);
+//	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -351,7 +351,7 @@ void UITalk::InsertNewNotice(QString name, QString text)
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
-	m_timerDelay->start(TIME_DELAY);
+//	m_timerDelay->start(TIME_DELAY);
 	// 	sleep(50);
 	// 	ScrollDown();
 }
@@ -449,7 +449,7 @@ void UITalk::InsertPic(QPixmap* pixmap, QString name, QString time, QString url,
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
-	m_timerDelay->start(TIME_DELAY);
+//	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -650,7 +650,7 @@ void UITalk::InsertEmoji(QPixmap* pixmap, QString name, QString time, QString te
 		m_Ver->addSpacerItem(m_spacer);
 	}
 
-	m_timerDelay->start(TIME_DELAY);
+//	m_timerDelay->start(TIME_DELAY);
 // 	sleep(50);
 // 	ScrollDown();
 }
@@ -717,16 +717,10 @@ void UITalk::stringToHtml(QString &str, QColor crl)
 // 滚动到最底部
 void UITalk::ScrollDown()
 {
-	int iMax = m_view->verticalScrollBar()->maximum();;
-	if (iMax == m_maxValue)
-	{
-		m_timerDelay->start(TIME_DELAY);
-	}
-	else
-		m_maxValue = iMax;
+	int iMax = m_view->verticalScrollBar()->maximum();
 
 	if (m_view)
-		m_view->verticalScrollBar()->setValue(m_maxValue);
+		m_view->verticalScrollBar()->setValue(iMax);
 }
 
 void UITalk::PicProcess(double iProcess)
@@ -908,7 +902,7 @@ void UITalk::stopAudio(char* msgid)
 	}
 }
 
-void UITalk::rangeChanged(int min, int max)
+void UITalk::slot_ScrollDownBottom(int min, int max)
 {
 	ScrollDown();
 }

@@ -120,6 +120,7 @@ private slots :
 	void status1v1();							// 获取1v1直播状态
 	void teacherStatus(bool bEnd);				// 老师状态
 	void exitVChat();
+	void slot_sendCustomMsg();						// 发送自定义消息
 public slots :
 	void clickChange(bool);						// 改变模式
 protected:
@@ -187,6 +188,9 @@ public:
 
 	void start1v1Status(int msec);		//开始轮询1v1直播状态
 	void stop1v1Status();				//停止轮询1v1直播状态
+	void shapeScreen(bool bType);		//false:关闭1对1屏幕共享 true:开启
+
+	void EndOpendTag1v1();			//结束进入直播室的1对1辅导班
 };
 
 #endif // UIWINDOWSET_H

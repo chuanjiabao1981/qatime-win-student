@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>580</width>
-    <height>510</height>
+    <height>664</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -237,6 +237,12 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QWidget" name="msgRecord" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <widget class="myLabel" name="timeShow">
         <property name="geometry">
          <rect>
@@ -290,7 +296,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QToolButton" name="toolButton_2">
         <property name="geometry">
          <rect>
-          <x>115</x>
+          <x>130</x>
           <y>12</y>
           <width>20</width>
           <height>16</height>
@@ -378,6 +384,17 @@ border-image: url(:/LoginWindow/images/msgretrun.png);</string>
         <property name="verticalHeaderFormat">
          <enum>QCalendarWidget::NoVerticalHeader</enum>
         </property>
+       </widget>
+       <widget class="QWidget" name="horizontalLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>10</y>
+          <width>111</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="calendar_horizontalLayout"/>
        </widget>
       </widget>
      </item>
