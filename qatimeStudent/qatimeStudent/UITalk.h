@@ -42,8 +42,6 @@ private:
 	std::vector<CBtnAudio*> m_vecAudio;			// 所有的audio按钮
 	QScrollBar*			m_bar;					// 滚动条
 
-	QTimer*				m_timerDelay;
-
 	int					m_maxValue;				// 框的最大高度
 private:
 	bool isDigitStr(QString str);

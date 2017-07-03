@@ -24,7 +24,6 @@ UITalk::UITalk(QWidget *parent)
 	, m_parent(NULL)
 	, m_vecAudio(NULL)
 	, m_bar(NULL)
-	, m_timerDelay(NULL)
 	, m_maxValue(0)
 {
 	ui.setupUi(this);
@@ -49,9 +48,6 @@ UITalk::UITalk(QWidget *parent)
 
 	m_bar = m_view->verticalScrollBar();
 	connect(m_bar, SIGNAL(rangeChanged(int, int)), this, SLOT(slot_ScrollDownBottom(int, int)));
-
-	m_timerDelay = new QTimer(this);
-	connect(m_timerDelay, SIGNAL(timeout()), this, SLOT(slot_Delay()));
 }
 
 UITalk::~UITalk()
@@ -162,10 +158,6 @@ void UITalk::InsertChat(QPixmap* pixmap, QString name, QString time, QString tex
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-
-//	m_timerDelay->start(TIME_DELAY);
-// 	sleep(50);
-// 	ScrollDown();
 }
 
 // 插入语音聊天信息
@@ -247,10 +239,6 @@ void UITalk::InsertAudioChat(QPixmap* pixmap, QString name, QString time, QStrin
 
 	if (!bRead)
 		nim::NOS::FetchMedia(msg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
-
-//	m_timerDelay->start(TIME_DELAY);
-// 	sleep(50);
-// 	ScrollDown();
 }
 
 // 插入通知消息等
@@ -285,10 +273,6 @@ void UITalk::InsertNotice(QString text)
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-
-//	m_timerDelay->start(TIME_DELAY);
-// 	sleep(50);
-// 	ScrollDown();
 }
 
 // 插入格式化通知消息等
@@ -350,10 +334,6 @@ void UITalk::InsertNewNotice(QString name, QString text)
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-
-//	m_timerDelay->start(TIME_DELAY);
-	// 	sleep(50);
-	// 	ScrollDown();
 }
 
 // 插入图片聊天信息
@@ -448,10 +428,6 @@ void UITalk::InsertPic(QPixmap* pixmap, QString name, QString time, QString url,
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-
-//	m_timerDelay->start(TIME_DELAY);
-// 	sleep(50);
-// 	ScrollDown();
 }
 
 // 插入图片聊天信息
@@ -554,10 +530,6 @@ void UITalk::InsertPicUrl(QPixmap* pixmap, QString name, QString time, QString u
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-
-//	m_timerDelay->start(TIME_DELAY);
-// 	sleep(50);
-// 	ScrollDown();
 }
 
 // 点击图片获取图片本地url
@@ -649,10 +621,6 @@ void UITalk::InsertEmoji(QPixmap* pixmap, QString name, QString time, QString te
 		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		m_Ver->addSpacerItem(m_spacer);
 	}
-
-//	m_timerDelay->start(TIME_DELAY);
-// 	sleep(50);
-// 	ScrollDown();
 }
 
 void UITalk::ParseFace(AnimatedTextBrowserA* Anim, QString qContect)
@@ -930,6 +898,5 @@ void UITalk::SetAudioStatus(char* msgid, bool bSuc)
 
 void UITalk::slot_Delay()
 {
-	m_timerDelay->stop();
 	ScrollDown();
 }
