@@ -44,10 +44,11 @@ signals:
 	void exitVChat();
 	void sig_cameraStatus(bool);
 	void sig_sendCustomMsg();
+	void sig_joinRoomFail();
 private slots:
 	/*互动直播*/
 	void joinRoomSuccessfully(const std::string &, __int64, const std::string &);// 加入白板房间成功
-	void joinVChatSuccessfully();							// 加入音视频房间成功
+	void joinVChatSuccessfully(bool);						// 加入音视频房间成功
 	void errorInfo(const QString &);						// 加入失败错误信息
 	void PicData(QString);									// 白板数据
 	void ExitVChat();										// 退出1对1

@@ -363,6 +363,10 @@ void CallbackJoinConf(nim::NIMResCode res_code, const std::string& session_id, _
 		IMInterface::getInstance()->setSessionID(session_id);
 		emit IMInterface::getInstance()->joinRtsRoomSuccessfully(session_id, channel_id, custom_info);
 	}
+	else
+	{
+		emit IMInterface::getInstance()->joinVChatSuccessfully(false);
+	}
 }
 
 void CallbackAck(nim::NIMResCode res_code, const std::string& session_id, int channel_type, bool accept)
@@ -425,28 +429,30 @@ void CallbackRecData(const std::string& session_id, int channel_type, const std:
 {
 	if (session_id == IMInterface::getInstance()->getSessionID())
 	{
-		float x;
-		float y;
-		DWORD clr_;
 		int draw_op_type_;
 
 		QString strData = QString::fromStdString(data);
-		if (strData.mid(0, 2).toInt() == 15)
+		if (strData.mid(0, 2).toInt() == 16)
 		{
-			qDebug() << __FILE__ << __LINE__ << "共享白板消息：" << QString::fromStdString(data);
+			qDebug() << __FILE__ << __LINE__ << "切屏消息：" << QString::fromStdString(data);
 			QStringList list = strData.split(";");
 			foreach(const QString& p, list)
 			{
 				QStringList param_list = p.split(":");
+				draw_op_type_ = param_list.first().toInt();
 				QStringList pointInfo = param_list.last().split(",");
 
-				int iopen = pointInfo.at(0).toInt();
-				qDebug() << __FILE__ << __LINE__ << "共享白板类型："<<iopen;
-				IMInterface::getInstance()->setFullScreenStatus((bool)iopen);
-				emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
-				return;
+				if (pointInfo.size() >= 4)
+				{
+					QString status = pointInfo.at(3);
+					if (status == "desktop")
+						IMInterface::getInstance()->setFullScreenStatus(true);
+					else
+						IMInterface::getInstance()->setFullScreenStatus(false);
+
+					emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
+				}
 			}
-			return;
 		}
 
 		emit IMInterface::getInstance()->rtsDataReceived(data);
@@ -477,7 +483,11 @@ void CallbackOpt2Call(int code, __int64 channel_id, const std::string& json_exte
 	qDebug() << __FILE__ << __LINE__ << code << channel_id << json_extension.c_str();
 	if (kNIMResSuccess == code || nim::kNIMResExist == code)
 	{
-		emit IMInterface::getInstance()->joinVChatSuccessfully();
+		emit IMInterface::getInstance()->joinVChatSuccessfully(true);
+	}
+	else
+	{
+		emit IMInterface::getInstance()->joinVChatSuccessfully(false);
 	}
 }
 

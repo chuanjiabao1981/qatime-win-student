@@ -63,6 +63,7 @@ public:
 		kMultiBoardOpDocInfo = 14, //"14:id（文档id）,page_num(当前页数，1开始计算),page_count（总页数）,type(状态通知：0，翻页操作：1);" "14:8c17c252-1276-4817-92ce-688576b8df4c,2,4,1;"
 		kMultiBoardOpFullScreen = 15, //全屏分享
 		kMultiBoardOpSyncTime = 16, // 同步返回
+
 	};
 
 private:

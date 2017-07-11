@@ -124,7 +124,7 @@ signals:
 
 	/****************************************************************音视频相关***********************************************************************************/
 	void createVChatRoomSuccessfully();
-	void joinVChatSuccessfully();
+	void joinVChatSuccessfully(bool);
 	void vChatRoomExistence();
 	void joinVChatRoomSuccessfully(const std::string&, __int64, const std::string&);
 	void PeopleStatus(bool); // 成员变化

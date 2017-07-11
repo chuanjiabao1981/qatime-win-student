@@ -129,11 +129,19 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	ChangeBtnStyle(false);
 
 	init1v1();
+
+	m_timer = new QTimer(this);
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(status1v1()));
 }
 
 UIWindowSet::~UIWindowSet()
 {
-
+	if (m_timer)
+	{
+		m_timer->stop();
+		delete m_timer;
+		m_timer = NULL;
+	}
 }
 
 void UIWindowSet::MinDialog()
@@ -337,6 +345,10 @@ bool UIWindowSet::eventFilter(QObject *target, QEvent *event)
 
 				MoveWindow(m_hBoardWnd, 0, 0, iWidth, iHeight, true);
 			}
+		}
+		else if (event->type() == QEvent::MouseButtonPress)
+		{
+			ui.whiteboard_widget->setFocus();
 		}
 		return false;
 	}
@@ -856,6 +868,9 @@ void UIWindowSet::returnNotice()
 
 			//用完之后删除
 			delete announcements;
+
+			// 只取一条
+			return;
 		}
 	}
 	else if (obj["status"].toInt() == 0)
@@ -1231,10 +1246,10 @@ void UIWindowSet::InitBoardView()
 	if (!m_bInitLive)
 	{
 		// 启动直播视频
-		TCHAR szTempPath[MAX_PATH] = { 0 };
+		TCHAR szTempPath[MAX_PATH] = { 0 }; 
 		GetCurrentDirectory(MAX_PATH, szTempPath);
 		lstrcat(szTempPath, L"\\CMSVideo.exe");
-//		lstrcat(szTempPath, L"F:\\迅雷下载\\duilibcefdemo\\out\\Release\\CMSVideo.exe");
+//		lstrcat(szTempPath, L"E:\\qatimeStudent\\qatimeStudent\\qatimeStudent\\Bin\\Release\\CMSVideo.exe");
 		std::wstring wszCmdLine;
 		std::wstringstream wstream;
 		HWND hwnd = (HWND)ui.whiteboard_widget->winId();
@@ -1425,6 +1440,7 @@ void UIWindowSet::init1v1()
 	connect(m_Ui1v1, SIGNAL(teacherStatus(bool)), this, SLOT(teacherStatus(bool)));
 	connect(m_Ui1v1, SIGNAL(exitVChat()), this, SLOT(exitVChat()));
 	connect(m_Ui1v1, SIGNAL(sig_sendCustomMsg()), this, SLOT(slot_sendCustomMsg()));
+	connect(m_Ui1v1, SIGNAL(sig_joinRoomFail()), this, SLOT(slot_joinRoomFail()));
 }
 
 void UIWindowSet::teacherStatus(bool bEnd)
@@ -1439,19 +1455,6 @@ void UIWindowSet::teacherStatus(bool bEnd)
 void UIWindowSet::exitVChat()
 {
 	clickChange(true);
-}
-
-void UIWindowSet::init1v1Timer()
-{
-	if (m_timer)
-	{
-		m_timer->stop();
-		delete m_timer;
-		m_timer = NULL;
-	}
-
-	m_timer = new QTimer(this);
-	connect(m_timer, SIGNAL(timeout()), this, SLOT(status1v1()));
 }
 
 void UIWindowSet::slots_Modle(bool bModle)
@@ -1617,7 +1620,6 @@ void UIWindowSet::status1v1()
 	if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty())
 	{
 		stop1v1Status();
-		m_Ui1v1->setMuteBoard(false);
 		m_Ui1v1->joinRtsRoom(otoStatus.data.room_id.toStdString());
 	}
 	qDebug() << __FILE__ << __LINE__ << "1对1课程状态："<<otoStatus.data.status;
@@ -1791,11 +1793,7 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 
 void UIWindowSet::start1v1Status(int msec)
 {
-	if (!m_timer)
-	{
-		init1v1Timer();
-	}
-
+	m_timer->stop();
 	m_timer->start(msec);
 }
 
@@ -1816,6 +1814,13 @@ void UIWindowSet::slot_sendCustomMsg()
 {
 	if (m_curChatRoom)
 		m_curChatRoom->SendCustomMsg();
+}
+
+
+void UIWindowSet::slot_joinRoomFail()
+{
+	// 加入失败，重新轮询
+	start1v1Status(STATUS_TIME);
 }
 
 // 关闭进入直播室的1对1辅导班

@@ -128,7 +128,7 @@ void UI1v1::initConnection()
 	connect(instance, SIGNAL(joinRtsRoomSuccessfully(const std::string&, __int64, const std::string&)),
 		this, SLOT(joinRoomSuccessfully(const std::string&, __int64, const std::string&)));
 	connect(instance, SIGNAL(createVChatRoomSuccessfully()), this, SLOT(joinVChatRoom()));
-	connect(instance, SIGNAL(joinVChatSuccessfully()), this, SLOT(joinVChatSuccessfully()));
+	connect(instance, SIGNAL(joinVChatSuccessfully(bool)), this, SLOT(joinVChatSuccessfully(bool)));
 	connect(instance, SIGNAL(hasError(const QString &)), this, SLOT(errorInfo(const QString &)));
 	connect(instance, SIGNAL(deviceInfos(int)), this, SLOT(setDeviceInfos(int)));
 	connect(instance, SIGNAL(startDeviceSuccessfully(int)), this, SLOT(startDeviceSuccessfully(int)));
@@ -205,11 +205,19 @@ void UI1v1::joinRoomSuccessfully(const std::string &session_id, __int64 channel_
 }
 
 // 加入音视频成功后，开始直播流程
-void UI1v1::joinVChatSuccessfully()
+void UI1v1::joinVChatSuccessfully(bool bSuc)
 {
 	//TODO  加入直播房间后应接受音视频流
-	mWhiteBoard->sendSyncQuery();
-	emit sig_sendCustomMsg();
+	if (bSuc)
+	{
+		setMuteBoard(false);
+		mWhiteBoard->sendSyncQuery();
+		emit sig_sendCustomMsg();
+	}
+	else
+	{
+		emit sig_joinRoomFail();
+	}
 }
 
 void UI1v1::errorInfo(const QString & error)
@@ -487,7 +495,9 @@ void UI1v1::setMuteBoard(bool bMute)
 	{
 		mWhiteBoard->setIsDraw(!bMute);
 		mWhiteBoard->cleanUp();
-		IMInterface::getInstance()->EndLive();
+
+		if (bMute)
+			IMInterface::getInstance()->EndLive();
 	}
 }
 

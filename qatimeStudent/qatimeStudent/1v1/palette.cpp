@@ -266,6 +266,22 @@ void Palette::RecData(const std::string& data)
 		RecSyncData(strData);
 		return;
 	}
+	else if(strData.mid(0, 2).toInt() == 16)
+	{
+		QStringList list = strData.split(";");
+		foreach(const QString& p, list)
+		{
+			QStringList param_list = p.split(":");
+			QStringList pointInfo = param_list.last().split(",");
+
+			QString parentid = pointInfo.at(0);
+			qint64 timetag_ = QDateTime::currentMSecsSinceEpoch();
+			QString msg = QString("%1:%2,%3,%4,%5;").arg(17).arg(timetag_).arg(parentid).arg("InteractiveReson").arg("read");
+			emit PicData(msg);
+			return;
+		}
+	}
+		
 
 	QStringList list = strData.split(";");
 	foreach(const QString& p, list)

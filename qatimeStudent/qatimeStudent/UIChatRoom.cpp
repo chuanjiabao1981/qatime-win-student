@@ -209,11 +209,20 @@ bool UIChatRoom::eventFilter(QObject *target, QEvent *event)
 				setEditFocus();
 			}
 		}
+		if (event->type() == QEvent::Enter)
+		{
+			// 此处做焦点在输入框内，但输入不了的问题
+			if (ui.textEdit->hasFocus())
+			{
+				this->setFocus();
+				ui.textEdit->setFocus();
+			}
+		}
 		if (event->type() == QEvent::FocusIn)
 		{
 			colseCalendar();
 			colseBrow();
-		}  
+		}
 		if (event->type() == QEvent::FocusOut)
 		{
 			// 失去焦点（鼠标不在窗体内，则隐藏窗体）
