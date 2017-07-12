@@ -416,6 +416,21 @@ QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/
       <string notr="true"/>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QWidget" name="today_widget" native="true">
         <property name="styleSheet">
@@ -447,8 +462,8 @@ QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>72</width>
-              <height>574</height>
+              <width>82</width>
+              <height>592</height>
              </rect>
             </property>
            </widget>
@@ -498,8 +513,8 @@ QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>73</width>
-              <height>574</height>
+              <width>83</width>
+              <height>592</height>
              </rect>
             </property>
            </widget>
@@ -549,8 +564,8 @@ QRadioButton::indicator:unchecked:hover {border-image: url(:/LoginWindow/images/
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>72</width>
-              <height>574</height>
+              <width>82</width>
+              <height>592</height>
              </rect>
             </property>
            </widget>

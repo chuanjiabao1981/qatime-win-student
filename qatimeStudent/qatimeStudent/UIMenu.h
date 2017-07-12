@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "ui_UIMenu.h"
 #include "UIAuxiliarywnd.h"
+#include "UIAboutversion.h"
 
 class UIAuxiliaryWnd;
 class UIMenu : public QWidget
@@ -15,6 +16,7 @@ public:
 	~UIMenu();
 
 	UIAuxiliaryWnd*			m_parent;
+	UIAboutVersion*			m_uiversion;
 private:
 	Ui::UIMenu ui;
 	QString							m_version;
@@ -25,6 +27,7 @@ private slots:
 	void clickReturn();
 	void clickCheck();
 	void returnVersion();
+	void clickAbout();
 protected:
 	virtual void focusOutEvent(QFocusEvent* e);
 	virtual void paintEvent(QPaintEvent *event);

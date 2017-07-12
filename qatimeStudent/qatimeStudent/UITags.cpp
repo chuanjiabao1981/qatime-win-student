@@ -58,21 +58,6 @@ void UITags::paintEvent(QPaintEvent *event)
 		ui.ellipsis_label->setVisible(true);
 	else
 		ui.ellipsis_label->setVisible(false);
-// 
-// 	if (m_bSelect)
-// 	{
-// 		ui.widget->setStyleSheet("background-color: rgb(0, 63, 86);border-radius:10px;");
-// 		ui.name_label->setStyleSheet("color: rgb(255, 255, 255)");
-// 		ui.ellipsis_label->setStyleSheet("color: rgb(255, 255, 255)");
-// 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/select_close.png)");
-// 	}
-// 	else
-// 	{
-// 		ui.widget->setStyleSheet("background-color: rgb(255, 255, 255);border-radius:10px;");		 
-// 		ui.name_label->setStyleSheet("color: rgb(0, 0, 0)");
-// 		ui.ellipsis_label->setStyleSheet("color: rgb(0, 0, 0)");
-// 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_close.png)");
-// 	}
 }
 
 void UITags::CloseDialog()
@@ -99,6 +84,11 @@ void UITags::setStyle(bool bSel)
 		ui.name_label->setStyleSheet("color: rgb(255, 255, 255)");
 		ui.ellipsis_label->setStyleSheet("color: rgb(255, 255, 255)");
 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/select_close.png)");
+
+		if (m_bModle)
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_video_hover.png);");
+		else
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_chat_hover.png);");
 	}
 	else
 	{
@@ -106,6 +96,11 @@ void UITags::setStyle(bool bSel)
 		ui.name_label->setStyleSheet("color: rgb(0, 0, 0)");
 		ui.ellipsis_label->setStyleSheet("color: rgb(0, 0, 0)");
 		ui.close_pushButton->setStyleSheet("border-image: url(:/LoginWindow/images/noselect_close.png)");
+
+		if (m_bModle)
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_video_nor.png);");
+		else
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_chat_nor.png);");
 	}
 }
 
@@ -158,6 +153,21 @@ bool UITags::IsModle()
 void UITags::setModle(bool bModle)
 {
 	m_bModle = bModle;
+
+	if (m_bSelect)
+	{
+		if (m_bModle)
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_video_hover.png);");
+		else
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_chat_hover.png);");
+	}
+	else
+	{
+		if (m_bModle)
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_video_nor.png);");
+		else
+			ui.pic_label->setStyleSheet("border-image: url(./images/tags_chat_nor.png);");
+	}
 }
 
 void UITags::set1v1Lesson(bool b1v1Lesson)
