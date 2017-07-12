@@ -2053,7 +2053,7 @@ void UIChatRoom::clickAudio()
 			}
 
 			std::string msg_id = nim::Tool::GetUuid();
-			nim_audio::Audio::StartCapture(m_CurChatID.c_str(), msg_id.c_str(), nim_audio::AMR);
+			m_parent->RecordingVoice(m_CurChatID, msg_id);
 			int height = ui.btn_widget->geometry().y();
 			m_AudioBar->setGeometry(0, height - 26, this->width(), 26);
 			m_AudioBar->MonitorFail();
@@ -2275,56 +2275,6 @@ void UIChatRoom::returnAllMember()
 	}
 }
 
-void UIChatRoom::InitAudioCallBack()
-{
-	nim_audio::Audio::RegStartCaptureCb(&UIChatRoom::OnStartCaptureCallback);
-	nim_audio::Audio::RegStopCaptureCb(&UIChatRoom::OnStopCaptureCallback);
-	nim_audio::Audio::RegCancelAudioCb(&UIChatRoom::OnCancelCaptureCallback);
-}
-
-void UIChatRoom::OnStartCaptureCallback(int code)
-{
-	if (code != 200)
-	{
-		//提示录音失败
-		QToolTip::showText(QCursor::pos(), "录制语音失败！");
-	}
-	else
-	{
-		if (m_pThis)
-		{
-			m_pThis->m_AudioBar->CaptureAudio();
-		}
-	}
-}
-
-void UIChatRoom::OnStopCaptureCallback(int rescode, const char* sid, const char* cid, const char* file_path, const char* file_ext, long file_size, int audio_duration)
-{
-	if (rescode == 200 && m_pThis)
-	{
-		MyAudioStruct* audio = new MyAudioStruct;
-		audio->sSessionID = sid;
-		audio->sMsgID = cid;
-		audio->sFilePath = file_path;
-		audio->sFileEx = file_ext;
-		audio->fileSize = file_size;
-		audio->duration = audio_duration;
-		
-		HWND hWnd = FindWindow(L"Qt5QWindowIcon", L"StudentWindow");
-		if (hWnd == NULL)
-			hWnd = FindWindow(L"Qt5QWindowToolSaveBits", L"StudentWindow");
-		PostMessage(hWnd, MSG_SEND_AUDIO_FINISH_MSG, (WPARAM)audio, 0);
-	}
-}
-
-void UIChatRoom::OnCancelCaptureCallback(int code)
-{
-	if (code == 200 && m_pThis)
-	{
-		//取消录音
-	}
-}
-
 // 发送语音消息
 void UIChatRoom::SendAudio(QString msgid, QString path, long size, int audio_duration, std::string file_ex)
 {
@@ -2355,14 +2305,13 @@ void UIChatRoom::SendAudio(QString msgid, QString path, long size, int audio_dur
 		m_DisSendMsgTimer->start(1000);
 		m_bCanSend = false;
 	}
-	else
-		nim_audio::Audio::CancelAudio(path.toLatin1().data());
 }
 
 // 完成录音
 void UIChatRoom::finishAudio()
 {
-	nim_audio::Audio::StopCapture();
+	if (m_parent)
+		m_parent->StopRecord();
 }
 
 // 往界面上添加语音消息
@@ -2395,7 +2344,7 @@ void UIChatRoom::AddAudioMsg(nim::IMMessage pMsg, nim::IMAudio audio)
 // 当前是否在录音
 bool UIChatRoom::IsCaptrueAudio()
 {
-	return m_AudioBar->isVisible();
+	return m_AudioBar->IsCapturing();
 }
 
 // 获取成员

@@ -1713,6 +1713,9 @@ void UIWindowSet::initCallBack()
 	// 发送消息状态回调
 	nim::Talk::RegSendMsgCb(&CallbackSendMsgArc);
 
+	// 语音录制回调
+	InitAudioCallBack();
+
 	m_Ui1v1->initDevice();
 }
 
@@ -1759,7 +1762,6 @@ void UIWindowSet::OpenCourse(QString chatID, QString courseid, QString teacherid
 		chatRoom->setMainWindow(this);
 		chatRoom->setCurChatID(chatID, courseid, teacherid, studentName, m_accid, UnreadCount);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
-		chatRoom->InitAudioCallBack();
 		ui.horizontalLayout_6->addWidget(chatRoom);
 		m_vecChatRoom.push_back(chatRoom);
 		m_mapChatRoom.insert(chatID, chatRoom);
@@ -1781,7 +1783,6 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 		chatRoom->setMainWindow(this);
 		chatRoom->setCurChatID(chatID, courseid, teacherid, studentName, m_accid, UnreadCount, true);
 		chatRoom->SetCurAudioPath(strCurAudioPath);
-		chatRoom->InitAudioCallBack();
 		m_Ui1v1->chat1v1Widget()->addWidget(chatRoom);
 		m_vecChatRoom.push_back(chatRoom);
 		m_mapChatRoom.insert(chatID, chatRoom);
@@ -1843,5 +1844,60 @@ void UIWindowSet::EndOpendTag1v1()
 				m_Ui1v1->setMuteBoard(true);
 			}
 		}
+	}
+}
+
+// 语音录制功能
+void UIWindowSet::InitAudioCallBack()
+{
+	nim_audio::Audio::RegStartCaptureCb(&OnStartCaptureCallback);
+	nim_audio::Audio::RegStopCaptureCb(&OnStopCaptureCallback);
+}
+
+void UIWindowSet::RecordingVoice(std::string chatID, std::string msgID)
+{
+	nim_audio::Audio::StartCapture(chatID.c_str(), msgID.c_str(), nim_audio::AMR);
+}
+
+void UIWindowSet::StopRecord()
+{
+	nim_audio::Audio::StopCapture();
+}
+
+void UIWindowSet::OnStartCaptureCallback(int code)
+{
+	if (code != 200)
+	{
+		QToolTip::showText(QCursor::pos(), "录制语音失败！");
+	}
+	else
+	{
+		if (m_This)
+			m_This->StartCaptureAudio();
+	}
+}
+
+void UIWindowSet::StartCaptureAudio()
+{
+	if (m_curChatRoom)
+	{
+		m_curChatRoom->m_AudioBar->CaptureAudio();
+	}
+}
+
+void UIWindowSet::OnStopCaptureCallback(int rescode, const char* sid, const char* cid, const char* file_path, const char* file_ext, long file_size, int audio_duration)
+{
+	if (rescode == 200 && m_This)
+	{
+		MyAudioStruct* audio = new MyAudioStruct;
+		audio->sSessionID = sid;
+		audio->sMsgID = cid;
+		audio->sFilePath = file_path;
+		audio->sFileEx = file_ext;
+		audio->fileSize = file_size;
+		audio->duration = audio_duration;
+		
+		if (m_This->m_parent)
+			PostMessage((HWND)m_This->m_parent->winId(), MSG_SEND_AUDIO_FINISH_MSG, (WPARAM)audio, 0);
 	}
 }

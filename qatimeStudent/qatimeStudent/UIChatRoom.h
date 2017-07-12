@@ -100,6 +100,7 @@ private:
 	bool							m_bClickPic;		// 当前是否点击图片
 	std::string						m_AudioPath;		// 语音消息路径
 
+public:
 	/****************语音进度条***************************************/
 	UIAudioBar*						m_AudioBar;			// 语音进度条窗口
 	bool							m_bSendAudio;		// 默认发送语音
@@ -213,9 +214,9 @@ public:
 	* @return void 无返回值
 	*/
 	static void OnStopAudioCallback(int code, const char* file_path, const char* sid, const char* cid);
-	static void OnStartCaptureCallback(int code);				// 开始采集回调
-	static void OnStopCaptureCallback(int rescode, const char* sid, const char* cid, const char* file_path, const char* file_ext, long file_size, int audio_duration);				// 停止采集回调
-	static void OnCancelCaptureCallback(int code);				// 取消采集回调
+// 	static void OnStartCaptureCallback(int code);				// 开始采集回调
+// 	static void OnStopCaptureCallback(int rescode, const char* sid, const char* cid, const char* file_path, const char* file_ext, long file_size, int audio_duration);				// 停止采集回调
+// 	static void OnCancelCaptureCallback(int code);				// 取消采集回调
 
 	std::vector<personListBuddy*>  GetBuddy();
 	bool		IsPerson();	

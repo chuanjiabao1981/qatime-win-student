@@ -180,6 +180,13 @@ public:
 	static void QueryMsgOnlineCb(nim::NIMResCode code, const std::string& id, nim::NIMSessionType type, const nim::QueryMsglogResult& result);		// 正常历史记录请求
 	static void OnGetTeamMemberCallback(const std::string& tid, int count, const std::list<nim::TeamMemberProperty>& team_member_info_list);		// 获取成员回调
 
+	// 语音录制
+	void	InitAudioCallBack();
+	static void OnStartCaptureCallback(int code);				// 开始采集回调
+	static void OnStopCaptureCallback(int rescode, const char* sid, const char* cid, const char* file_path, const char* file_ext, long file_size, int audio_duration);	// 停止采集回调
+	void	StartCaptureAudio();
+	void	RecordingVoice(std::string chatID, std::string msgID);  //录制语音
+	void	StopRecord();											//停止录制语音
 	/***************************互动直播*****************************/
 	void	OpenCourse(QString chatID, QString courseid, QString teacherid, QString studentName,
 		std::string strCurAudioPath, QString courseName, int UnreadCount, QString status,bool b1v1Lesson);// 打开辅导班
@@ -190,7 +197,7 @@ public:
 	void stop1v1Status();				//停止轮询1v1直播状态
 	void shapeScreen(bool bType);		//false:关闭1对1屏幕共享 true:开启
 
-	void EndOpendTag1v1();			//结束进入直播室的1对1辅导班
+	void EndOpendTag1v1();				//结束进入直播室的1对1辅导班
 };
 
 #endif // UIWINDOWSET_H
