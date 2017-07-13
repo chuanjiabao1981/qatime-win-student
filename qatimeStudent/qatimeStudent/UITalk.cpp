@@ -38,6 +38,7 @@ UITalk::UITalk(QWidget *parent)
 
 	m_Ver = new QVBoxLayout();
 	m_VerAll->addLayout(m_Ver);
+	m_Ver->setSpacing(0);
 
 	m_view->setWidget(m_mainView);
 	m_view->setWidgetResizable(true);
@@ -80,6 +81,8 @@ UITalk::~UITalk()
 // 插入文字聊天信息
 void UITalk::InsertChat(QPixmap* pixmap, QString name, QString time, QString text, bool bTeacher)
 {
+	InsertSpacer();
+
 	if (!pixmap)
 		pixmap = &QPixmap("./images/teacherPhoto.png");
 
@@ -163,6 +166,8 @@ void UITalk::InsertChat(QPixmap* pixmap, QString name, QString time, QString tex
 // 插入语音聊天信息
 void UITalk::InsertAudioChat(QPixmap* pixmap, QString name, QString time, QString text, std::string path, std::string sid, std::string msgid,nim::IMMessage msg, bool bTeacher, bool bRead)
 {
+	InsertSpacer();
+
 	if (!pixmap)
 		pixmap = &QPixmap("./images/teacherPhoto.png");
 
@@ -244,6 +249,8 @@ void UITalk::InsertAudioChat(QPixmap* pixmap, QString name, QString time, QStrin
 // 插入通知消息等
 void UITalk::InsertNotice(QString text)
 {
+	InsertSpacer();
+
 	QFont font;
 	font.setPixelSize(13);
 	font.setFamily(("微软雅黑"));
@@ -278,6 +285,8 @@ void UITalk::InsertNotice(QString text)
 // 插入格式化通知消息等
 void UITalk::InsertNewNotice(QString name, QString text)
 {
+	InsertSpacer();
+
 	QFont font;
 	font.setPixelSize(12);
 	font.setFamily(("微软雅黑"));
@@ -314,12 +323,8 @@ void UITalk::InsertNewNotice(QString name, QString text)
 	connect(EditNotice, SIGNAL(sig_scrollDown()), this, SLOT(slot_scrollDown()));
 	SecRow->addWidget(EditNotice);
 
-	QSpacerItem* spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
-	ver->addLayout(FirstRow);
-	ver->addLayout(SecRow);
-	ver->addSpacerItem(spacer);
-
-	m_Ver->addLayout(ver);
+	m_Ver->addLayout(FirstRow);
+	m_Ver->addLayout(SecRow);
 
 	// 添加到布局里
 	if (m_spacer == NULL)
@@ -339,6 +344,8 @@ void UITalk::InsertNewNotice(QString name, QString text)
 // 插入图片聊天信息
 void UITalk::InsertPic(QPixmap* pixmap, QString name, QString time, QString url, QString sMsgID, bool bTeacher)
 {
+	InsertSpacer();
+
 	if (!pixmap)
 		pixmap = &QPixmap("./images/teacherPhoto.png");
 
@@ -433,6 +440,8 @@ void UITalk::InsertPic(QPixmap* pixmap, QString name, QString time, QString url,
 // 插入图片聊天信息
 void UITalk::InsertPicUrl(QPixmap* pixmap, QString name, QString time, QString url_, QString sMsgID, bool bTeacher)
 {
+	InsertSpacer();
+
 	if (!pixmap)
 		pixmap = &QPixmap("./images/teacherPhoto.png");
 
@@ -556,6 +565,8 @@ void UITalk::slot_btnclicked(QString imgPath, QPixmap pixmap, bool b)
 // 插入表情聊天信息
 void UITalk::InsertEmoji(QPixmap* pixmap, QString name, QString time, QString text, bool bTeacher)
 {
+	InsertSpacer();
+
 	if (!pixmap)
 		pixmap = &QPixmap("./images/teacherPhoto.png");
 
@@ -899,4 +910,12 @@ void UITalk::SetAudioStatus(char* msgid, bool bSuc)
 void UITalk::slot_Delay()
 {
 	ScrollDown();
+}
+
+// 插入间距
+void UITalk::InsertSpacer()
+{
+	QLabel* pLabel = new QLabel();
+	pLabel->setFixedHeight(10);
+	m_Ver->addWidget(pLabel);
 }

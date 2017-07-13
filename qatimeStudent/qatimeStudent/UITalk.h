@@ -65,6 +65,7 @@ public:
 	void ClearAll();																// Çå¿Õ
 	void stopAudio(char* msgid);													// Í£Ö¹ÓïÒô²¥·Å
 	void SetAudioStatus(char* msgid, bool bSuc = true);								// ÉèÖÃÓïÒôÏÂÔØ×´Ì¬
+	void InsertSpacer();
 };
 
 #endif // UITALK_H
