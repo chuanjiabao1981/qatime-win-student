@@ -82,6 +82,11 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 	connect(ui.pic_pushButton, SIGNAL(clicked()), this, SLOT(clickPic()));
 	connect(ui.audio_pushButton, SIGNAL(clicked()), this, SLOT(clickAudio()));
 
+	m_AudioBar = new UIAudioBar(this);
+	m_AudioBar->setWindowFlags(Qt::FramelessWindowHint);
+	m_AudioBar->setMainWindow(this);
+	m_AudioBar->hide();
+
 	initEmotion();
 	this->clickTalk();
 	m_isBorw = false;
@@ -135,11 +140,6 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 
 	m_AudioBarTimer = new QTimer(this);
 	connect(m_AudioBarTimer, SIGNAL(timeout()), this, SLOT(AudioBarTimer()));
-
-	m_AudioBar = new UIAudioBar(this);
-	m_AudioBar->setWindowFlags(Qt::FramelessWindowHint);
-	m_AudioBar->setMainWindow(this);
-	m_AudioBar->hide();
 
 	//隐藏讨论、公告、成员
 	ui.header_widget->setVisible(false);
