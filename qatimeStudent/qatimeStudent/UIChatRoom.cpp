@@ -974,9 +974,6 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 			msgid = pMsg->client_msg_id_;
 			int duration = values["dur"].asUInt();
 			qduration = QString::number((duration+500)/1000);
-
-			if (qduration.toInt() > 60)
-				qduration = "60";
 		}
 
 		stepMsgDays(QDateTime::fromMSecsSinceEpoch(pMsg->timetag_));
@@ -1333,8 +1330,6 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 			msgid = pMsg.client_msg_id_;
 			int duration = values["dur"].asUInt();
 			qduration = QString::number((duration + 500) / 1000);
-			if (qduration.toInt() > 60)
-				qduration = "60";
 		}
 
 		stepMsgDays(QDateTime::fromMSecsSinceEpoch(pMsg.timetag_));
@@ -2338,8 +2333,6 @@ void UIChatRoom::AddAudioMsg(nim::IMMessage pMsg, nim::IMAudio audio)
 		bTeacher = true;
 
 	QString qDuration = QString::number((audio.duration_ + 500) / 1000);
-	if (qDuration.toInt() > 60)
-		qDuration = "60";
 
 	qName = m_StudentName + "(我)";
 	
@@ -2569,8 +2562,6 @@ void UIChatRoom::ShowChatMsg(nim::IMMessage pMsg)
 			msgid = pMsg.client_msg_id_;
 			int duration = values["dur"].asUInt();
 			qduration = QString::number((duration + 500) / 1000);
-			if (qduration.toInt() > 60)
-				qduration = "60";
 		}
 
 		stepMsgDays(QDateTime::fromMSecsSinceEpoch(pMsg.timetag_));
