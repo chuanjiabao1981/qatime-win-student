@@ -54,7 +54,7 @@ void UILessonList::focusOutEvent(QFocusEvent* e)
 	if (m_parent->IsHasFoucs(UIWindowSet::LessonWnd))
 		return;
 
-	m_parent->GetLessonBtn()->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+	m_parent->GetLessonBtn()->setStyleSheet("border-image: url(./images/lessonBtn_nor.png);");
 
 	this->hide();
 }

@@ -190,6 +190,11 @@ bool UIChatRoom::eventFilter(QObject *target, QEvent *event)
 			}
 			else if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
+// 				if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+// 				{
+// 					ui.textEdit->insertPlainText("\r");
+// 					return true;
+// 				}
 				emit ui.button_sendMseeage->clicked();
 				return true;
 			}

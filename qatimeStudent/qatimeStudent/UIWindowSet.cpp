@@ -132,6 +132,11 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(status1v1()));
+
+	ui.notice_pushButton->setStyleSheet("border-image: url(./images/notice_nor.png);");
+	ui.lesson_pushButton->setStyleSheet("border-image: url(./images/lessonBtn_nor.png);");
+	ui.course_pushButton->setStyleSheet("border-image: url(./images/courseBtn_nor.png);");
+	ui.person_pushButton->setStyleSheet("border-image: url(./images/personBtn_nor.png);");
 }
 
 UIWindowSet::~UIWindowSet()
@@ -657,27 +662,23 @@ void UIWindowSet::clickTag(UITags* tag)
 		}
 	}
 
-	if (m_NoticeWnd)
-	{
-		ui.notice_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+	if (m_NoticeWnd){
+		ui.notice_pushButton->setStyleSheet("border-image: url(./images/notice_nor.png);");//background-color: rgb(255, 255, 255);
 		m_NoticeWnd->hide();
 	}
-		
-	if (m_CourseWnd)
-	{
-		ui.course_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+
+	if (m_CourseWnd){
+		ui.course_pushButton->setStyleSheet("border-image: url(./images/courseBtn_nor.png);");
 		m_CourseWnd->hide();
 	}
 
-	if (m_PersonWnd)
-	{
-		ui.person_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+	if (m_PersonWnd){
+		ui.person_pushButton->setStyleSheet("border-image: url(./images/personBtn_nor.png);");
 		m_PersonWnd->hide();
 	}
-		
-	if (m_LessonWnd)
-	{
-		ui.lesson_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+
+	if (m_LessonWnd){
+		ui.lesson_pushButton->setStyleSheet("border-image: url(./images/lessonBtn_nor.png);");
 		m_LessonWnd->hide();
 	}
 		
@@ -786,14 +787,14 @@ void UIWindowSet::clickNotice()
 	{
 		if (m_NoticeWnd->isVisible())
 		{
-			ui.notice_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+			ui.notice_pushButton->setStyleSheet("color:rgb(0,0,0);border-image: url(./images/notice_nor.png);");
 			m_NoticeWnd->setVisible(false);
 			return;
 		}
 
 		m_NoticeWnd->initDate();
-		ui.notice_pushButton->setStyleSheet("color:rgb(255, 255, 255);background-color: rgb(5,157,213);");
-		m_NoticeWnd->move(4, 74);
+		ui.notice_pushButton->setStyleSheet("color:rgb(255, 255, 255);border-image: url(./images/notice_hor.png);");
+		m_NoticeWnd->move(0, 69);
 		m_NoticeWnd->DeleteNotice();
 		m_NoticeWnd->show();
 		m_NoticeWnd->setFocus();
@@ -885,13 +886,13 @@ void UIWindowSet::clickCourse()
 	{
 		if (m_CourseWnd->isVisible())
 		{
-			ui.course_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+			ui.course_pushButton->setStyleSheet("border-image: url(./images/courseBtn_nor.png);");
 			m_CourseWnd->setVisible(false);
 			return;
 		}
 
-		ui.course_pushButton->setStyleSheet("color:rgb(255, 255, 255);background-color: rgb(5,157,213);");
-		m_CourseWnd->move(4, 74);
+		ui.course_pushButton->setStyleSheet("border-image: url(./images/courseBtn_hor.png);");
+		m_CourseWnd->move(0, 69);
 		m_CourseWnd->show();
 		m_CourseWnd->setFocus();
 		QueryCourse();
@@ -1007,13 +1008,13 @@ void UIWindowSet::clickPerson()
 	{
 		if (m_PersonWnd->isVisible())
 		{
-			ui.person_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+			ui.person_pushButton->setStyleSheet("color:rgb(0,0,0);border-image: url(./images/personBtn_nor.png);");
 			m_PersonWnd->setVisible(false);
 			return;
 		}
 
-		ui.person_pushButton->setStyleSheet("color:rgb(255, 255, 255);background-color: rgb(5,157,213);");
-		m_PersonWnd->move(280, 74);
+		ui.person_pushButton->setStyleSheet("color:rgb(255, 255, 255);border-image: url(./images/personBtn_hor.png);");
+		m_PersonWnd->move(300, 69);
 		m_PersonWnd->DeletePerson();
 		m_PersonWnd->show();
 		m_PersonWnd->setFocus();
@@ -1051,13 +1052,13 @@ void UIWindowSet::clickLesson()
 	{
 		if (m_LessonWnd->isVisible())
 		{
-			ui.lesson_pushButton->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+			ui.lesson_pushButton->setStyleSheet("border-image: url(./images/lessonBtn_nor.png);");
 			m_LessonWnd->setVisible(false);
 			return;
 		}
 
-		ui.lesson_pushButton->setStyleSheet("color:rgb(255, 255, 255);background-color: rgb(5,157,213);");
-		m_LessonWnd->move(4, 74);
+		ui.lesson_pushButton->setStyleSheet("border-image: url(./images/lessonBtn_hor.png);");
+		m_LessonWnd->move(0, 69);
 		m_LessonWnd->DeleteLesson();
 		m_LessonWnd->show();
 		m_LessonWnd->setFocus();
@@ -1630,12 +1631,12 @@ void UIWindowSet::ChangeBtnStyle(bool bLive)
 	if (bLive)
 	{
 		ui.change_pushButton->setStyleSheet("QPushButton{border-image:url(./images/liveChange_nor.png);}"
-			"QPushButton:pressed{border-image:url(./images/liveChange_nor.png);}");
+			"QPushButton:pressed{border-image:url(./images/liveChange_hover.png);}");
 	}
 	else
 	{
 		ui.change_pushButton->setStyleSheet("QPushButton{border-image:url(./images/noliveChange_nor.png);}"
-				"QPushButton:pressed{border-image:url(./images/noliveChange_nor.png);}");
+			"QPushButton:pressed{border-image:url(./images/noliveChange_hover.png);}");
 	}
 }
 

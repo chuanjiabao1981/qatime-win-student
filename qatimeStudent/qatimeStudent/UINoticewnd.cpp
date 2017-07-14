@@ -75,7 +75,7 @@ void UINoticeWnd::focusOutEvent(QFocusEvent* e)
 	if (m_parent->IsHasFoucs(UIWindowSet::NoticeWnd))
 		return;
 
-	m_parent->GetNoticeBtn()->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+	m_parent->GetNoticeBtn()->setStyleSheet("border-image: url(./images/notice_nor.png);");
 	this->hide();
 }
 

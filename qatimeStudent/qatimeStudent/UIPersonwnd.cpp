@@ -169,7 +169,7 @@ void UIPersonWnd::focusOutEvent(QFocusEvent* e)
 	if (m_parent->IsHasFoucs(UIWindowSet::PersonWnd))
 		return;
 
-	m_parent->GetPersonBtn()->setStyleSheet("color:rgb(0,0,0);background-color: rgb(255, 255, 255);");
+	m_parent->GetPersonBtn()->setStyleSheet("border-image: url(./images/personBtn_nor.png);");
 	this->hide();
 }
 

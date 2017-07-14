@@ -112,6 +112,7 @@ void UIVideo1v1::VideoCapture(const char* data, unsigned int iwidth, unsigned in
 
 void UIVideo1v1::mouseDoubleClickEvent(QMouseEvent* e)
 {
+	return;
 	if (this->isFullScreen())
 	{
 		setWindowFlags(Qt::SubWindow);
