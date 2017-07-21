@@ -11,6 +11,7 @@ UITags::UITags(QWidget *parent)
 	, m_cameraStream("")
 	, m_bModle(false)
 	, m_b1v1Lesson(false)
+	, m_bLiving(false)
 {
 	ui.setupUi(this);
 	connect(ui.close_pushButton, SIGNAL(clicked()), this, SLOT(CloseDialog()));
@@ -178,4 +179,14 @@ void UITags::set1v1Lesson(bool b1v1Lesson)
 bool UITags::Is1v1Lesson()
 {
 	return m_b1v1Lesson;
+}
+
+void UITags::setLiving(bool bLiving)
+{
+	m_bLiving = bLiving;
+}
+
+bool UITags::IsLiving()
+{
+	return m_bLiving;
 }

@@ -33,7 +33,7 @@
 #define MAINWINDOW_TITLE_HEIGHT 0
 #define LIVE_BUTTON_NAME	"选课直播"
 #define LESSON_LABEL		"暂无直播"
-#define STATUS_TIME			3000
+#define STATUS_TIME			10000
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
@@ -116,6 +116,11 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	font.setPixelSize(15);
 	ui.return_pushButton->setFont(font);
 
+	font = ui.lesson_label->font();
+	font.setPixelSize(15);
+	ui.lesson_label->setFont(font);
+
+	ui.lesson_widget->setVisible(false);
 	ui.camera_widget->setVisible(false);
 	ui.whiteboard_widget->setVisible(false);
 	ui.label_space->setVisible(false);
@@ -137,6 +142,7 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 	ui.lesson_pushButton->setStyleSheet("border-image: url(./images/lessonBtn_nor.png);");
 	ui.course_pushButton->setStyleSheet("border-image: url(./images/courseBtn_nor.png);");
 	ui.person_pushButton->setStyleSheet("border-image: url(./images/personBtn_nor.png);");
+	ui.pic_label->setStyleSheet("border-image: url(./images/online.png);");
 }
 
 UIWindowSet::~UIWindowSet()
@@ -171,6 +177,8 @@ void UIWindowSet::CloseDialog()
 	if (m_curTags->Is1v1Lesson())
 	{
 		m_Ui1v1->setMuteBoard(true);
+		// 结束设备
+		m_Ui1v1->ModleChange(false);
 	}
 
 	m_vecTags.clear();
@@ -178,8 +186,10 @@ void UIWindowSet::CloseDialog()
 	m_curTags = NULL;
 	m_curChatRoom = NULL;
 	PlayLive("", "");
-
+	// 课程名置空
+	ui.lesson_label->setText(LESSON_LABEL);
 	hide();
+
 }
 
 void UIWindowSet::MaxDialog()
@@ -400,8 +410,12 @@ UITags* UIWindowSet::AddTag(QString chatID, QString name, QString ID, bool sel, 
 	{
 		m_curTags->setModle(true);
 		emit sig_Modle(true);
-		if (b1v1Lesson)
-			start1v1Status(STATUS_TIME);
+
+		// 开启轮询
+		if (m_curTags)
+			m_curTags->setLiving(false);
+
+		start1v1Status(STATUS_TIME);
 	}
 	else
 	{
@@ -691,6 +705,8 @@ void UIWindowSet::clickTag(UITags* tag)
 	{
 		emit sig_Modle(false);
 	}
+
+	start1v1Status(STATUS_TIME);
 }
 
 // 可拖动标题的宽度
@@ -717,6 +733,8 @@ void UIWindowSet::AgainSelectTag()
 		m_curTags = NULL;
 		m_curChatRoom = NULL;
 		PlayLive("","");
+		// 课程名置空
+		ui.lesson_label->setText(LESSON_LABEL);
 		hide();
 	}
 	else
@@ -1190,14 +1208,6 @@ void UIWindowSet::clickChange(bool checked)
 	{
 		EndOpendTag1v1();
 
-		if (!m_curTags->IsModle())
-			start1v1Status(STATUS_TIME);//轮询直播状态， 3000毫秒查询一次
-		else
-		{
-			m_Ui1v1->setMuteBoard(true);
-			stop1v1Status();
-		}
-
 		ui.live_widget->setVisible(false);
 		ui.live1v1_widget->setVisible(true);
 
@@ -1205,6 +1215,18 @@ void UIWindowSet::clickChange(bool checked)
 
 		if (m_curTags)
 			m_curTags->setModle(!m_curTags->IsModle());
+
+		if (m_curTags->IsModle())
+		{
+			if (m_curTags)
+				m_curTags->setLiving(false);
+			start1v1Status(STATUS_TIME);//轮询直播状态
+		}
+		else
+		{
+			m_Ui1v1->setMuteBoard(true);
+			stop1v1Status();
+		}
 	}
 	else
 	{
@@ -1236,9 +1258,14 @@ void UIWindowSet::clickChange(bool checked)
 
 			if (m_curTags)
 				m_curTags->setModle(true);
+
+			if (m_curTags)
+				m_curTags->setLiving(false);
+			start1v1Status(STATUS_TIME);//轮询直播状态
 		}
 	}
 
+	ui.lesson_widget->setVisible(m_curTags->IsModle());
 	ChangeBtnStyle(m_curTags->IsModle());
 }
 
@@ -1449,6 +1476,9 @@ void UIWindowSet::teacherStatus(bool bEnd)
 	if (bEnd)
 	{
 		m_Ui1v1->setMuteBoard(true);
+
+		if (m_curTags)
+			m_curTags->setLiving(false);
 		start1v1Status(STATUS_TIME);
 	}
 }
@@ -1506,6 +1536,8 @@ void UIWindowSet::slots_Modle(bool bModle)
 			QueryLiveInfo();
 		}
 	}
+
+	ui.lesson_widget->setVisible(bModle);
 	ChangeBtnStyle(bModle);
 }
 
@@ -1587,43 +1619,94 @@ void UIWindowSet::slot_onTimeout()
 void UIWindowSet::status1v1()
 {	
 	// 如果当前页面不是在直播室模式，则不查询
-	if (m_curTags == NULL || !m_curTags->IsModle())
+	if (m_curTags == NULL || m_curChatRoom==NULL || !m_curTags->IsModle())
 		return;
 
-	// 设置当天界面辅导班ID
-	if (m_curChatRoom)
-		m_course_id1v1 = m_curChatRoom->GetCourseID();
+	// 设置当前界面辅导班ID
+	m_course_id1v1 = m_curChatRoom->GetCourseID();
 
-	QString strUrl;
-	if (g_environmentType)
+	if (m_curTags->Is1v1Lesson()) // 查询1对1辅导班
 	{
-		strUrl = "http://qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+		QString strUrl;
+		if (g_environmentType)
+			strUrl = "http://qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+		else
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+		
+		strUrl.replace("{interactive_course_id}", m_course_id1v1);
+
+		HttpRequest httpRequest;
+		httpRequest.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+
+		QByteArray byteArray = httpRequest.httpGet(strUrl);
+
+		if (m_curChatRoom && m_course_id1v1 != m_curChatRoom->GetCourseID())
+			return;
+
+		QJsonDocument document(QJsonDocument::fromJson(byteArray));
+		QJsonObject obj = document.object();
+
+		ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
+
+		if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty() && otoStatus.data.status=="teaching")
+		{
+			ui.lesson_label->setText(otoStatus.data.name);
+			ui.pic_label->setVisible(false);
+			ui.online_label->setVisible(false);
+//			ui.online_label->setText(QString::number(otoStatus.data.online_users.size()));
+
+			if (!m_curTags->IsLiving())
+			{
+//				stop1v1Status();
+				m_curTags->setLiving(true);
+				m_Ui1v1->joinRtsRoom(otoStatus.data.room_id.toStdString());
+			}
+		}
+		else
+		{
+			ui.lesson_label->setText(LESSON_LABEL);
+			ui.pic_label->setVisible(false);
+			ui.online_label->setVisible(false);
+		}
+		qDebug() << __FILE__ << __LINE__ << "1对1课程状态：" << otoStatus.data.status;
 	}
-	else
+	else  // 查询1对多直播课辅导班
 	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+		QString strUrl;
+		if (g_environmentType)
+			strUrl = "http://qatime.cn/api/v1/live_studio/courses/{interactive_course_id}/status";
+		else
+			strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{interactive_course_id}/status";
+
+		strUrl.replace("{interactive_course_id}", m_course_id1v1);
+
+		HttpRequest httpRequest;
+		httpRequest.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+
+		QByteArray byteArray = httpRequest.httpGet(strUrl);
+
+		if (m_curChatRoom && m_course_id1v1 != m_curChatRoom->GetCourseID())
+			return;
+
+		QJsonDocument document(QJsonDocument::fromJson(byteArray));
+		QJsonObject obj = document.object();
+
+		ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
+
+		if (m_Ui1v1 && otoStatus.data.status == "teaching")
+		{
+			ui.lesson_label->setText(otoStatus.data.name);
+			ui.pic_label->setVisible(true);
+			ui.online_label->setVisible(true);
+			ui.online_label->setText(QString::number(otoStatus.data.online_users.size()));
+		}
+		else
+		{
+			ui.lesson_label->setText(LESSON_LABEL);
+			ui.pic_label->setVisible(false);
+			ui.online_label->setVisible(false);
+		}
 	}
-	strUrl.replace("{interactive_course_id}", m_course_id1v1);
-	
-	HttpRequest httpRequest;
-	httpRequest.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
-
-	QByteArray byteArray = httpRequest.httpGet(strUrl);
-
-	if (m_curChatRoom && m_course_id1v1 != m_curChatRoom->GetCourseID())
-		return;
-
-	QJsonDocument document(QJsonDocument::fromJson(byteArray));
-	QJsonObject obj = document.object();
-
-	ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
-
-	if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty())
-	{
-		stop1v1Status();
-		m_Ui1v1->joinRtsRoom(otoStatus.data.room_id.toStdString());
-	}
-	qDebug() << __FILE__ << __LINE__ << "1对1课程状态："<<otoStatus.data.status;
 }
 
 void UIWindowSet::ChangeBtnStyle(bool bLive)
@@ -1796,6 +1879,7 @@ void UIWindowSet::OpenCourse1v1(QString chatID, QString courseid, QString teache
 void UIWindowSet::start1v1Status(int msec)
 {
 	m_timer->stop();
+	status1v1();
 	m_timer->start(msec);
 }
 
@@ -1822,6 +1906,8 @@ void UIWindowSet::slot_sendCustomMsg()
 void UIWindowSet::slot_joinRoomFail()
 {
 	// 加入失败，重新轮询
+	if (m_curTags)
+		m_curTags->setLiving(false);
 	start1v1Status(STATUS_TIME);
 }
 

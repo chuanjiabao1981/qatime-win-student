@@ -31,6 +31,7 @@ private:
 	bool				m_bModle;			// 当前窗口模式
 
 	bool				m_b1v1Lesson;
+	bool				m_bLiving;
 protected:
 	virtual void paintEvent(QPaintEvent *event);
 	virtual void mousePressEvent(QMouseEvent *e);       //--鼠标按下事件 
@@ -58,6 +59,8 @@ public:
 	bool IsModle();
 	void set1v1Lesson(bool b1v1Lesson);
 	bool Is1v1Lesson();
+	void setLiving(bool bLiving);	// 当前直播状态
+	bool IsLiving();		
 };
 
 #endif // UITAGS_H

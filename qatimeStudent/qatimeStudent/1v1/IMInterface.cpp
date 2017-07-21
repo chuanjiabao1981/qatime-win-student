@@ -308,9 +308,9 @@ void CallbackConnectNotify(const std::string& session_id, int channel_type, int 
 		if (code != 200)//连接异常，挂断
 		{
 			// 白板连接出现异常
-			Rts::Hangup(session_id.c_str(), &CallbackHangup);
-			IMInterface::getInstance()->setSessionID("");
-			VChat::End("");
+// 			Rts::Hangup(session_id.c_str(), &CallbackHangup);
+// 			IMInterface::getInstance()->setSessionID("");
+// 			VChat::End("");
 
 			qDebug() << __FILE__ << __LINE__ << "rts fail server discontect errorcode：" << code;
 
@@ -362,10 +362,12 @@ void CallbackJoinConf(nim::NIMResCode res_code, const std::string& session_id, _
 	{
 		IMInterface::getInstance()->setSessionID(session_id);
 		emit IMInterface::getInstance()->joinRtsRoomSuccessfully(session_id, channel_id, custom_info);
+		qDebug() << __FILE__ << __LINE__ << "白板加入成功！";
 	}
 	else
 	{
 		emit IMInterface::getInstance()->joinVChatSuccessfully(false);
+		qDebug() << __FILE__ << __LINE__ << "白板加入失败,code:"<<res_code;
 	}
 }
 
@@ -484,10 +486,12 @@ void CallbackOpt2Call(int code, __int64 channel_id, const std::string& json_exte
 	if (kNIMResSuccess == code || nim::kNIMResExist == code)
 	{
 		emit IMInterface::getInstance()->joinVChatSuccessfully(true);
+		qDebug() << __FILE__ << __LINE__ << "音视频互动加入成功！";
 	}
 	else
 	{
 		emit IMInterface::getInstance()->joinVChatSuccessfully(false);
+		qDebug() << __FILE__ << __LINE__ << "音视频互动加入失败，code:" << code;
 	}
 }
 

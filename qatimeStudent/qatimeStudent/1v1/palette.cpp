@@ -162,6 +162,8 @@ void Palette::paintEvent(QPaintEvent *)
 
 void Palette::mousePressEvent(QMouseEvent *event)
 {
+	setFocus();
+
 	if (!mIsDraw)
 	{
 		return;
