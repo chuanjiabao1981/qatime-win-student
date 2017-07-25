@@ -52,7 +52,6 @@ public:
 	void stringToHtmlPos(QString &str, QColor crl);			//QString转html带颜色切位置上移
 	void imgPathToHtml(QString &path);						//edit 设置图片
 	void setMainWindow(UIWindowSet* parent);
-	void SendCustomMsg();									//发送同步屏幕消息
 public slots:
 	void setBrow(QString path);
 

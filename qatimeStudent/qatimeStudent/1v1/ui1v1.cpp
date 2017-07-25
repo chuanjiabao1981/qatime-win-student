@@ -212,7 +212,6 @@ void UI1v1::joinVChatSuccessfully(bool bSuc)
 	{
 		setMuteBoard(false);
 		mWhiteBoard->sendSyncQuery();
-		emit sig_sendCustomMsg();
 	}
 	else
 	{
@@ -516,21 +515,4 @@ void UI1v1::SetShapeScreen(bool bType)
 {
 	IMInterface::getInstance()->setFullScreenStatus(bType);
 	emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
-}
-
-void UIChatRoom::SendCustomMsg()
-{
-	nim::IMMessage msg;
-	PackageMsg(msg);
-	msg.type_ = nim::kNIMMessageTypeCustom;
-
-	msg.content_ = "{\"event\":\"FetchPlayStatus\"}";
-
-	msg.msg_setting_.need_offline_ = nim::BS_FALSE;
-	msg.msg_setting_.roaming_ = nim::BS_FALSE;
-	msg.msg_setting_.server_history_saved_ = nim::BS_FALSE;
-	msg.msg_setting_.push_need_badge_ = nim::BS_FALSE;
-	msg.msg_setting_.need_push_ = nim::BS_FALSE;
-
-	nim::Talk::SendMsg(msg.ToJsonString(true));
 }

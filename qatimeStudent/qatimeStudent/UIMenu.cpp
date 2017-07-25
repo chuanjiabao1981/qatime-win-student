@@ -7,6 +7,7 @@
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
+extern QString g_homePage;
 
 UIMenu::UIMenu(QWidget *parent)
 	: QWidget(parent)
@@ -166,14 +167,9 @@ void UIMenu::setVersion(QString version)
 void UIMenu::checkVersion()
 {
 	QString strUrl;
-	if (g_environmentType){
-		strUrl = "https://qatime.cn/api/v1/system/check_update?=category=student_client&version={version}&platform=windows";
-		strUrl.replace("{version}", m_version);
-	}
-	else{		  
-		strUrl = "http://testing.qatime.cn/api/v1/system/check_update?category=student_client&version={version}&platform=windows";
-		strUrl.replace("{version}", m_version);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/system/check_update?=category=student_client&version={version}&platform=windows";
+	strUrl.replace("{version}", m_version);
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);

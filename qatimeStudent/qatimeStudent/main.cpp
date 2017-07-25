@@ -9,7 +9,8 @@
 using namespace Gdiplus;
 
 bool g_environmentType = true;	// 环境类型		true为生产环境		false为测试环境  默认为true
-QString g_remeberToken = "";	
+QString g_remeberToken = "";
+QString g_homePage = "";
 
 void registerMetaType()
 {

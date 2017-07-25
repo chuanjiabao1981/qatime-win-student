@@ -123,7 +123,6 @@ private slots :
 	void status1v1();							// 获取1v1直播状态
 	void teacherStatus(bool bEnd);				// 老师状态
 	void exitVChat();
-	void slot_sendCustomMsg();					// 发送自定义消息
 	void slot_joinRoomFail();					// 加入房间失败，重新轮询
 public slots :
 	void clickChange(bool);						// 改变模式

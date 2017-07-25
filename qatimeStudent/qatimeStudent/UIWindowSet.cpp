@@ -37,6 +37,7 @@
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
+extern QString g_homePage;
 
 UIWindowSet* m_This = NULL;
 UIWindowSet::UIWindowSet(QWidget *parent)
@@ -831,29 +832,15 @@ void UIWindowSet::QueryNotice()
 	QString strUrl;
 	if (m_curTags->Is1v1Lesson())
 	{
-		if (g_environmentType)
-		{
-			strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
-			strUrl.replace("{id}", strCourseID);
-		}
-		else
-		{
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
-			strUrl.replace("{id}", strCourseID);
-		}
+		strUrl += g_homePage;
+		strUrl += "/api/v1/live_studio/interactive_courses/{id}/realtime";
+		strUrl.replace("{id}", strCourseID);
 	}
 	else
 	{
-		if (g_environmentType)
-		{
-			strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-			strUrl.replace("{id}", strCourseID);
-		}
-		else
-		{
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-			strUrl.replace("{id}", strCourseID);
-		}
+		strUrl += g_homePage;
+		strUrl += "/api/v1/live_studio/courses/{id}/realtime";
+		strUrl.replace("{id}", strCourseID);
 	}
 
 	QUrl url = QUrl(strUrl);
@@ -926,33 +913,17 @@ void UIWindowSet::QueryCourse()
 		return;
 
 	QString strUrl;
-	if (g_environmentType)
+	strUrl += g_homePage;
+	if (m_curTags->Is1v1Lesson())
 	{
-		if (m_curTags->Is1v1Lesson())
-		{
-			strUrl = "http://qatime.cn/api/v1/live_studio/interactive_courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-		}
-		else
-		{
-			strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-			strUrl.replace("{studentid}", m_studentID);
-		}
+		strUrl += "/api/v1/live_studio/interactive_courses/{id}";
+		strUrl.replace("{id}", strCourseID);
 	}
 	else
 	{
-		if (m_curTags->Is1v1Lesson())
-		{
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-		}
-		else
-		{
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-			strUrl.replace("{studentid}", m_studentID);
-		}
+		strUrl += "/api/v1/live_studio/students/{studentid}/courses/{id}";
+		strUrl.replace("{id}", strCourseID);
+		strUrl.replace("{studentid}", m_studentID);
 	}
 
 	QUrl url = QUrl(strUrl);
@@ -1093,34 +1064,19 @@ void UIWindowSet::QueryLesson()
 		return;
 
 	QString strUrl;
-	if (g_environmentType)
+	strUrl += g_homePage;
+	if (m_curTags->Is1v1Lesson())
 	{
-		if (m_curTags->Is1v1Lesson())
-		{
-			strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-		}
-		else
-		{
-			strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-			strUrl.replace("{studentid}", m_studentID);
-		}
+		strUrl += "/api/v1/live_studio/interactive_courses/{id}";
+		strUrl.replace("{id}", strCourseID);
 	}
 	else
 	{
-		if (m_curTags->Is1v1Lesson())
-		{
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-		}
-		else
-		{
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-			strUrl.replace("{id}", strCourseID);
-			strUrl.replace("{studentid}", m_studentID);
-		}
+		strUrl += "/api/v1/live_studio/students/{studentid}/courses/{id}";
+		strUrl.replace("{id}", strCourseID);
+		strUrl.replace("{studentid}", m_studentID);
 	}
+
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
@@ -1335,16 +1291,9 @@ void UIWindowSet::QueryLiveInfo()
 	}
 
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/play_info";
-		strUrl.replace("{id}", strCourseID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/play_info";
-		strUrl.replace("{id}", strCourseID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/courses/{id}/play_info";
+	strUrl.replace("{id}", strCourseID);
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
@@ -1467,7 +1416,6 @@ void UIWindowSet::init1v1()
 	ui.horizontalLayout_8->addWidget(m_Ui1v1);
 	connect(m_Ui1v1, SIGNAL(teacherStatus(bool)), this, SLOT(teacherStatus(bool)));
 	connect(m_Ui1v1, SIGNAL(exitVChat()), this, SLOT(exitVChat()));
-	connect(m_Ui1v1, SIGNAL(sig_sendCustomMsg()), this, SLOT(slot_sendCustomMsg()));
 	connect(m_Ui1v1, SIGNAL(sig_joinRoomFail()), this, SLOT(slot_joinRoomFail()));
 }
 
@@ -1628,11 +1576,8 @@ void UIWindowSet::status1v1()
 	if (m_curTags->Is1v1Lesson()) // 查询1对1辅导班
 	{
 		QString strUrl;
-		if (g_environmentType)
-			strUrl = "http://qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
-		else
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
-		
+		strUrl += g_homePage;
+		strUrl += "/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
 		strUrl.replace("{interactive_course_id}", m_course_id1v1);
 
 		HttpRequest httpRequest;
@@ -1673,11 +1618,8 @@ void UIWindowSet::status1v1()
 	else  // 查询1对多直播课辅导班
 	{
 		QString strUrl;
-		if (g_environmentType)
-			strUrl = "http://qatime.cn/api/v1/live_studio/courses/{interactive_course_id}/status";
-		else
-			strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{interactive_course_id}/status";
-
+		strUrl += g_homePage;
+		strUrl += "/api/v1/live_studio/courses/{interactive_course_id}/status";
 		strUrl.replace("{interactive_course_id}", m_course_id1v1);
 
 		HttpRequest httpRequest;
@@ -1895,13 +1837,6 @@ void UIWindowSet::shapeScreen(bool bType)
 {
 	m_Ui1v1->SetShapeScreen(bType);
 }
-
-void UIWindowSet::slot_sendCustomMsg()
-{
-	if (m_curChatRoom)
-		m_curChatRoom->SendCustomMsg();
-}
-
 
 void UIWindowSet::slot_joinRoomFail()
 {

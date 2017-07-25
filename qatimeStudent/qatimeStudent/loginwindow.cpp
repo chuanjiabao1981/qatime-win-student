@@ -12,6 +12,7 @@
 #include <QApplication>
 
 extern QString g_remeberToken;
+extern QString g_homePage;
 TCHAR m_pathHomePage[MAX_PATH] = {0};
 TCHAR m_pathUserName[MAX_PATH] = { 0 };
 TCHAR m_pathTeacherName[MAX_PATH] = { 0 };
@@ -141,10 +142,10 @@ void LoginWindow::OnLogIn()
 
 	QString str = ui.UserPass_Edit->text();
 	str = parse(str);
-	if (m_EnvironmentalFormally)
-		url = QUrl("https://qatime.cn/api/v1/sessions"); 
-	else
-		url = QUrl("http://testing.qatime.cn/api/v1/sessions");
+	QString strUrl="";
+	strUrl += g_homePage;
+	strUrl += "/api/v1/sessions";
+	url = QUrl(strUrl); 
 
 	QByteArray append("client_type=pc");
 	append.append("&login_account=");
@@ -280,6 +281,7 @@ void LoginWindow::ReadSetting()
 	m_accidPassword = QString::fromStdWString(m_pathAccidToken);
 	m_version = QString::fromStdWString(m_pathVersion);
 	m_password = QString::fromStdWString(m_pathUserPass);
+	g_homePage = QString::fromStdWString(m_pathHomePage);
 
 	QString sVersion = "  答疑时间学生端助手{version}";
 	sVersion.replace("{version}", m_version);

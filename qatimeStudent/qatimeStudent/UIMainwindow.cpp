@@ -12,6 +12,7 @@
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
+extern QString g_homePage;
 
 UIMainWindow* m_This = NULL;
 UIMainWindow::UIMainWindow(QWidget *parent)
@@ -114,16 +115,9 @@ void UIMainWindow::setVersion(QString version)
 void UIMainWindow::ShowLesson()
 {
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/schedule";
-		strUrl.replace("{student_id}", m_studentID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{student_id}/schedule";
-		strUrl.replace("{student_id}", m_studentID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/students/{student_id}/schedule";
+	strUrl.replace("{student_id}", m_studentID);
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
@@ -175,16 +169,9 @@ void UIMainWindow::LessonRequestFinished()
 void UIMainWindow::ShowOneToOneAuxiliary()
 {
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/interactive_courses";
-		strUrl.replace("{student_id}", m_studentID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{student_id}/interactive_courses";
-		strUrl.replace("{student_id}", m_studentID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/students/{student_id}/interactive_courses";
+	strUrl.replace("{student_id}", m_studentID);
 
 	QByteArray append("?per_page=");
 	append += "100";
@@ -239,16 +226,9 @@ void UIMainWindow::OneToOneAuxiliaryRequestFinished()
 void UIMainWindow::ShowAuxiliary()
 {
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{student_id}/courses";
-		strUrl.replace("{student_id}", m_studentID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{student_id}/courses";
-		strUrl.replace("{student_id}", m_studentID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/students/{student_id}/courses";
+	strUrl.replace("{student_id}", m_studentID);
 
 	QByteArray append("?per_page=");
 	append += "100";
@@ -299,10 +279,8 @@ void UIMainWindow::AuxiliaryRequestFinished()
 void UIMainWindow::RequestKey()
 {
 	QString strUrl;
-	if (g_environmentType)
-		strUrl = "https://qatime.cn/api/v1/app_constant/im_app_key";
-	else
-		strUrl = "http://testing.qatime.cn/api/v1/app_constant/im_app_key";
+	strUrl += g_homePage;
+	strUrl += "/api/v1/app_constant/im_app_key";
 
 	HttpRequest http;
 	http.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
@@ -626,11 +604,8 @@ void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherI
 void UIMainWindow::CreateRoomForCourseID(QString courseID)
 {
 	QString strUrl;
-	if (g_environmentType)
-		strUrl = "https://qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-	else
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/students/{studentid}/courses/{id}";
-
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/students/{studentid}/courses/{id}";
 	strUrl.replace("{id}", courseID);
 	strUrl.replace("{studentid}", m_studentID);
 

@@ -6,7 +6,6 @@
 #include <QNetworkRequest>
 #include <QMouseEvent>
 
-extern QString g_remeberToken;
 UIAuxiliaryList::UIAuxiliaryList(QWidget *parent)
 	: QWidget(parent)
 	, m_iMsgCount(0)

@@ -20,6 +20,7 @@
 
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
+extern QString g_homePage;
 
 QColor timeColor(153, 153, 153);
 QColor contentColor(102, 102, 102);
@@ -1578,16 +1579,9 @@ void UIChatRoom::OnSendAnnouncements(QString Announcements)
 		return;
 	
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/announcements";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/announcements";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/courses/{id}/announcements";
+	strUrl.replace("{id}", m_CurCourseID);
 
 	QUrl url = QUrl(strUrl);
 	QByteArray append("content=");
@@ -1681,17 +1675,10 @@ void UIChatRoom ::colseBrow()
 void UIChatRoom::QueryMember()
 {
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
-
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/courses/{id}/realtime";
+	strUrl.replace("{id}", m_CurCourseID);
+	
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
 
@@ -2192,16 +2179,9 @@ void UIChatRoom::SetCurAudioPath(std::string path)
 void UIChatRoom::Request1v1Member()
 {
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/interactive_courses/{id}/realtime";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/interactive_courses/{id}/realtime";
+	strUrl.replace("{id}", m_CurCourseID);
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
@@ -2214,16 +2194,9 @@ void UIChatRoom::Request1v1Member()
 void UIChatRoom::RequestMember()
 {
 	QString strUrl;
-	if (g_environmentType)
-	{
-		strUrl = "https://qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
-	else
-	{
-		strUrl = "http://testing.qatime.cn/api/v1/live_studio/courses/{id}/realtime";
-		strUrl.replace("{id}", m_CurCourseID);
-	}
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/courses/{id}/realtime";
+	strUrl.replace("{id}", m_CurCourseID);
 
 	QUrl url = QUrl(strUrl);
 	QNetworkRequest request(url);
