@@ -36,6 +36,7 @@ public:
 	void	setMuteBoard(bool bMute);								  // ÉèÖÃ½ûÓÃ°×°å
 	void    FullResize();
 	void    SetShapeScreen(bool bType);
+	void	SetBoardShowStatus();
 protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 

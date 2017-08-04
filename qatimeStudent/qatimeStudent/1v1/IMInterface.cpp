@@ -403,8 +403,10 @@ void CallbackMemberNotify(const std::string& session_id, int channel_type, const
 		if (channel_type == kNIMRtsMemberStatusJoined)
 		{
 			//成员进入，此时可以在tcp通道发送数据
-			int i = 0;
-			i++;
+		}
+		else if (channel_type == kNIMRtsMemberStatusLeaved)
+		{
+			emit IMInterface::getInstance()->PeopleStatus(true);
 		}
 	}
 }

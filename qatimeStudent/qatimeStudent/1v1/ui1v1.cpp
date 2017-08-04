@@ -503,14 +503,16 @@ void UI1v1::setMuteBoard(bool bMute)
 void UI1v1::StatusTeacher(bool bEnd)
 {
 	if (bEnd)
-	{
-		mWhiteBoard->setVisible(true);
-		m_VideoInfo1v1->setVisible(false);
-	}
+		SetBoardShowStatus();
 	
 	emit teacherStatus(bEnd);
 }
 
+void UI1v1::SetBoardShowStatus()
+{
+	mWhiteBoard->setVisible(true);
+	m_VideoInfo1v1->setVisible(false);
+}
 void UI1v1::SetShapeScreen(bool bType)
 {
 	IMInterface::getInstance()->setFullScreenStatus(bType);

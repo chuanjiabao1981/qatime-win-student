@@ -488,6 +488,16 @@ bool UIMainWindow::nativeEvent(const QByteArray &eventType, void *message, long 
 			nim::SendMessageArc* arcNew = (nim::SendMessageArc*)pMsg->wParam;
 			if (arcNew)
 			{
+				if (arcNew->rescode_ != 200)
+				{
+					qDebug()<<__FILE__<< __LINE__ << "会话ID" << QString::fromStdString(arcNew->talk_id_) << "消息ID" << QString::fromStdString(arcNew->msg_id_)
+						<< "错误码" << arcNew->rescode_ << "消息时间戳" << arcNew->msg_timetag_;
+
+					QString error = "发送消息失败！错误代码：" + QString::number(arcNew->rescode_);
+
+					CMessageBox::showMessage(QString("答疑时间"), error, QString("确定"), QString());
+				}
+
 				if (m_WindowSet)
 					m_WindowSet->SendStatus(arcNew);
 

@@ -817,6 +817,7 @@ void UIWindowSet::clickNotice()
 		m_NoticeWnd->DeleteNotice();
 		m_NoticeWnd->show();
 		m_NoticeWnd->setFocus();
+		m_NoticeWnd->setFixedHeight(500);
 		QueryNotice();
 	}
 }
@@ -900,6 +901,7 @@ void UIWindowSet::clickCourse()
 		m_CourseWnd->move(0, 69);
 		m_CourseWnd->show();
 		m_CourseWnd->setFocus();
+		m_CourseWnd->setFixedHeight(500);
 		QueryCourse();
 	}
 }
@@ -1007,6 +1009,7 @@ void UIWindowSet::clickPerson()
 		m_PersonWnd->DeletePerson();
 		m_PersonWnd->show();
 		m_PersonWnd->setFocus();
+		m_PersonWnd->setFixedHeight(500);
 		QueryPerson();
 	}
 }
@@ -1051,6 +1054,7 @@ void UIWindowSet::clickLesson()
 		m_LessonWnd->DeleteLesson();
 		m_LessonWnd->show();
 		m_LessonWnd->setFocus();
+		m_LessonWnd->setFixedHeight(500);
 		QueryLesson();
 	}
 }
@@ -1133,6 +1137,9 @@ void UIWindowSet::returnLesson()
 					m_LessonWnd->AddLesson(QString().sprintf("%02d", iCount), strClassDate, strName, strStatus);
 			}
 		}
+
+		if (iCount != 0 && (iCount*40 < 500))
+			m_LessonWnd->setFixedHeight(iCount * 40+5);
 	}
 	else if (obj["status"].toInt() == 0)
 	{
@@ -1421,6 +1428,9 @@ void UIWindowSet::init1v1()
 
 void UIWindowSet::teacherStatus(bool bEnd)
 {
+	if (m_curTags->IsLiving() == false)
+		return;
+	
 	if (bEnd)
 	{
 		m_Ui1v1->setMuteBoard(true);
@@ -1600,7 +1610,7 @@ void UIWindowSet::status1v1()
 			ui.online_label->setVisible(false);
 //			ui.online_label->setText(QString::number(otoStatus.data.online_users.size()));
 
-			if (!m_curTags->IsLiving())
+			if (m_curTags && !m_curTags->IsLiving())
 			{
 //				stop1v1Status();
 				m_curTags->setLiving(true);

@@ -127,7 +127,7 @@ signals:
 	void joinVChatSuccessfully(bool);
 	void vChatRoomExistence();
 	void joinVChatRoomSuccessfully(const std::string&, __int64, const std::string&);
-	void PeopleStatus(bool); // 成员变化
+	void PeopleStatus(bool);	// 成员变化
 	/****************************************************************音视频设备相关***********************************************************************************/
 	void deviceInfos(int);											//设备已遍历完成   参数为设备类型
 	void startDeviceSuccessfully(int);								//设备启动成功     参数为设备类型
