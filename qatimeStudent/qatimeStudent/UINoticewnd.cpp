@@ -30,10 +30,6 @@ UINoticeWnd::UINoticeWnd(QWidget *parent)
 	 
 	style(ui.scrollArea);
 
-	QFont font = ui.label->font();
-	font.setPixelSize(13);
-	ui.label->setFont(font);
-
 	ui.noDate_label->setStyleSheet("border-image:url(./images/notice.png)");
 }
 
@@ -81,7 +77,6 @@ void UINoticeWnd::focusOutEvent(QFocusEvent* e)
 
 void UINoticeWnd::AddNotic(QString text, QString time)
 {
-	ui.label->setVisible(true);
 	ui.scrollArea->setVisible(true);
 	ui.noDate_label->setVisible(false);
 
@@ -101,6 +96,7 @@ void UINoticeWnd::AddNotic(QString text, QString time)
 	LTime->setText("发布时间：" + time);
 	LTime->setStyleSheet("color:rgb(153,153,153)");
 	LTime->setMaximumWidth(375);
+	LTime->setMaximumHeight(20);
 
 	QLabel* LSpec = new QLabel();
 	LSpec->setFixedHeight(20);
@@ -127,6 +123,8 @@ void UINoticeWnd::AddNotic(QString text, QString time)
 		m_VerAll->addSpacerItem(m_spacer);
 	}
 
+
+	setFixedHeight(LText->height() + LTime->height() + LSpec->height() + 20);
 	setFocus();
 }
 
@@ -228,7 +226,6 @@ void UINoticeWnd::setParentBtn(UIWindowSet* parent)
 
 void UINoticeWnd::initDate()
 {
-	ui.label->setVisible(false);
 	ui.scrollArea->setVisible(false);
 	ui.noDate_label->setVisible(true);
 }

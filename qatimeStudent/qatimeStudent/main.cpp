@@ -5,6 +5,7 @@
 #include <gdiplus.h>
 #include "UIMessageBox.h"
 #include "UIWindowSet.h"
+#include <QDir>
 #include "app_dump.h"
 using namespace Gdiplus;
 
@@ -62,6 +63,17 @@ void outputMessage(QtMsgType type, const QMessageLogContext &context, const QStr
 	mutex.unlock();
 }
 
+void CreateSaveImageDir()
+{
+	QString mImageDirPath;
+	mImageDirPath = QDir::currentPath() + "/catch";
+	QDir mImageDir(mImageDirPath);
+	if (!mImageDir.exists())
+	{
+		mImageDir.mkdir(mImageDirPath);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	HANDLE hMutex = CreateMutex(NULL, TRUE, TEXT("QtStudentLive_Mutex"));
@@ -95,5 +107,13 @@ int main(int argc, char *argv[])
 	w.ReadSetting();
 	w.show();
 
+	try
+	{
+		CreateSaveImageDir();
+	}
+	catch (...)
+	{
+		qDebug() <<__FILE__<<__LINE__<< "fail:CreateSaveImageDir";
+	}
 	return a.exec();
 }

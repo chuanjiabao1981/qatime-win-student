@@ -132,6 +132,8 @@ void UIPersonWnd::AddPerson(std::vector<personListBuddy*> vecBuddy, QString strI
 		}
 	}
 
+	if (vecBuddy.size() != 0 && (vecBuddy.size() * 42<500))
+		setFixedHeight(vecBuddy.size() * 42+15);
 	setFocus();
 }
 

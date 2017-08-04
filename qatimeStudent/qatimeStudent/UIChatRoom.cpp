@@ -110,7 +110,7 @@ UIChatRoom::UIChatRoom(QWidget *parent)
 	ui.timeWidget->setWeekdayTextFormat(Qt::Sunday, format);
 
 	// 消息编辑框粘贴过滤代码
-//	ui.textEdit->setContextMenuPolicy(Qt::NoContextMenu);
+	ui.textEdit->setContextMenuPolicy(Qt::NoContextMenu);
 //	ui.textEdit->setFocusPolicy(Qt::ClickFocus);
 //	ui.textEdit->setFocus(Qt::MouseFocusReason);
 	ui.textEdit->installEventFilter(this);
