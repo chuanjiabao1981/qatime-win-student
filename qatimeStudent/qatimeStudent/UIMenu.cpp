@@ -168,7 +168,7 @@ void UIMenu::checkVersion()
 {
 	QString strUrl;
 	strUrl += g_homePage;
-	strUrl += "/api/v1/system/check_update?=category=student_client&version={version}&platform=windows";
+	strUrl += "/api/v1/system/check_update?category=student_client&version={version}&platform=windows";
 	strUrl.replace("{version}", m_version);
 
 	QUrl url = QUrl(strUrl);
