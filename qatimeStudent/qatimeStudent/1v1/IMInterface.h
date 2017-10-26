@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMap>
 
+#include "nim_cpp_api.h"
 #include "nim_cpp_rts.h"
 #include "nim_cpp_vchat.h"
 
@@ -115,6 +116,7 @@ public:
 	void setFullScreenStatus(bool bopen);
 	bool IsFullScreen();								
 
+	static void OnReceiveSysmsgCallback(const nim::SysMessage& msg);	//接受自定义通知的消息
 signals:
 	/****************************************************************白板相关***********************************************************************************/
 	void createRtsRoomSuccessfully(const std::string&);
@@ -128,6 +130,7 @@ signals:
 	void vChatRoomExistence();
 	void joinVChatRoomSuccessfully(const std::string&, __int64, const std::string&);
 	void PeopleStatus(bool);	// 成员变化
+	void FunctionGetNetState(int); // 实时检测网络状态
 	/****************************************************************音视频设备相关***********************************************************************************/
 	void deviceInfos(int);											//设备已遍历完成   参数为设备类型
 	void startDeviceSuccessfully(int);								//设备启动成功     参数为设备类型

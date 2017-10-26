@@ -557,6 +557,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_UIAboutversion.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ZWeb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ZWeb.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ZWeb.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="loginwindow.h">
@@ -816,6 +825,9 @@
     </CustomBuild>
     <CustomBuild Include="UIAboutversion.ui">
       <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ZWeb.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

@@ -282,6 +282,49 @@ void UITalk::InsertNotice(QString text)
 	}
 }
 
+
+// 插入格式化通知消息等
+void UITalk::InsertOneNotice(QString mText)
+{
+	InsertSpacer();
+
+	QFont font;
+	font.setPixelSize(12);
+	font.setFamily(("微软雅黑"));
+
+	// 第一行（消息）
+	QVBoxLayout* ver = new QVBoxLayout();
+	ver->setSpacing(0);
+
+	QVBoxLayout* FirstRow = new QVBoxLayout();
+	FirstRow->setContentsMargins(30, 0, 30, 0);
+	QLabel* LName = new QLabel();
+	LName->setText(mText);
+	LName->setFont(font);
+	LName->setStyleSheet("color: rgb(153,153,153);border-radius:5px;border-image:url(./images/notice_back.png);"); //字体颜色 
+	LName->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	LName->setWordWrap(true);
+	FirstRow->addWidget(LName);
+
+
+	m_Ver->addLayout(FirstRow);
+	m_Ver->addLayout(ver);
+
+	// 添加到布局里
+	if (m_spacer == NULL)
+	{
+		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_Ver->addSpacerItem(m_spacer);
+	}
+	else
+	{
+		m_Ver->removeItem(m_spacer);
+		m_spacer = NULL;
+		m_spacer = new QSpacerItem(5, 5, QSizePolicy::Minimum, QSizePolicy::Expanding);
+		m_Ver->addSpacerItem(m_spacer);
+	}
+}
+
 // 插入格式化通知消息等
 void UITalk::InsertNewNotice(QString name, QString text)
 {

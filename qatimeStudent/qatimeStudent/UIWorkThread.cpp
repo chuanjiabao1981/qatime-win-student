@@ -26,7 +26,10 @@ Worker::Worker() {
 
 Worker::~Worker()
 {
-	
+	// «Î«ÛÕ£÷π add by zbc 20171016
+	workerThread.requestInterruption();
+	workerThread.quit();
+	workerThread.wait();
 }
 void Worker::SetUrl(QLabel* pic, QString url)
 {

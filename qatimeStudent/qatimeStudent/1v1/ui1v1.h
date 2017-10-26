@@ -37,6 +37,10 @@ public:
 	void    FullResize();
 	void    SetShapeScreen(bool bType);
 	void	SetBoardShowStatus();
+
+public slots:
+	void slot_GetNetState(int);								// 设置实时网络状态
+
 protected:
 	virtual bool eventFilter(QObject *target, QEvent *event);
 
@@ -71,6 +75,7 @@ private slots:
 
 	void StatusTeacher(bool);								// 老师状态
 	void slot_SendFullScreen(bool);
+	void RefreshFrameState();								// 从Web端重新获取当前直播画面
 private:
 	Ui::UI1v1 ui;
 

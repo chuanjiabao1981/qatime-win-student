@@ -121,25 +121,37 @@ OTO_STATUS Course::getOneToOneStatusFromJson(const QJsonObject &json)
 
 STATUS_DATA Course::getStatusDataFromJson(const QJsonObject &json)
 {
-	STATUS_DATA data;
+	STATUS_DATA mData;
+	QString mCamera = "";
+	
 
 	QJsonObject object = json["live_info"].toObject();
-	data.id				= object["id"].toInt();
-	data.board			= object["board"].toInt();
-	data.camera			= object["camera"].toInt();
-	data.t				= object["t"].toInt();	
-	data.name			= object["name"].toString();
-	data.status			= object["status"].toString();
-	data.room_id		= object["room_id"].toString();
+	mCamera = object["camera"].toString();
+	if (mCamera == "1")
+	{
+		mData.camera = 1;
+	}
+	else
+	if (mCamera == "0")
+	{
+		mData.camera = 0;
+	}
+	mData.id		= object["id"].toInt();
+	mData.board		= object["board"].toInt();
+	//mData.camera = object["camera"].toInt();
+	mData.t			= object["t"].toInt();
+	mData.name		= object["name"].toString();
+	mData.status	= object["status"].toString();
+	mData.room_id	= object["room_id"].toString();
 
 	QJsonArray array = json["online_users"].toArray();
 	foreach(const QJsonValue &value, array) {
-		data.online_users.append(value.toString());
+		mData.online_users.append(value.toString());
 	}
 
-	data.timestamp = json["timestamp"].toInt();
+	mData.timestamp = json["timestamp"].toInt();
 
-	return data;
+	return mData;
 }
 
 QString Course::url()

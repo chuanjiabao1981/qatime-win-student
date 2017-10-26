@@ -6,6 +6,11 @@
 #include "UIMessageBox.h"
 #include "UIWindowSet.h"
 #include <QDir>
+
+#include "stdio.h"
+#include "tlhelp32.h"
+#include "windows.h"
+
 #include "app_dump.h"
 using namespace Gdiplus;
 
@@ -74,8 +79,64 @@ void CreateSaveImageDir()
 	}
 }
 
+// 启动时杀死残留进程
+bool KillVedioProcess(LPCTSTR lpProcessName)
+{
+	int mErrorCode = 0;
+	//创建进程快照
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hSnapshot != INVALID_HANDLE_VALUE)
+	{
+		PROCESSENTRY32 pe32 = { 0 };
+		pe32.dwSize = sizeof(pe32);
+		//拿到第一个进程信息
+		if (!Process32First(hSnapshot, &pe32))
+		{
+			CloseHandle(hSnapshot);
+			return true;
+		}
+		do
+		{
+			int nLen = _tcslen(lpProcessName);
+			int nLen2 = _tcslen(pe32.szExeFile);
+			if (nLen != nLen2)
+			{
+				continue;
+			}
+			
+			if (_tcscmp(lpProcessName, pe32.szExeFile) == 0)
+			{				
+				try
+				{
+					HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, false, pe32.th32ProcessID);
+					TerminateProcess(hProcess, 0);
+				}
+				catch (...)
+				{
+					mErrorCode = GetLastError();
+					qDebug() << __FILE__ << __LINE__ << "结束视频进程失败！错误代码：" << mErrorCode;
+					return false;
+				}
+							
+				return true;
+			}
+		} while (Process32Next(hSnapshot, &pe32));
+	}
+	return true;
+	
+}
+
 int main(int argc, char *argv[])
 {
+	if (KillVedioProcess(L"CMSVideo.exe") == false)
+	{
+		return 0;
+	}
+	if (KillVedioProcess(L"CVideo.exe") == false)
+	{
+		return 0;
+	}
+
 	HANDLE hMutex = CreateMutex(NULL, TRUE, TEXT("QtStudentLive_Mutex"));
 	//已存在互斥量说明在运行  
 	if (ERROR_ALREADY_EXISTS == GetLastError())

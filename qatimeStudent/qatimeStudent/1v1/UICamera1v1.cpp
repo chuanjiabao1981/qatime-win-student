@@ -8,7 +8,7 @@ ST_NLSS_VIDEO_SAMPLER UICamera1v1::m_SvideoSampler;
 UICamera1v1::UICamera1v1(QWidget *parent)
 	: QWidget(parent)
 	, m_pBkImage(NULL)
-	, m_bEndVideo(false)
+	, m_bEndVideo(true)
 {
 	ui.setupUi(this);
 
@@ -45,7 +45,8 @@ void UICamera1v1::paintEvent(QPaintEvent*)
 		QPainter p(this);
 		p.setPen(QColor(0x8099be));
 
-		if (m_SvideoSampler.iDataSize > 0 && !m_bEndVideo)
+		// 修改为，成员进入时，显示成员图像 m_bEndVideo modify by zbc 20170823
+		if (m_SvideoSampler.iDataSize > 0 && m_bEndVideo)
 		{
 			QImage qimage;
 			m_mutex.lock();
@@ -97,7 +98,8 @@ void UICamera1v1::setBkImage(QString qsImage)
 
 void UICamera1v1::StartEndVideo(bool bEndVideo)
 {
-	m_bEndVideo = bEndVideo;
+	//m_bEndVideo = bEndVideo;
+	m_bEndVideo = true;
 }
 
 void UICamera1v1::mouseDoubleClickEvent(QMouseEvent* e)

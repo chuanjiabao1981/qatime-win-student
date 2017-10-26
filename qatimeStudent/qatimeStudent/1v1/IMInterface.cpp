@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QImage>
+#include "json.h"
+
 #define ERROR_INFO(code, error_string) QString("%1	错误代码：%2").arg(error_string).arg(code)
 
 using namespace nim;
@@ -37,6 +39,7 @@ IMInterface::IMInterface(QObject *parent)
 	mVChatInitSuccess = false;
 	m_bFullStatus = false;
 	mLastError = "无错误";
+	
 }
 
 IMInterface::~IMInterface()
@@ -84,6 +87,7 @@ void IMInterface::initRtsCallback()
 	Rts::SetRecDataCb(&CallbackRecData);
 	Rts::SetControlNotifyCb(&CallbackControlNotify);
 	Rts::SetSyncAckNotifyCb(&CallbackSyncAckNotify);
+	
 }
 
 void IMInterface::createRtsRoom(const std::string &name, const std::string &custom_info/* = ""*/)
@@ -153,6 +157,7 @@ void IMInterface::initVChatCallback()
 	VChat::SetAudioDataCb(true, &CallbackAudioCaptureData);
 	VChat::SetAudioDataCb(false, &CallbackAudioRecData);
 	VChat::SetCbFunc(&CallbackVChatCb);
+	nim::SystemMsg::RegSysmsgCb(std::bind(&OnReceiveSysmsgCallback, std::placeholders::_1));
 }
 
 void IMInterface::createVChatRoom(const std::string &name, const std::string &custom_info /* = "" */)
@@ -163,13 +168,26 @@ void IMInterface::createVChatRoom(const std::string &name, const std::string &cu
 
 void IMInterface::joinVChatRoom(int chatMode, const std::string &name, const std::string &json_extension /* = "" */)
 {
+	std::string json_value = json_extension;
+	//if (m_LessonType == d_1V1Lesson)
+	{
+		Json::FastWriter fs;
+		Json::Value value;
+		value[nim::kNIMVChatSessionId] = "";
+		value[nim::kNIMVChatRtmpUrl] = "";
+		value[nim::kNIMVChatBypassRtmp] = 1;	// 开启互动直播功能
+		value[nim::kNIMVChatRtmpRecord] = 1;
+		value[nim::kNIMVChatAudioHighRate] = 1;
+		value[nim::kNIMVChatSplitMode] = "";
+		json_value = fs.write(value);
+	}
 	switch (chatMode)
 	{
 	case 1:
-		VChat::JoinRoom(kNIMVideoChatModeAudio, name, json_extension, &CallbackOpt2Call);
+		VChat::JoinRoom(kNIMVideoChatModeAudio, name, json_value, &CallbackOpt2Call);
 		break;
 	case 2:
-		VChat::JoinRoom(kNIMVideoChatModeVideo, name, json_extension, &CallbackOpt2Call);
+		VChat::JoinRoom(kNIMVideoChatModeVideo, name, json_value, &CallbackOpt2Call);
 		break;
 	default:
 		break;
@@ -400,13 +418,16 @@ void CallbackMemberNotify(const std::string& session_id, int channel_type, const
 {
 	if (session_id == IMInterface::getInstance()->getSessionID())
 	{
-		if (channel_type == kNIMRtsMemberStatusJoined)
+		if (code == kNIMRtsMemberStatusJoined)
 		{
 			//成员进入，此时可以在tcp通道发送数据
+			qDebug() << __FILE__ << __LINE__ << QString::fromStdString(uid) << code << "成员进入";
 		}
-		else if (channel_type == kNIMRtsMemberStatusLeaved)
+		else if (code == kNIMRtsMemberStatusLeaved)
 		{
-			emit IMInterface::getInstance()->PeopleStatus(true);
+			qDebug() << __FILE__ << __LINE__ << QString::fromStdString(uid) << code << "成员离开";
+			// 成员离开时，返回false
+			emit IMInterface::getInstance()->PeopleStatus(false);
 		}
 	}
 }
@@ -448,19 +469,53 @@ void CallbackRecData(const std::string& session_id, int channel_type, const std:
 
 				if (pointInfo.size() >= 4)
 				{
+					// 暂时去掉白板接收切换消息 add by zbc 20170826
 					QString status = pointInfo.at(3);
+					/*
 					if (status == "desktop")
 						IMInterface::getInstance()->setFullScreenStatus(true);
 					else
 						IMInterface::getInstance()->setFullScreenStatus(false);
 
 					emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
+					*/
 				}
 			}
 		}
 
 		emit IMInterface::getInstance()->rtsDataReceived(data);
 	}	
+}
+
+void IMInterface::OnReceiveSysmsgCallback(const nim::SysMessage& msg)
+{
+	int i = 0;
+	
+	if (msg.type_ == nim::kNIMSysMsgTypeCustomTeamMsg)
+	{
+		Json::Value json;
+		Json::Reader reader;
+		reader.parse(msg.attach_, json);
+		if (json.isObject())
+		{
+			if (json.isMember("SwitchVedioObject"))
+			{
+				std::string mShowObject = json["SwitchVedioObject"].asString();
+				qDebug() << __FILE__ << __LINE__ << "IM接收切屏消息：" << QString::fromStdString(mShowObject);
+				
+				if (mShowObject == "Board")
+				{
+					IMInterface::getInstance()->setFullScreenStatus(false);
+				}
+				else
+				{
+					IMInterface::getInstance()->setFullScreenStatus(true);
+				}
+				emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
+			}
+			return;
+		}
+	}
 }
 
 void IMInterface::setFullScreenStatus(bool bopen)
@@ -472,6 +527,9 @@ bool IMInterface::IsFullScreen()
 {
 	return m_bFullStatus;
 }
+
+
+
 
 void CallbackNetDetect(int code, nim::NetDetectCbInfo info)
 {
@@ -560,16 +618,21 @@ void CallbackVChatCb(nim::NIMVideoChatSessionType type, __int64 channel_id, int 
 	case nim::kNIMVideoChatSessionTypePeopleStatus:{
 		if (code == nim::kNIMVideoChatSessionStatusJoined)
 		{
-			emit IMInterface::getInstance()->PeopleStatus(false);
+			// 修改为成员进入时，传入true	modify by zbc 20170823
+			emit IMInterface::getInstance()->PeopleStatus(true);
 			return;
 		}
 		else if (code == nim::kNIMVideoChatSessionStatusLeaved)
 		{
-			emit IMInterface::getInstance()->PeopleStatus(true);
+			// 修改为成员离开时，传入false	modify by zbc 20170823
+			emit IMInterface::getInstance()->PeopleStatus(false);
 			return;
 		}
 	}break;
-	case nim::kNIMVideoChatSessionTypeNetStatus:{
+	// 网络实时状况反馈
+	case nim::kNIMVideoChatSessionTypeNetStatus:
+	{
+		emit IMInterface::getInstance()->FunctionGetNetState(code);
 	}break;
 	case nim::kNIMVideoChatSessionTypeHangupRes:{
 	}break;

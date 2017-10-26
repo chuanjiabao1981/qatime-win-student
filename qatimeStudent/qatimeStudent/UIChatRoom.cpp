@@ -10,6 +10,7 @@
 #include <QScrollBar>
 #include <QProcessEnvironment>
 #include "zoom_image.h"
+#include "ZPublicDefine.h"
 //#include "define.h"
 
 #include "define.h"
@@ -865,6 +866,26 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 	}
 	else if (pMsg->type_ == nim::kNIMMessageTypeCustom)
 	{
+		std::string strAttach = pMsg->attach_;
+		std::string mLiveState;
+		if (pMsg->attach_ != "")
+		{
+			Json::Value mJson;
+			Json::Reader mReader;
+			if (mReader.parse(pMsg->attach_, mJson))
+			{
+				mLiveState = mJson["event"].asCString();
+				if (mLiveState == "start")
+				{
+					m_uitalk->InsertOneNotice("直播开始");
+				}
+				else
+				if (mLiveState == "close")
+				{
+					m_uitalk->InsertOneNotice("直播结束");
+				}
+			}
+		}
 		std::string strContent = pMsg->content_;
 		std::string strFullScreenC = "PublishPlayStatus:board";
 		std::string strFullScreenO = "PublishPlayStatus:desktop";
@@ -967,9 +988,15 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 		std::string msgid;	// 当前消息ID
 		Json::Value values;
 		Json::Reader reader;
+		std::string mTempPath;	// 用于存储前一个语音的MD5值
 		if (reader.parse(pMsg->attach_, values) && values.isObject())
 		{
 			path = values["md5"].asString();
+			// IM会重复发送多条语音消息过来，这边对于重复的语音做忽略处理 add by zbc 20171026
+			if (path == mTempPath)
+			{
+				return bValid;
+			}
 			path = m_AudioPath + path;
 			sid = pMsg->local_talk_id_;
 			msgid = pMsg->client_msg_id_;
@@ -991,7 +1018,7 @@ bool UIChatRoom::ReceiverMsg(nim::IMMessage* pMsg)
 		Buddy = ui.student_list->findID(QString::fromStdString(strID));
 		if (Buddy)
 			img = (QPixmap*)Buddy->head->pixmap();
-
+		mTempPath = path;
 		bool bTeacher = false;
 		if (strcmp(strID.c_str(), m_CurTeacherID.toStdString().c_str()) == 0)
 		{
@@ -1226,6 +1253,7 @@ void UIChatRoom::ShowMsg(nim::IMMessage pMsg)
 	// 跨天处理
 	stepDays(QDateTime::fromMSecsSinceEpoch(pMsg.timetag_));
 
+
 	// 判断当前过来的消息，是不是此会话窗口
 	if (pMsg.type_ == nim::kNIMMessageTypeText)
 	{
@@ -1388,9 +1416,15 @@ void UIChatRoom::setCurChatID(QString chatID, QString courseid, QString teacheri
 	m_UnreadCount = UnreadCount;
 
 	if (b1v1)
+	{
 		Request1v1Member();
+		m_LessonType = d_1V1Lesson;
+	}
 	else
+	{
 		RequestMember();
+		m_LessonType = d_AuxiliryLesson;
+	}	
 }
 
 void UIChatRoom::ReceiverLoginMsg(nim::LoginRes pRes)
@@ -1676,7 +1710,15 @@ void UIChatRoom::QueryMember()
 {
 	QString strUrl;
 	strUrl += g_homePage;
-	strUrl += "/api/v1/live_studio/courses/{id}/realtime";
+	if (m_LessonType == d_1V1Lesson)
+	{
+		strUrl += "/api/v1/live_studio/interactive_courses/{id}/realtime";
+	}
+	else
+	if (m_LessonType == d_AuxiliryLesson)
+	{
+		strUrl += "/api/v1/live_studio/courses/{id}/realtime";
+	}
 	strUrl.replace("{id}", m_CurCourseID);
 	
 	QUrl url = QUrl(strUrl);

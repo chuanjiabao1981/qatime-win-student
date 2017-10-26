@@ -44,8 +44,8 @@ void UICameraS1v1::paintEvent(QPaintEvent*)
 	{
 		QPainter p(this);
 		p.setPen(QColor(0x8099be));
-
-		if (m_SvideoSampler.iDataSize > 0 && !m_bEndVideo)
+		// 修改为，成员进入时，显示成员图像 m_bEndVideo modify by zbc 20170823
+		if (m_SvideoSampler.iDataSize > 0 && m_bEndVideo)
 		{
 			QImage qimage;
 			m_mutex.lock();

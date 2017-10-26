@@ -51,6 +51,7 @@ public:
 	void InsertAudioChat(QPixmap* head, QString name, QString time, QString text, std::string path,
 		std::string sid, std::string msgid, nim::IMMessage msg, bool bTeacher = true, bool bRead = false);  // 插入语音聊天
 	void InsertNotice(QString text);												// 消息通知
+	void InsertOneNotice(QString mText);											// 插入单行的消息，应用直播开启关闭
 	void InsertNewNotice(QString name, QString text);								// 插入公告
 	void InsertPic(QPixmap* head, QString name, QString time, QString URL, QString sMsgID="", bool bTeacher = true);	// 插入图片
 	void InsertPicUrl(QPixmap* head, QString name, QString time, QString URL, QString sMsgID = "", bool bTeacher = true);	// 插入图片

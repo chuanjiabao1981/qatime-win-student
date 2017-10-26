@@ -77,7 +77,7 @@ UIAuxiliaryWnd::UIAuxiliaryWnd(QWidget *parent)
 
 	m_pWorker = new Worker();
 	connect(this, SIGNAL(sig_StartLoading()), m_pWorker, SLOT(slot_StartLoading()));
-	connect(this, SIGNAL(sig_Close()), m_pWorker, SLOT(slot_Close()));
+	connect(this, SIGNAL(sig_Close()), m_pWorker, SLOT(slot_Close()), Qt::DirectConnection);
 
 	int iWidth = QApplication::desktop()->width();
 	int iHeight = QApplication::desktop()->height();

@@ -147,7 +147,7 @@ void UIMainWindow::LessonRequestFinished()
 //			curTime = "2017-03-01";
 			if (lesson->Date() == curTime)
 			{
-				if (m_AuxiliaryWnd)
+	 			if (m_AuxiliaryWnd)
 					m_AuxiliaryWnd->AddTodayAuxiliary(lesson->name(), lesson->CourseID(), lesson->CourseName(), lesson->LessonTime(), lesson->ChinaLessonStatus(),lesson->Is1v1());
 
 				iCount++;
@@ -232,6 +232,8 @@ void UIMainWindow::ShowAuxiliary()
 
 	QByteArray append("?per_page=");
 	append += "100";
+	// 查询带试听课的
+	append += "&with_taste=true";
 
 	strUrl += append;
 	QUrl url = QUrl(strUrl);
@@ -358,7 +360,7 @@ bool UIMainWindow::nativeEvent(const QByteArray &eventType, void *message, long 
 			MSG* Msg = pMsg;
 			m_hBoardWnd = (HWND)Msg->wParam;
 			m_WindowSet->setBoardHwnd(m_hBoardWnd);
-
+			qDebug() << __FILE__ << __LINE__ << "创建白板句柄" << m_hBoardWnd;
 			
 			m_BoardTimer->start(400);
 		}
@@ -368,7 +370,7 @@ bool UIMainWindow::nativeEvent(const QByteArray &eventType, void *message, long 
 			MSG* Msg = pMsg;
 			m_hCameraWnd = (HWND)Msg->wParam;
 			m_WindowSet->setCameraHwnd(m_hCameraWnd);
-			
+			qDebug() << __FILE__ << __LINE__ << "创建摄像头句柄" << m_hCameraWnd;
 			m_CameraTimer->start(200);
 		}
 		break;
@@ -687,3 +689,4 @@ void UIMainWindow::SetEnvironmental(bool bType)
 {
 	g_environmentType = bType;
 }
+

@@ -98,7 +98,7 @@ private:
 	int								m_drawingWidth;		// 拉动改变的宽度
 	bool							m_bClickPic;		// 当前是否点击图片
 	std::string						m_AudioPath;		// 语音消息路径
-
+	int								m_LessonType;		// 当前房间直播类型
 public:
 	/****************语音进度条***************************************/
 	UIAudioBar*						m_AudioBar;			// 语音进度条窗口

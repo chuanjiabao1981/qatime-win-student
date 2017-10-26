@@ -93,6 +93,7 @@ public:
 	static void OnLoginCallback(const nim::LoginRes& login_res, const void* user_data);
 	static void OnMultispotLoginCallback(const nim::MultiSpotLoginRes& res);
 	static void OnKickoutCallback(const nim::KickoutRes& res);
+	
 	/**
 	* 停止播放语音消息的回调
 	* @param[in] code 返回码

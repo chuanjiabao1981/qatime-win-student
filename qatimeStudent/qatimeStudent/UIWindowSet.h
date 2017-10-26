@@ -126,6 +126,7 @@ private slots :
 	void slot_joinRoomFail();					// 加入房间失败，重新轮询
 public slots :
 	void clickChange(bool);						// 改变模式
+	void RefreshFrameState();					// 从Web端重新获取当前直播画面
 protected:
 	virtual void paintEvent(QPaintEvent *event);
 	virtual bool eventFilter(QObject *target, QEvent *event);

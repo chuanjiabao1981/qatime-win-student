@@ -28,6 +28,8 @@
 #include "1v1/UIAppWndTool.h"
 #include "1v1/ui1v1.h"
 
+#include "IMInterface.h"
+
 #define MAINWINDOW_X_MARGIN 10
 #define MAINWINDOW_Y_MARGIN 10
 #define MAINWINDOW_TITLE_HEIGHT 0
@@ -38,6 +40,7 @@
 extern bool g_environmentType;	// 环境类型		true为生产环境		false为测试环境  默认为true
 extern QString g_remeberToken;
 extern QString g_homePage;
+int m_PublicCameraStatus;	// 1v1直播时，摄像头状态（1打开，0关闭），用于判断教师是否进行了白板和桌面的切换
 
 UIWindowSet* m_This = NULL;
 UIWindowSet::UIWindowSet(QWidget *parent)
@@ -138,12 +141,17 @@ UIWindowSet::UIWindowSet(QWidget *parent)
 
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(status1v1()));
+	m_timer->start(3000);
 
 	ui.notice_pushButton->setStyleSheet("border-image: url(./images/notice_nor.png);");
 	ui.lesson_pushButton->setStyleSheet("border-image: url(./images/lessonBtn_nor.png);");
 	ui.course_pushButton->setStyleSheet("border-image: url(./images/courseBtn_nor.png);");
 	ui.person_pushButton->setStyleSheet("border-image: url(./images/personBtn_nor.png);");
 	ui.pic_label->setStyleSheet("border-image: url(./images/online.png);");
+
+
+	m_PublicCameraStatus = 1; // 默认1v1直播时，教师端摄像头为开启状态
+	connect(m_Ui1v1, SIGNAL(m_Ui1v1->ui.btn_GetFrameState->clicked()), this, SLOT(slot_onTimeout()));
 }
 
 UIWindowSet::~UIWindowSet()
@@ -1428,10 +1436,11 @@ void UIWindowSet::init1v1()
 
 void UIWindowSet::teacherStatus(bool bEnd)
 {
+	
 	if (m_curTags->IsLiving() == false)
 		return;
-	
-	if (bEnd)
+	// 修改为如果bEnd = false，让学生重新连入房间 modify by zbc 20170823
+	if (!bEnd)
 	{
 		m_Ui1v1->setMuteBoard(true);
 
@@ -1601,7 +1610,7 @@ void UIWindowSet::status1v1()
 		QJsonDocument document(QJsonDocument::fromJson(byteArray));
 		QJsonObject obj = document.object();
 
-		ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
+		ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj); 
 
 		if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty() && otoStatus.data.status=="teaching")
 		{
@@ -1629,8 +1638,8 @@ void UIWindowSet::status1v1()
 	{
 		QString strUrl;
 		strUrl += g_homePage;
-		strUrl += "/api/v1/live_studio/courses/{interactive_course_id}/status";
-		strUrl.replace("{interactive_course_id}", m_course_id1v1);
+		strUrl += "/api/v1/live_studio/courses/{course_id}/status";
+		strUrl.replace("{course_id}", m_course_id1v1);
 
 		HttpRequest httpRequest;
 		httpRequest.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
@@ -1651,6 +1660,7 @@ void UIWindowSet::status1v1()
 			ui.pic_label->setVisible(true);
 			ui.online_label->setVisible(true);
 			ui.online_label->setText(QString::number(otoStatus.data.online_users.size()));
+			
 		}
 		else
 		{
@@ -1658,6 +1668,7 @@ void UIWindowSet::status1v1()
 			ui.pic_label->setVisible(false);
 			ui.online_label->setVisible(false);
 		}
+		
 	}
 }
 
@@ -1932,4 +1943,50 @@ void UIWindowSet::OnStopCaptureCallback(int rescode, const char* sid, const char
 		if (m_This->m_parent)
 			PostMessage((HWND)m_This->m_parent->winId(), MSG_SEND_AUDIO_FINISH_MSG, (WPARAM)audio, 0);
 	}
+}
+
+
+
+
+// 手动获取当前直播画面
+void UIWindowSet::RefreshFrameState()
+{
+	// 如果当前页面不是在直播室模式，则不查询
+	if (m_curTags == NULL || m_curChatRoom == NULL || !m_curTags->IsModle())
+		return;
+	// 设置当前界面辅导班ID
+	m_course_id1v1 = m_curChatRoom->GetCourseID();
+	QString strUrl;
+	strUrl += g_homePage;
+	strUrl += "/api/v1/live_studio/interactive_courses/{interactive_course_id}/live_status";
+	strUrl.replace("{interactive_course_id}", m_course_id1v1);
+
+	
+	HttpRequest httpRequest;
+	httpRequest.setRawHeader("Remember-Token", g_remeberToken.toUtf8());
+	QByteArray byteArray = httpRequest.httpGet(strUrl);
+	if (m_curChatRoom && m_course_id1v1 != m_curChatRoom->GetCourseID())
+			return;
+
+	QJsonDocument document(QJsonDocument::fromJson(byteArray));
+	QJsonObject obj = document.object();
+	ONETOONE_STATUS otoStatus = Course::getOneToOneStatusFromJson(obj);
+	if (m_Ui1v1 && !otoStatus.data.room_id.isEmpty() && otoStatus.data.status == "teaching")
+	{
+		m_PublicCameraStatus = otoStatus.data.camera;
+	}
+	else
+	{
+		return;
+	}
+	if (m_PublicCameraStatus == 0)
+	{
+		IMInterface::getInstance()->setFullScreenStatus(true);
+	}
+	else
+	if (m_PublicCameraStatus == 1)
+	{
+		IMInterface::getInstance()->setFullScreenStatus(false);
+	}
+	emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
 }

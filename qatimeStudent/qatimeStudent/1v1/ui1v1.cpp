@@ -13,11 +13,12 @@
 #include "1v1/UIVideo1v1.h"
 #include "1v1/UIAppWnd.h"
 #include "1v1/UIAppWndTool.h"
+#include "ZWeb.h"
 
 #define Audio 0		//音频设备
 #define AudioOut 2	//扬声器
 #define Video 3		//视频设备
-#define VIDEO_FPS 50  
+#define VIDEO_FPS 30  
 
 UI1v1::UI1v1(QWidget *parent)
 	: QWidget(parent)
@@ -66,11 +67,15 @@ void UI1v1::InitSetParamWnds()
 	 		"QCheckBox::indicator:checked{image: url(./images/camera_close.png);}");
 	 	ui.video1v1_pushButton->setStyleSheet("QPushButton{border-image:url(./images/Arrow.png);}");
 	 
-	 	// 设置设置扬声器样式
-	 	ui.AudioOut_checkBox->setStyleSheet("QCheckBox::indicator{width: 29px;height: 19px;}"
+	 	// 设置扬声器样式
+	 	ui.AudioOut_checkBox->setStyleSheet("QCheckBox::inicatdor{width: 29px;height: 19px;}"
 	 		"QCheckBox::indicator:unchecked{image: url(./images/audioout_open.png);}"
 	 		"QCheckBox::indicator:checked{image: url(./images/audioout_close.png);}");
 	 	ui.AudioOut_pushButton->setStyleSheet("QPushButton{border-image:url(./images/Arrow.png);}");
+
+		// 设置手动获取直播状态样式
+		ui.btn_GetFrameState->setStyleSheet("QPushButton{border-image:url(./images/refresh.png);}");
+		ui.btn_GetFrameState->setToolTip("刷新当前教师直播画面！");
 	 
 	 	connect(ui.Audio1v1_checkBox, SIGNAL(stateChanged(int)), this, SLOT(Audio1v1Status(int)));
 	 	connect(ui.Audio1v1_pushButton, SIGNAL(clicked()), this, SLOT(clickAudio1v1Param()));
@@ -78,6 +83,7 @@ void UI1v1::InitSetParamWnds()
 	 	connect(ui.video1v1_pushButton, SIGNAL(clicked()), this, SLOT(clickVideo1v1Param()));
 	 	connect(ui.AudioOut_checkBox, SIGNAL(stateChanged(int)), this, SLOT(AudioOut1v1Status(int)));
 	 	connect(ui.AudioOut_pushButton, SIGNAL(clicked()), this, SLOT(clickAudioOut1v1Param()));
+		connect(ui.btn_GetFrameState, SIGNAL(clicked()), this->parent(), SLOT(RefreshFrameState()));
 }
 
 //初始化白板
@@ -141,6 +147,8 @@ void UI1v1::initConnection()
 	connect(instance, SIGNAL(sig_SendFullScreen(bool)), this, SLOT(slot_SendFullScreen(bool)));
 
 	connect(instance, SIGNAL(PeopleStatus(bool)), this, SLOT(StatusTeacher(bool)));
+	// 关联网络状态信号槽
+	connect(instance, SIGNAL(FunctionGetNetState(int)), this, SLOT(slot_GetNetState(int)));
 }
 
 void UI1v1::setAudioChange1v1(QString path)
@@ -242,7 +250,8 @@ void UI1v1::slot_SendFullScreen(bool iOpen)
 	FullResize();
 	if (this->isVisible())
 		m_WhiteBoardTool->setVisible(!iOpen);
-	emit sig_cameraStatus(iOpen);
+	// modify by zbc 20170823
+	emit sig_cameraStatus(!iOpen);
 }
 
 void UI1v1::ExitVChat()
@@ -423,7 +432,7 @@ void UI1v1::ModleChange(bool bModle)
 		if (!ui.video1v1_checkBox->isChecked())
 		{
 			dPath = m_VideoChangeInfo1v1->GetCurPath();
-			IMInterface::getInstance()->startDevice(Video, dPath.toStdString(), 0, 0, 0);
+			IMInterface::getInstance()->startDevice(Video, dPath.toStdString(), 30, 0, 0);
 		}
 		if (!ui.AudioOut_checkBox->isChecked())
 		{
@@ -502,7 +511,7 @@ void UI1v1::setMuteBoard(bool bMute)
 
 void UI1v1::StatusTeacher(bool bEnd)
 {
-	if (bEnd)
+	if (!bEnd)
 		SetBoardShowStatus();
 	
 	emit teacherStatus(bEnd);
@@ -517,4 +526,50 @@ void UI1v1::SetShapeScreen(bool bType)
 {
 	IMInterface::getInstance()->setFullScreenStatus(bType);
 	emit IMInterface::getInstance()->sig_SendFullScreen(IMInterface::getInstance()->IsFullScreen());
+}
+
+
+// 根据网络实时状态设置图标
+void UI1v1::slot_GetNetState(int mState)
+{
+	switch (mState)
+	{
+	case nim::kNIMVideoChatSessionNetStatVeryGood:
+	{
+		ui.label_NetState->setText("良好");
+		ui.label_NetState->setStyleSheet("color: rgb(0, 255, 0);");
+		ui.label_NetState->setToolTip("网络良好，可顺畅直播");
+		break;
+	}
+	case nim::kNIMVideoChatSessionNetStatGood:
+	{
+		ui.label_NetState->setText("一般");
+		ui.label_NetState->setStyleSheet("color: rgb(255, 185, 15);");
+		ui.label_NetState->setToolTip("网络一般，直播可能出现卡顿");
+		break;
+	}
+	case nim::kNIMVideoChatSessionNetStatBad:
+	{
+		ui.label_NetState->setText("较差");
+		ui.label_NetState->setStyleSheet("color: rgb(205, 38, 38);");
+		ui.label_NetState->setToolTip("网络较差，直播可能出现黑屏");
+		break;
+	}
+	case nim::kNIMVideoChatSessionNetStatVeryBad:
+	{
+		ui.label_NetState->setText("很差");
+		ui.label_NetState->setStyleSheet("color: rgb(255, 0, 0);");
+		ui.label_NetState->setToolTip("网络很差，直播可能会断开连接");
+		break;
+	}
+	}
+}
+
+// 手动获取当前直播画面
+void UI1v1::RefreshFrameState()
+{
+	ZWeb *mWeb = new ZWeb;
+
+
+	delete mWeb;
 }
