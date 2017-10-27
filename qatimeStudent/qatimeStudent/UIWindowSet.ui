@@ -829,7 +829,7 @@ border-image: url(:/LoginWindow/images/alpha.png);text-align : left;</string>
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">border-image: url(:/LoginWindow/images/camera_1.png);</string>
+              <string notr="true">border-image: url(:/LoginWindow/images/camera_2.png);</string>
              </property>
             </widget>
            </item>
