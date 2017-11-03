@@ -328,7 +328,22 @@ void UIMainWindow::setKeyAndLogin(QString key)
 
 void UIMainWindow::OnLoginCallback(const nim::LoginRes& login_res, const void* user_data)
 {
-	m_This->m_WindowSet->ReceiverLoginMsg(login_res);
+	if (login_res.res_code_ == nim::kNIMResSuccess) // 登录成功
+	{
+		if (login_res.login_step_ == nim::kNIMLoginStepLogin)
+		{
+			qDebug() << __FILE__ << __LINE__ << "云信登陆成功！";
+			m_This->m_WindowSet->ReceiverLoginMsg(login_res);
+		}
+	}
+	else
+	{
+		int ErrorCode = login_res.res_code_;
+		QString sError = "云信登录失败，错误码";
+		sError += QString::number(ErrorCode);
+		CMessageBox::showMessage(QString("答疑时间"), QString(sError), QString("确定"), QString("取消"));
+	}
+	
 }
 //多端
 void UIMainWindow::OnMultispotLoginCallback(const nim::MultiSpotLoginRes& res)
@@ -603,8 +618,30 @@ void UIMainWindow::OnStopAudioCallback(int code, const char* file_path, const ch
 
 void UIMainWindow::returnClick()
 {
+	//结束线程
+	if (m_AuxiliaryWnd)
+	{
+		emit m_AuxiliaryWnd->sig_Close();
+		
+	}
 	if (m_LoginWindow)
+	{
+		//nim::Client::Logout(nim::kNIMLogoutAppExit, &UIMainWindow::OnLogoutCallback);
 		m_LoginWindow->ReturnLogin();
+	}
+		
+}
+
+void UIMainWindow::OnLogoutCallback(nim::NIMResCode res_code)
+{
+	if (res_code == 200)
+	{
+		qDebug() << "客户端退出成功！";
+	}
+	else
+	{
+		qDebug() << "客户端退出失败！错误代码：" << res_code;
+	}
 }
 
 void UIMainWindow::CreateRoom(QString chatID, QString courseID, QString teacherID, QString studentName, std::string audioPath, QString courseName, int UnreadCount, QString status, bool b1v1Lesson)
@@ -669,6 +706,7 @@ void UIMainWindow::CloseDialog()
 		m_LoginWindow->CloseTray();
 
 	nim_audio::Audio::Cleanup();
+	//nim::VChat::Cleanup();	//关闭聊天消息接收 add by zbc 20171030
 	nim::Client::Cleanup();
 	exit(0);
 }

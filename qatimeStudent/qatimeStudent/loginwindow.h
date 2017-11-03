@@ -52,6 +52,9 @@ private slots :
 	void CloseWindow();
 	void ReturnAccount();
 
+
+	
+
 private:
 	void loginFinished();		// 登陆完成的返回事件
 
@@ -92,6 +95,7 @@ public:
 	QString parse(QString str);	// 解析密码
 	void SetEnvironmental();	// 设置当前环境
 	void Logining(bool bLogining); // 正在登陆中
+	
 };
 
 #endif // LOGINWINDOW_H

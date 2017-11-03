@@ -6,6 +6,7 @@
 #include "UIMessageBox.h"
 #include "UIWindowSet.h"
 #include <QDir>
+#include <QProcess>
 
 #include "stdio.h"
 #include "tlhelp32.h"
@@ -126,6 +127,7 @@ bool KillVedioProcess(LPCTSTR lpProcessName)
 	
 }
 
+
 int main(int argc, char *argv[])
 {
 	if (KillVedioProcess(L"CMSVideo.exe") == false)
@@ -168,6 +170,7 @@ int main(int argc, char *argv[])
 	w.ReadSetting();
 	w.show();
 
+
 	try
 	{
 		CreateSaveImageDir();
@@ -176,5 +179,15 @@ int main(int argc, char *argv[])
 	{
 		qDebug() <<__FILE__<<__LINE__<< "fail:CreateSaveImageDir";
 	}
-	return a.exec();
+	//return a.exec();
+	
+	int ret = a.exec();
+	if (ret == 773)
+	{
+		CloseHandle(hMutex);
+		bool mstate = QProcess::startDetached(a.applicationFilePath(), QStringList());
+		return 0;
+	}
+	return ret;
+	
 }

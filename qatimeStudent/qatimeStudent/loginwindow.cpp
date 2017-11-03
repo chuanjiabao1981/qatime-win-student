@@ -11,6 +11,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 
+
 extern QString g_remeberToken;
 extern QString g_homePage;
 TCHAR m_pathHomePage[MAX_PATH] = {0};
@@ -251,8 +252,10 @@ void LoginWindow::MinDialog()
 
 void LoginWindow::CloseDialog()
 {
-	close();
+	close();	
 }
+
+
 
 void LoginWindow::ReadSetting()
 {
@@ -361,9 +364,13 @@ void LoginWindow::ReturnLogin()
 	{
 		delete mainWin;
 		mainWin = NULL;
-	}
-	this->show();
+	}	
+	
+	//this->CloseDialog();
+	QApplication::exit(773);
 }
+
+
 
 bool LoginWindow::IsAutoLogin()
 {

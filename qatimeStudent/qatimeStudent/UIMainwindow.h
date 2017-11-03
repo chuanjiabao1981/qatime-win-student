@@ -90,9 +90,10 @@ public:
 	void    InitAudio();									// 初始化语音
 	void    RequestKey();									// 请求Key
 	void	setKeyAndLogin(QString key);					// 获取Key							
-	static void OnLoginCallback(const nim::LoginRes& login_res, const void* user_data);
+	static void OnLoginCallback(const nim::LoginRes& login_res, const void* user_data); // 登录云信回调
 	static void OnMultispotLoginCallback(const nim::MultiSpotLoginRes& res);
 	static void OnKickoutCallback(const nim::KickoutRes& res);
+	static void OnLogoutCallback(nim::NIMResCode res_code);	// 退出云信回调
 	
 	/**
 	* 停止播放语音消息的回调

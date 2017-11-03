@@ -1731,7 +1731,7 @@ void CallbackReceiveMsg(const nim::IMMessage& msg)
 	PostMessage(m_This->GetParentWnd(), MSG_CLIENT_RECEIVE, (WPARAM)pMsg, 0);
 }
 
-// 发送消息回调
+// 发送消息回调z
 void CallbackSendMsgArc(const nim::SendMessageArc& arc)
 {
 	nim::SendMessageArc* arcNew = new nim::SendMessageArc;
@@ -1745,7 +1745,15 @@ void CallbackSendMsgArc(const nim::SendMessageArc& arc)
 
 HWND UIWindowSet::GetParentWnd()
 {
-	return (HWND)m_parent->winId();
+	if (m_parent != NULL)
+	{
+		return (HWND)m_parent->winId();
+	}
+	else
+	{
+		return NULL;
+	}
+	
 }
 
 /***************************************************************************/
