@@ -903,10 +903,9 @@ void UITalk::slot_AudioLoadFail(nim::IMMessage msg)
 	nim::NOS::FetchMedia(msg, nim::NOS::DownloadMediaCallback(), nim::NOS::ProgressCallback());
 }
 
-void UITalk::stopAudio(char* msgid)
+void UITalk::stopAudio(std::string msgid)
 {
-	QString strMsgid = QString(QLatin1String(msgid));
-	QString sMsgid = strMsgid.mid(0, 32);
+	QString strMsgid = QString::fromStdString(msgid);
 
 	if (m_vecAudio.size() > 0)
 	{
@@ -914,7 +913,7 @@ void UITalk::stopAudio(char* msgid)
 		for (it = m_vecAudio.begin(); it != m_vecAudio.end(); it++)
 		{
 			CBtnAudio* img = *it;
-			if (img->GetMsgID() == sMsgid)
+			if (img->GetMsgID() == strMsgid)
 			{
 				img->stopPlay();
 				return;

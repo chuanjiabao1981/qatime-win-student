@@ -2184,7 +2184,7 @@ void UIChatRoom::OnPlayAudio(std::string path, std::string sid, std::string msgi
 	}
 }
 
-void UIChatRoom::OnStopPlayAudio(char* msgid)
+void UIChatRoom::OnStopPlayAudio(std::string msgid)
 {
 	if (m_uitalk)
 		m_uitalk->stopAudio(msgid);

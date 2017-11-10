@@ -149,7 +149,7 @@ public:
 	bool ReceiverMsg(nim::IMMessage* pIMsg);				// 接收消息
 	void ReceiverChatMsg(nim::IMMessage* pIMsg);			// 接收消息
 	void ReceiverRecordMsg(nim::QueryMsglogResult* pIMsg);  // 接收历史消息
-	void OnStopPlayAudio(std::string sid, char* msgid);		// 语音播放结束
+	void OnStopPlayAudio(std::string sid, std::string msgid);	// 语音播放结束
 	void ReceiverLoginMsg(nim::LoginRes pLogMsg);			// 返回登录结果
 	void ReceiverMemberMsg(std::string sid, std::list<nim::TeamMemberProperty>* pMemberMsg);	// 返回成员
 	void SendStatus(nim::SendMessageArc* arcNew);			// 接收消息状态

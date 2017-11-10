@@ -192,7 +192,7 @@ public:
 	void	SendStatus(nim::SendMessageArc* arcNew);			// 发送消息返回状态
 	bool    IsClickPic();										// 当前是否点击图片
 	void    OnPlayAudio(std::string path, std::string sid, std::string msgid, bool isPlay);
-	void	OnStopPlayAudio(char* msgid);
+	void	OnStopPlayAudio(std::string msgid);
 	std::string    GetCurChatID();								// 当前会话ID
 	QString	GetCourseID();										// 当前辅导班ID
 	QString GetTeacherID();										// 当前老师ID
