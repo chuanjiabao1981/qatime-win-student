@@ -453,11 +453,13 @@ bool UIMainWindow::nativeEvent(const QByteArray &eventType, void *message, long 
 		{
 			MSG* Msg = pMsg;
 			char* msgid = (char*)Msg->lParam;
+			std::string mMsgid = msgid;
+			delete msgid;
 			int   sid = Msg->wParam;
 			std::string strSid = QString::number(sid).toStdString();
 
 			if (m_WindowSet)
-				m_WindowSet->OnStopPlayAudio(strSid,msgid);
+				m_WindowSet->OnStopPlayAudio(strSid, mMsgid);
 		}
 		break;
 		case MSG_MEMBERS_INFO:  // 接收群成员信息
@@ -608,8 +610,10 @@ void UIMainWindow::InitAudio()
 void UIMainWindow::OnStopAudioCallback(int code, const char* file_path, const char* sid, const char* cid)
 {
 	QString strSid = QString(QLatin1String(sid));
-	char* pData = new char[strlen(cid)];
-	memcpy(pData, cid, strlen(cid));
+	int mCidLength = strlen(cid) + 1; // 字符串末尾/0 一定要加上
+	char* pData = new char[mCidLength];
+	memcpy(pData, cid, mCidLength);
+	
 	HWND hWnd = FindWindow(L"Qt5QWindowIcon", L"StudentWindow");
 	if (hWnd == NULL)
 		hWnd = FindWindow(L"Qt5QWindowToolSaveBits", L"StudentWindow");

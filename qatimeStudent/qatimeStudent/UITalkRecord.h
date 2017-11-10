@@ -69,7 +69,7 @@ public:
 	void setMainWindow(UIChatRoom* parent);											// …Ë÷√∏∏¥∞ø⁄
 	void ClearAll();																// «Âø’
 	void DelaySrcoll();
-	void stopAudio(char* msgid);													// Õ£÷π”Ô“Ù
+	void stopAudio(std::string msgid);													// Õ£÷π”Ô“Ù
 	void InsertBtn();
 };
 

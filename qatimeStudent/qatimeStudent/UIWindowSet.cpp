@@ -549,7 +549,7 @@ void UIWindowSet::ReceiverRecordMsg(nim::QueryMsglogResult* pIMsg)
 	}
 }
 
-void UIWindowSet::OnStopPlayAudio(std::string sid, char* msgid)
+void UIWindowSet::OnStopPlayAudio(std::string sid, std::string msgid)
 {
 	if (m_vecChatRoom.size() > 0)
 	{
